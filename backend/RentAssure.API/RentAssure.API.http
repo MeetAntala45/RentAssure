@@ -1,0 +1,6 @@
+@RentAssure.API_HostAddress = http://localhost:5189
+
+GET {{RentAssure.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

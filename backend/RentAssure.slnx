@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="RentAssure.API/RentAssure.API.csproj" />
+  <Project Path="RentAssure.Application/RentAssure.Application.csproj" />
+  <Project Path="RentAssure.Domain/RentAssure.Domain.csproj" />
+  <Project Path="RentAssure.Infrastructure/RentAssure.Infrastructure.csproj" />
+</Solution>
