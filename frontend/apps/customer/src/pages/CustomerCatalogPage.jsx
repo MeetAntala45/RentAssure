@@ -64,7 +64,7 @@ const CustomerCatalogPage = ({ selectedCity = 'All', onRequireAuth = () => {} })
         className="ra-card"
         style={{
           marginBottom: '28px',
-          background: 'linear-gradient(135deg, #18181b 0%, #27272a 100%)',
+          background: 'linear-gradient(135deg, #033047 0%, #304C62 100%)',
           color: '#ffffff',
           padding: 'clamp(20px, 4vw, 40px) clamp(16px, 4vw, 36px)',
         }}
@@ -231,13 +231,13 @@ const CustomerCatalogPage = ({ selectedCity = 'All', onRequireAuth = () => {} })
               >
                 <div>
                   <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--primary)' }}>
-                    ${item.monthlyRent}{' '}
+                    ₹{item.monthlyRent}{' '}
                     <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
                       / mo
                     </span>
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--text-light)' }}>
-                    Deposit: ${item.securityDeposit}
+                    Deposit: ₹{item.securityDeposit}
                   </div>
                 </div>
 
@@ -346,7 +346,7 @@ const CustomerCatalogPage = ({ selectedCity = 'All', onRequireAuth = () => {} })
                               {m} Months
                             </div>
                             <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--primary)', margin: '4px 0' }}>
-                              ${rate} <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>/ mo</span>
+                              ₹{rate} <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>/ mo</span>
                             </div>
                             {m === 12 && (
                               <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--success-text)', background: 'var(--success-bg)', padding: '2px 6px', borderRadius: '4px' }}>
@@ -367,7 +367,7 @@ const CustomerCatalogPage = ({ selectedCity = 'All', onRequireAuth = () => {} })
                   {/* Summary Breakdown */}
                   <div
                     style={{
-                      background: '#f8fafc',
+                      background: 'var(--primary-subtle)',
                       border: '1px solid var(--border-light)',
                       borderRadius: 'var(--radius-md)',
                       padding: '16px',
@@ -380,12 +380,12 @@ const CustomerCatalogPage = ({ selectedCity = 'All', onRequireAuth = () => {} })
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: 'var(--text-muted)' }}>Monthly Rent:</span>
                       <strong style={{ color: 'var(--text-main)' }}>
-                        ${calculateRent(selectedItem.monthlyRent, selectedMonths)} / mo
+                        ₹{calculateRent(selectedItem.monthlyRent, selectedMonths)} / mo
                       </strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: 'var(--text-muted)' }}>Refundable Security Deposit:</span>
-                      <strong style={{ color: 'var(--text-main)' }}>${selectedItem.securityDeposit}</strong>
+                      <strong style={{ color: 'var(--text-main)' }}>₹{selectedItem.securityDeposit}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: 'var(--text-muted)' }}>Merchant Partner:</span>
@@ -394,7 +394,7 @@ const CustomerCatalogPage = ({ selectedCity = 'All', onRequireAuth = () => {} })
                     <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '8px', borderTop: '1px solid var(--border-light)' }}>
                       <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>Total Due Today:</span>
                       <strong style={{ fontSize: '15px', color: 'var(--primary)' }}>
-                        ${calculateRent(selectedItem.monthlyRent, selectedMonths) + selectedItem.securityDeposit}
+                        ₹{calculateRent(selectedItem.monthlyRent, selectedMonths) + selectedItem.securityDeposit}
                       </strong>
                     </div>
                   </div>

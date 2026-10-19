@@ -1,7 +1,12 @@
 import React from 'react';
 import { useAuth } from '../../../../src/shared/AuthContext';
 
-const CustomerNavbar = ({ onOpenAuth = () => {}, selectedCity = 'All', onCityChange = () => {} }) => {
+const CustomerNavbar = ({
+  onOpenAuth = () => {},
+  onOpenSupport = () => {},
+  selectedCity = 'All',
+  onCityChange = () => {}
+}) => {
   const { user, logout } = useAuth();
 
   return (
@@ -96,6 +101,24 @@ const CustomerNavbar = ({ onOpenAuth = () => {}, selectedCity = 'All', onCityCha
 
         {/* User Account / Sign In */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={onOpenSupport}
+            style={{
+              padding: '7px 14px',
+              borderRadius: '6px',
+              border: '1px solid #d4d4d8',
+              background: '#ffffff',
+              color: '#18181b',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span>💬</span> Support
+          </button>
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div

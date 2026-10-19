@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Login with email/password. Sets access + refresh cookies.
+    /// Login with email/password. Sets access + refresh cookies. Enforces RequiredRole if specified.
     /// </summary>
     [HttpPost("login")]
     public async Task<ActionResult<ApiResponse<UserResponseDto>>> Login(
@@ -45,7 +45,15 @@ public class AuthController : ControllerBase
         var result = await _authService.LoginAsync(request);
 
         if (!result.IsSuccess)
+        {
+            if (string.Equals(result.ErrorCode, "RoleUnauthorized", StringComparison.OrdinalIgnoreCase))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<UserResponseDto>.Fail(
+                    result.Message!,
+                    result.ErrorCode));
+            }
             return Unauthorized(result);
+        }
 
         // Set cookies
         Response.AppendAuthCookies(
@@ -58,32 +66,36 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Customer-only login. Rejects Admin and Vendor credentials.
+    /// </summary>
+    [HttpPost("customer/login")]
+    public async Task<ActionResult<ApiResponse<UserResponseDto>>> CustomerLogin(
+        [FromBody] LoginRequestDto request)
+    {
+        request.RequiredRole = "Customer";
+        return await Login(request);
+    }
+
+    /// <summary>
+    /// Vendor-only login. Rejects Customer and Admin credentials.
+    /// </summary>
+    [HttpPost("vendor/login")]
+    public async Task<ActionResult<ApiResponse<UserResponseDto>>> VendorLogin(
+        [FromBody] LoginRequestDto request)
+    {
+        request.RequiredRole = "Vendor";
+        return await Login(request);
+    }
+
+    /// <summary>
     /// Admin-only login. Rejects customer and vendor credentials.
     /// </summary>
     [HttpPost("admin/login")]
     public async Task<ActionResult<ApiResponse<UserResponseDto>>> AdminLogin(
         [FromBody] LoginRequestDto request)
     {
-        var result = await _authService.LoginAsync(request);
-
-        if (!result.IsSuccess)
-            return Unauthorized(result);
-
-        if (!string.Equals(result.Data!.Role, "Admin", StringComparison.OrdinalIgnoreCase))
-        {
-            return Unauthorized(ApiResponse<UserResponseDto>.Fail(
-                "Access denied. Admin portal is strictly restricted to system administrators.",
-                "AdminAccessDenied"));
-        }
-
-        // Set cookies
-        Response.AppendAuthCookies(
-            result.Data.AccessToken!,
-            result.Data.RefreshToken!,
-            result.Data.AccessTokenExpiry,
-            result.Data.RefreshTokenExpiry);
-
-        return Ok(ToUserResponse(result));
+        request.RequiredRole = "Admin";
+        return await Login(request);
     }
 
     /// <summary>

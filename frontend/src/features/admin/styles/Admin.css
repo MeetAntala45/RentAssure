@@ -1,37 +1,37 @@
 /* ─── RentAssure Enterprise Admin Portal Design System (Clean Light Theme) ───── */
 
 :root {
-  --admin-bg: #f8fafc;
+  --admin-bg: #F4F3EE;
   --admin-surface: #ffffff;
   --admin-surface-card: #ffffff;
-  --admin-surface-hover: #f1f5f9;
-  --admin-surface-subtle: #f8fafc;
+  --admin-surface-hover: #e8f1f5;
+  --admin-surface-subtle: #f0f5f9;
   
-  --admin-border: #e2e8f0;
-  --admin-border-strong: #cbd5e1;
-  --admin-border-focus: #2563eb;
+  --admin-border: #D9D9D9;
+  --admin-border-strong: #cddbe7;
+  --admin-border-focus: #033047;
 
-  --admin-text-primary: #0f172a;
-  --admin-text-secondary: #475569;
-  --admin-text-muted: #64748b;
-  --admin-text-disabled: #94a3b8;
+  --admin-text-primary: #033047;
+  --admin-text-secondary: #304C62;
+  --admin-text-muted: #5C677D;
+  --admin-text-disabled: #8a99a8;
 
-  --admin-accent-blue: #2563eb;
-  --admin-accent-indigo: #4f46e5;
-  --admin-accent-purple: #7c3aed;
+  --admin-accent-blue: #033047;
+  --admin-accent-indigo: #304C62;
+  --admin-accent-purple: #5C677D;
   --admin-accent-emerald: #059669;
   --admin-accent-amber: #d97706;
   --admin-accent-rose: #e11d48;
-  --admin-accent-cyan: #0891b2;
+  --admin-accent-cyan: #304C62;
 
-  --admin-glow-blue: 0 4px 14px 0 rgba(37, 99, 235, 0.12);
+  --admin-glow-blue: 0 4px 14px 0 rgba(3, 48, 71, 0.16);
   --admin-glow-emerald: 0 4px 14px 0 rgba(5, 150, 105, 0.12);
   --admin-glow-amber: 0 4px 14px 0 rgba(217, 119, 6, 0.12);
   --admin-glow-rose: 0 4px 14px 0 rgba(225, 29, 72, 0.12);
 
-  --admin-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --admin-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  --admin-shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
+  --admin-shadow-sm: 0 1px 2px 0 rgba(3, 48, 71, 0.04);
+  --admin-shadow-card: 0 1px 3px 0 rgba(3, 48, 71, 0.06), 0 1px 2px -1px rgba(3, 48, 71, 0.04);
+  --admin-shadow-modal: 0 20px 25px -5px rgba(3, 48, 71, 0.2), 0 8px 10px -6px rgba(3, 48, 71, 0.1);
 }
 
 /* ─── Global Layout Frame ────────────────────────────────────────── */

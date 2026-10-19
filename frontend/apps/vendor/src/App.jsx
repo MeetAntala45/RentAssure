@@ -7,12 +7,14 @@ import VendorAuthPage from './pages/VendorAuthPage';
 import VendorOnboardingFormPage from './pages/VendorOnboardingFormPage';
 import VendorDashboardPage from './pages/VendorDashboardPage';
 import VendorInventoryPage from './pages/VendorInventoryPage';
+import VendorBookingsPage from './pages/VendorBookingsPage';
+import VendorEarningsPage from './pages/VendorEarningsPage';
+import SupportForm from '../../../src/shared/SupportForm';
 import {
   IconDashboard,
   IconServices,
   IconCalendar,
   IconPayments,
-  IconOffers,
   IconUsers,
   IconSupport,
 } from '../../../src/shared/Icons';
@@ -26,6 +28,7 @@ const VendorPortalContent = () => {
   const [vendorStatus, setVendorStatus] = useState(null);
   const [statusLoading, setStatusLoading] = useState(true);
   const [activeNav, setActiveNav] = useState('dashboard');
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
 
   const checkVendorStatus = async () => {
     setStatusLoading(true);
@@ -42,12 +45,12 @@ const VendorPortalContent = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && user.role === 'Vendor') {
       checkVendorStatus();
     }
   }, [user]);
 
-  if (authLoading || (user && statusLoading)) {
+  if (authLoading || (user && user.role === 'Vendor' && statusLoading)) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
         <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading merchant portal...</p>
@@ -55,8 +58,8 @@ const VendorPortalContent = () => {
     );
   }
 
-  // Guard: Not logged in
-  if (!user) {
+  // Guard: Must be authenticated as a Vendor
+  if (!user || user.role !== 'Vendor') {
     return <VendorAuthPage />;
   }
 
@@ -69,42 +72,51 @@ const VendorPortalContent = () => {
     ? [
         { id: 'dashboard', label: 'Dashboard', icon: <IconDashboard /> },
         { id: 'inventory', label: 'Rental Inventory', icon: <IconServices /> },
-        { id: 'bookings', label: 'Booking Management', icon: <IconCalendar />, disabled: true },
-        { id: 'earnings', label: 'Payouts & Earnings', icon: <IconPayments />, disabled: true },
-        { id: 'offers', label: 'Offers & Discounts', icon: <IconOffers />, disabled: true },
+        { id: 'bookings', label: 'Booking Management', icon: <IconCalendar /> },
+        { id: 'earnings', label: 'Payouts & Earnings', icon: <IconPayments /> },
         { id: 'profile', label: 'Store Profile', icon: <IconUsers /> },
-        { id: 'support', label: 'Support', icon: <IconSupport />, disabled: true },
+        { id: 'support', label: 'Support', icon: <IconSupport /> },
       ]
     : [
         { id: 'onboarding', label: 'Store Verification', icon: <IconServices /> },
         { id: 'dashboard', label: 'Dashboard', icon: <IconDashboard />, disabled: true },
         { id: 'inventory', label: 'Rental Inventory', icon: <IconServices />, disabled: true },
         { id: 'bookings', label: 'Booking Management', icon: <IconCalendar />, disabled: true },
-        { id: 'support', label: 'Support', icon: <IconSupport />, disabled: true },
+        { id: 'support', label: 'Support', icon: <IconSupport /> },
       ];
 
   const handleNavClick = (navId) => {
+    if (navId === 'bookings') {
+      setSelectedBookingId(null);
+    }
     setActiveNav(navId);
   };
 
   const getPageTitle = () => {
+    if (activeNav === 'support') return 'Help & Support';
     if (!isApproved) return 'Merchant Onboarding & Verification';
     if (activeNav === 'dashboard') return 'Dashboard';
     if (activeNav === 'inventory') return 'Rental Inventory';
+    if (activeNav === 'bookings') return 'Booking Management';
+    if (activeNav === 'earnings') return 'Payouts & Earnings';
     if (activeNav === 'profile') return 'Store Information';
     return 'Dashboard';
   };
+
+  const currentNavId = activeNav === 'support' ? 'support' : isApproved ? activeNav : 'onboarding';
 
   return (
     <PortalShell
       portalTitle="RentAssure"
       portalSubtitle="Merchant"
       navItems={navItems}
-      activeNavId={isApproved ? activeNav : 'onboarding'}
+      activeNavId={currentNavId}
       onNavClick={handleNavClick}
       pageTitle={getPageTitle()}
     >
-      {!isApproved ? (
+      {activeNav === 'support' ? (
+        <SupportForm />
+      ) : !isApproved ? (
         // SHOW FORM INSTEAD OF DASHBOARD
         <VendorOnboardingFormPage
           vendorStatus={vendorStatus}
@@ -116,10 +128,31 @@ const VendorPortalContent = () => {
           {activeNav === 'dashboard' && (
             <VendorDashboardPage
               onNavigateToInventory={() => setActiveNav('inventory')}
+              onNavigateToBookings={() => {
+                setSelectedBookingId(null);
+                setActiveNav('bookings');
+              }}
+              onNavigateToEarnings={() => setActiveNav('earnings')}
             />
           )}
 
           {activeNav === 'inventory' && <VendorInventoryPage />}
+
+          {activeNav === 'bookings' && (
+            <VendorBookingsPage
+              initialBookingId={selectedBookingId}
+              onNavigateToEarnings={() => setActiveNav('earnings')}
+            />
+          )}
+
+          {activeNav === 'earnings' && (
+            <VendorEarningsPage
+              onNavigateToBookings={(bId) => {
+                setSelectedBookingId(bId);
+                setActiveNav('bookings');
+              }}
+            />
+          )}
 
           {activeNav === 'profile' && (
             <VendorOnboardingFormPage

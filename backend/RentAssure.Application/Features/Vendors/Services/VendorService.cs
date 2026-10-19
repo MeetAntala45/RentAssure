@@ -633,6 +633,7 @@ public class VendorService : IVendorService
             return ApiResponse<BookingDetailDto>.Fail("Booking not found.");
         }
 
+        var previousStatus = booking.Status;
         booking.Status = request.Status;
         if (!string.IsNullOrWhiteSpace(request.VendorNotes))
         {
@@ -650,6 +651,28 @@ public class VendorService : IVendorService
             {
                 booking.DepositStatus = DepositStatus.Refunded;
                 booking.DepositRefundedAmount = booking.SecurityDeposit;
+
+                if (previousStatus != BookingStatus.Completed)
+                {
+                    vendor.TotalEarnings += booking.VendorPayoutAmount;
+                    vendor.TotalCommissionPaid += booking.PlatformCommissionAmount;
+                }
+            }
+        }
+        else if (request.Status == BookingStatus.Cancelled)
+        {
+            if (booking.Item != null)
+            {
+                booking.Item.Status = ItemStatus.Available;
+            }
+            booking.DepositStatus = DepositStatus.Refunded;
+            booking.DepositRefundedAmount = booking.SecurityDeposit;
+
+            // If it was previously marked completed and now cancelled, adjust
+            if (previousStatus == BookingStatus.Completed)
+            {
+                vendor.TotalEarnings = Math.Max(0, vendor.TotalEarnings - booking.VendorPayoutAmount);
+                vendor.TotalCommissionPaid = Math.Max(0, vendor.TotalCommissionPaid - booking.PlatformCommissionAmount);
             }
         }
 
@@ -697,6 +720,146 @@ public class VendorService : IVendorService
             VendorNotes = booking.VendorNotes,
             CreatedAt = booking.CreatedAt
         }, $"Order status updated to {request.Status}.");
+    }
+
+    public async Task<ApiResponse<BookingDetailDto>> GetVendorBookingByIdAsync(int userId, int bookingId)
+    {
+        var vendor = await GetVendorOrFirstAsync(userId);
+        if (vendor == null)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Vendor profile not found.");
+        }
+
+        var b = await _context.Bookings
+            .AsNoTracking()
+            .Include(b => b.Item)
+            .Include(b => b.Customer)
+            .FirstOrDefaultAsync(b => b.Id == bookingId && b.VendorId == vendor.Id);
+
+        if (b == null)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Booking not found.");
+        }
+
+        string img = "";
+        try
+        {
+            if (b.Item != null && !string.IsNullOrWhiteSpace(b.Item.ImagesJson))
+            {
+                img = JsonSerializer.Deserialize<List<string>>(b.Item.ImagesJson)?.FirstOrDefault() ?? "";
+            }
+        }
+        catch { }
+
+        var dto = new BookingDetailDto
+        {
+            Id = b.Id,
+            BookingReference = b.BookingReference,
+            CustomerId = b.CustomerId,
+            CustomerName = b.Customer?.FullName ?? "Renter",
+            CustomerEmail = b.Customer?.Email ?? "",
+            CustomerPhone = b.Customer?.PhoneNumber,
+            VendorId = b.VendorId,
+            VendorStoreName = vendor.StoreName,
+            VendorCity = vendor.City,
+            ItemId = b.ItemId,
+            ItemTitle = b.Item?.Title ?? "Rental Item",
+            ItemImageUrl = img,
+            StartDate = b.StartDate,
+            EndDate = b.EndDate,
+            RentalDurationMonths = b.RentalDurationMonths,
+            MonthlyRent = b.MonthlyRent,
+            SecurityDeposit = b.SecurityDeposit,
+            TotalAmountPaid = b.TotalAmountPaid,
+            CommissionRateApplied = b.CommissionRateApplied,
+            PlatformCommissionAmount = b.PlatformCommissionAmount,
+            VendorPayoutAmount = b.VendorPayoutAmount,
+            Status = b.Status,
+            DepositStatus = b.DepositStatus,
+            DepositRefundedAmount = b.DepositRefundedAmount,
+            DepositDeductedAmount = b.DepositDeductedAmount,
+            DeliveryAddress = b.DeliveryAddress,
+            DeliveryCity = b.DeliveryCity,
+            VendorNotes = b.VendorNotes,
+            CreatedAt = b.CreatedAt
+        };
+
+        return ApiResponse<BookingDetailDto>.Success(dto);
+    }
+
+    public async Task<ApiResponse<VendorEarningsSummaryDto>> GetVendorEarningsAsync(int userId)
+    {
+        var vendor = await GetVendorOrFirstAsync(userId);
+        if (vendor == null)
+        {
+            return ApiResponse<VendorEarningsSummaryDto>.Fail("Vendor profile not found.");
+        }
+
+        var bookings = await _context.Bookings
+            .AsNoTracking()
+            .Include(b => b.Item)
+            .Include(b => b.Customer)
+            .Where(b => b.VendorId == vendor.Id)
+            .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync();
+
+        var commissionRate = vendor.CommissionRateOverride ?? 12.5m;
+
+        // Completed bookings represent released payouts
+        var completedBookings = bookings.Where(b => b.Status == BookingStatus.Completed).ToList();
+        var totalNetEarnings = completedBookings.Sum(b => b.VendorPayoutAmount);
+        var totalCommissionPaid = completedBookings.Sum(b => b.PlatformCommissionAmount);
+
+        // Active/Delivered/Reserved/ReturnRequested bookings represent pending escrow payouts
+        var pendingBookings = bookings.Where(b => b.Status == BookingStatus.Active || 
+                                                 b.Status == BookingStatus.Delivered || 
+                                                 b.Status == BookingStatus.Reserved || 
+                                                 b.Status == BookingStatus.ReturnRequested ||
+                                                 b.Status == BookingStatus.PickedUp).ToList();
+        var pendingEscrowPayouts = pendingBookings.Sum(b => b.VendorPayoutAmount);
+        var escrowDepositsHeld = pendingBookings.Where(b => b.DepositStatus == DepositStatus.Held).Sum(b => b.SecurityDeposit);
+        var totalGrossRevenue = bookings.Where(b => b.Status != BookingStatus.Cancelled).Sum(b => b.TotalAmountPaid);
+
+        var payouts = bookings.Select(b =>
+        {
+            string payoutStatus = b.Status switch
+            {
+                BookingStatus.Completed => "Released",
+                BookingStatus.Cancelled => "Cancelled",
+                _ => "Pending Escrow"
+            };
+
+            return new VendorPayoutItemDto
+            {
+                BookingId = b.Id,
+                BookingReference = b.BookingReference,
+                CustomerName = b.Customer?.FullName ?? "Renter",
+                CustomerEmail = b.Customer?.Email ?? "",
+                ItemTitle = b.Item?.Title ?? "Rental Item",
+                GrossRent = b.TotalAmountPaid,
+                SecurityDeposit = b.SecurityDeposit,
+                PlatformFee = b.PlatformCommissionAmount,
+                NetPayout = b.VendorPayoutAmount,
+                PayoutStatus = payoutStatus,
+                BookingStatus = b.Status.ToString(),
+                Date = b.CreatedAt
+            };
+        }).ToList();
+
+        var summary = new VendorEarningsSummaryDto
+        {
+            TotalNetEarnings = totalNetEarnings,
+            PendingEscrowPayouts = pendingEscrowPayouts,
+            TotalGrossRevenue = totalGrossRevenue,
+            TotalCommissionPaid = totalCommissionPaid,
+            EscrowDepositsHeld = escrowDepositsHeld,
+            CompletedBookingsCount = completedBookings.Count,
+            ActiveBookingsCount = pendingBookings.Count,
+            CommissionRate = commissionRate,
+            Payouts = payouts
+        };
+
+        return ApiResponse<VendorEarningsSummaryDto>.Success(summary);
     }
 
     public async Task<ApiResponse<VendorProfileUpdateDto>> UpdateVendorProfileAsync(int userId, VendorProfileUpdateDto request)

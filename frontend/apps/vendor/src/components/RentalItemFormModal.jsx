@@ -170,7 +170,7 @@ const RentalItemFormModal = ({
     }
 
     if (parsedRent <= 0) {
-      setError('Monthly rent must be greater than $0.');
+      setError('Monthly rent must be greater than ₹0.');
       return;
     }
 
@@ -374,10 +374,10 @@ const RentalItemFormModal = ({
               <div className="ra-row-responsive-3" style={{ alignItems: 'flex-start' }}>
                 <div className="ra-form-group" style={{ margin: 0 }}>
                   <label className="ra-label" style={{ fontWeight: 700, fontSize: '12px' }}>
-                    Monthly Rent ($)*
+                    Monthly Rent (₹)*
                   </label>
                   <div style={{ position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'var(--text-muted)' }}>$</span>
+                    <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'var(--text-muted)' }}>₹</span>
                     <input
                       type="number"
                       min="1"
@@ -398,7 +398,7 @@ const RentalItemFormModal = ({
                 <div className="ra-form-group" style={{ margin: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <label className="ra-label" style={{ fontWeight: 700, fontSize: '12px' }}>
-                      Security Deposit ($)*
+                      Security Deposit (₹)*
                     </label>
                     <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
                       <button
@@ -418,7 +418,7 @@ const RentalItemFormModal = ({
                     </div>
                   </div>
                   <div style={{ position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'var(--text-muted)' }}>$</span>
+                    <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'var(--text-muted)' }}>₹</span>
                     <input
                       type="number"
                       min="0"
@@ -452,8 +452,8 @@ const RentalItemFormModal = ({
               <div
                 style={{
                   marginTop: '12px',
-                  background: '#f4f4f5',
-                  border: '1px solid #e4e4e7',
+                  background: 'var(--primary-subtle)',
+                  border: '1px solid var(--border-light)',
                   borderRadius: 'var(--radius-md)',
                   padding: '10px 14px',
                   display: 'flex',
@@ -466,17 +466,17 @@ const RentalItemFormModal = ({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '18px' }}>💹</span>
                   <div>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#18181b' }}>
-                      Net Merchant Profit: <span style={{ fontSize: '14px', color: '#18181b', fontWeight: 800 }}>${netVendorProfit.toFixed(2)} / month</span>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-main)' }}>
+                      Net Merchant Profit: <span style={{ fontSize: '14px', color: 'var(--primary)', fontWeight: 800 }}>₹{netVendorProfit.toFixed(2)} / month</span>
                     </div>
-                    <div style={{ fontSize: '11px', color: '#71717a' }}>
-                      Customer pays ${parsedRent.toFixed(2)}/mo • 12% marketplace fee (${platformFee.toFixed(2)}) automatically deducted
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                      Customer pays ₹{parsedRent.toFixed(2)}/mo • 12% marketplace fee (₹{platformFee.toFixed(2)}) automatically deducted
                     </div>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#52525b' }}>
-                    Security Deposit: ${parseFloat(securityDeposit) || 0} held in Escrow
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-body)' }}>
+                    Security Deposit: ₹{parseFloat(securityDeposit) || 0} held in Escrow
                   </span>
                 </div>
               </div>

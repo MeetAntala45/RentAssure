@@ -37,8 +37,24 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (email, password) => {
-    const res = await authApi.login(email, password);
+  const login = async (email, password, requiredRole = null) => {
+    const res = await authApi.login(email, password, requiredRole);
+    if (res.data) {
+      setUser(res.data);
+    }
+    return res;
+  };
+
+  const customerLogin = async (email, password) => {
+    const res = await authApi.customerLogin(email, password);
+    if (res.data) {
+      setUser(res.data);
+    }
+    return res;
+  };
+
+  const vendorLogin = async (email, password) => {
+    const res = await authApi.vendorLogin(email, password);
     if (res.data) {
       setUser(res.data);
     }
@@ -58,8 +74,8 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
-  const googleLogin = async (idToken) => {
-    const res = await authApi.googleLogin(idToken);
+  const googleLogin = async (idToken, role = 'Customer') => {
+    const res = await authApi.googleLogin(idToken, role);
     if (res.data) {
       setUser(res.data);
     }
@@ -78,6 +94,8 @@ export const AuthProvider = ({ children }) => {
         setUser,
         loading,
         login,
+        customerLogin,
+        vendorLogin,
         adminLogin,
         register,
         googleLogin,

@@ -168,9 +168,9 @@ export default function DashboardPage() {
       return false;
     }
     // Price filter
-    if (priceFilter === 'under50' && item.monthlyRent >= 50) return false;
-    if (priceFilter === '50to100' && (item.monthlyRent < 50 || item.monthlyRent > 100)) return false;
-    if (priceFilter === 'over100' && item.monthlyRent <= 100) return false;
+    if ((priceFilter === 'under500' || priceFilter === 'under50') && item.monthlyRent >= 500) return false;
+    if ((priceFilter === '500to1500' || priceFilter === '50to100') && (item.monthlyRent < 500 || item.monthlyRent > 1500)) return false;
+    if ((priceFilter === 'over1500' || priceFilter === 'over100') && item.monthlyRent <= 1500) return false;
 
     return true;
   }).sort((a, b) => {
@@ -578,22 +578,22 @@ export default function DashboardPage() {
                   All Prices
                 </button>
                 <button
-                  className={`mp-filter-chip ${priceFilter === 'under50' ? 'active' : ''}`}
-                  onClick={() => setPriceFilter('under50')}
+                  className={`mp-filter-chip ${priceFilter === 'under500' ? 'active' : ''}`}
+                  onClick={() => setPriceFilter('under500')}
                 >
-                  Under $50/mo
+                  Under ₹500/mo
                 </button>
                 <button
-                  className={`mp-filter-chip ${priceFilter === '50to100' ? 'active' : ''}`}
-                  onClick={() => setPriceFilter('50to100')}
+                  className={`mp-filter-chip ${priceFilter === '500to1500' ? 'active' : ''}`}
+                  onClick={() => setPriceFilter('500to1500')}
                 >
-                  $50 - $100/mo
+                  ₹500 - ₹1,500/mo
                 </button>
                 <button
-                  className={`mp-filter-chip ${priceFilter === 'over100' ? 'active' : ''}`}
-                  onClick={() => setPriceFilter('over100')}
+                  className={`mp-filter-chip ${priceFilter === 'over1500' ? 'active' : ''}`}
+                  onClick={() => setPriceFilter('over1500')}
                 >
-                  $100+/mo
+                  ₹1,500+/mo
                 </button>
               </div>
 
@@ -674,10 +674,10 @@ export default function DashboardPage() {
                         <div className="mp-card__pricing-box">
                           <div className="mp-pricing-main">
                             <div className="mp-rent-amount">
-                              ${item.monthlyRent}<span> / mo</span>
+                              ₹{item.monthlyRent}<span> / mo</span>
                             </div>
                             <div className="mp-deposit-note">
-                              ${item.securityDeposit} deposit
+                              ₹{item.securityDeposit} deposit
                             </div>
                           </div>
                           <div className="mp-pricing-footer">
@@ -731,7 +731,7 @@ export default function DashboardPage() {
               <div className="mp-kpi-card">
                 <div className="mp-kpi-card__label">Monthly Rental Outflow</div>
                 <div className="mp-kpi-card__value">
-                  ${myBookings.reduce((sum, b) => (b.status === 3 ? sum + b.monthlyRent : sum), 0).toFixed(2)}
+                  ₹{myBookings.reduce((sum, b) => (b.status === 3 ? sum + b.monthlyRent : sum), 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="mp-kpi-card__sub">Auto-renewing monthly</div>
               </div>
@@ -739,7 +739,7 @@ export default function DashboardPage() {
               <div className="mp-kpi-card">
                 <div className="mp-kpi-card__label">Security Deposits in Escrow</div>
                 <div className="mp-kpi-card__value">
-                  ${myBookings.reduce((sum, b) => (b.depositStatus === 1 ? sum + b.securityDeposit : sum), 0).toFixed(2)}
+                  ₹{myBookings.reduce((sum, b) => (b.depositStatus === 1 ? sum + b.securityDeposit : sum), 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="mp-kpi-card__sub">🛡 Fully protected by RentAssure</div>
               </div>
@@ -817,11 +817,11 @@ export default function DashboardPage() {
                             </div>
                           </td>
                           <td>
-                            <strong>${b.monthlyRent.toFixed(2)}</strong>/mo
+                            <strong>₹{b.monthlyRent.toFixed(2)}</strong>/mo
                           </td>
                           <td>
                             <span style={{ color: '#059669', fontWeight: 600 }}>
-                              ${b.securityDeposit.toFixed(2)}
+                              ₹{b.securityDeposit.toFixed(2)}
                             </span>
                             <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
                               {b.depositStatus === 1 ? 'Held in Escrow' : b.depositStatus === 2 ? 'Refunded' : 'Adjusted'}
@@ -905,7 +905,7 @@ export default function DashboardPage() {
                     </svg>
                   </div>
                 </div>
-                <div className="admin-kpi-value">${vendorMetrics?.monthlyGrossRent?.toFixed(2) || '0.00'}</div>
+                <div className="admin-kpi-value">₹{vendorMetrics?.monthlyGrossRent?.toFixed(2) || '0.00'}</div>
                 <div className="admin-kpi-footer">
                   <span className="kpi-trend--up">Recurring monthly volume</span>
                 </div>
@@ -921,7 +921,7 @@ export default function DashboardPage() {
                     </svg>
                   </div>
                 </div>
-                <div className="admin-kpi-value">${vendorMetrics?.totalEarnings?.toFixed(2) || '0.00'}</div>
+                <div className="admin-kpi-value">₹{vendorMetrics?.totalEarnings?.toFixed(2) || '0.00'}</div>
                 <div className="admin-kpi-footer">
                   <span className="kpi-subtext">Stripe payouts active</span>
                 </div>
@@ -939,7 +939,7 @@ export default function DashboardPage() {
                     </svg>
                   </div>
                 </div>
-                <div className="admin-kpi-value">${vendorMetrics?.totalCommissionPaid?.toFixed(2) || '0.00'}</div>
+                <div className="admin-kpi-value">₹{vendorMetrics?.totalCommissionPaid?.toFixed(2) || '0.00'}</div>
                 <div className="admin-kpi-footer">
                   <span className="kpi-subtext">Rate: {vendorMetrics?.commissionRate || 12}% flat</span>
                 </div>
@@ -999,8 +999,8 @@ export default function DashboardPage() {
                           </div>
                         </td>
                         <td>{item.categoryName}</td>
-                        <td><strong>${item.monthlyRent}</strong>/mo</td>
-                        <td>${item.securityDeposit}</td>
+                        <td><strong>₹{item.monthlyRent}</strong>/mo</td>
+                        <td>₹{item.securityDeposit}</td>
                         <td>{item.minimumRentalMonths} Mos</td>
                         <td>{item.city}</td>
                         <td>
@@ -1052,8 +1052,8 @@ export default function DashboardPage() {
                         </td>
                         <td>{b.itemTitle}</td>
                         <td>
-                          <span style={{ color: '#059669', fontWeight: 700 }}>
-                            ${b.vendorPayoutAmount?.toFixed(2)}
+                          <span style={{ color: 'var(--primary, #033047)', fontWeight: 700 }}>
+                            ₹{b.vendorPayoutAmount?.toFixed(2)}
                           </span>
                           <span style={{ fontSize: '0.7rem', color: '#64748b' }}> (net)</span>
                         </td>
@@ -1141,7 +1141,7 @@ export default function DashboardPage() {
                   onClick={() => setModalTenure(3)}
                 >
                   <div className="mp-tenure-title">3 Months</div>
-                  <div className="mp-tenure-price">${calculateRent(selectedItem.monthlyRent, 3)}<span>/mo</span></div>
+                  <div className="mp-tenure-price">₹{calculateRent(selectedItem.monthlyRent, 3)}<span>/mo</span></div>
                   <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: 4 }}>Standard</div>
                 </div>
 
@@ -1150,7 +1150,7 @@ export default function DashboardPage() {
                   onClick={() => setModalTenure(6)}
                 >
                   <div className="mp-tenure-title">6 Months</div>
-                  <div className="mp-tenure-price">${calculateRent(selectedItem.monthlyRent, 6)}<span>/mo</span></div>
+                  <div className="mp-tenure-price">₹{calculateRent(selectedItem.monthlyRent, 6)}<span>/mo</span></div>
                   <div className="mp-tenure-save">Save 10% monthly</div>
                 </div>
 
@@ -1159,7 +1159,7 @@ export default function DashboardPage() {
                   onClick={() => setModalTenure(12)}
                 >
                   <div className="mp-tenure-title">12 Months</div>
-                  <div className="mp-tenure-price">${calculateRent(selectedItem.monthlyRent, 12)}<span>/mo</span></div>
+                  <div className="mp-tenure-price">₹{calculateRent(selectedItem.monthlyRent, 12)}<span>/mo</span></div>
                   <div className="mp-tenure-save">Save 20% monthly</div>
                 </div>
               </div>
@@ -1172,7 +1172,7 @@ export default function DashboardPage() {
                 <div>
                   <h4>RentAssure Escrow Shield</h4>
                   <p>
-                    Your refundable security deposit of <strong>${selectedItem.securityDeposit}</strong> is held safely in escrow and is NOT transferred to the vendor. It will be automatically returned to your original payment card when the subscription concludes.
+                    Your refundable security deposit of <strong>₹{selectedItem.securityDeposit}</strong> is held safely in escrow and is NOT transferred to the vendor. It will be automatically returned to your original payment card when the subscription concludes.
                   </p>
                 </div>
               </div>
@@ -1203,11 +1203,11 @@ export default function DashboardPage() {
               <div className="mp-order-summary">
                 <div className="mp-summary-row">
                   <span>First Month Rental Rate ({modalTenure} mo commitment)</span>
-                  <span><strong>${calculateRent(selectedItem.monthlyRent, modalTenure).toFixed(2)}</strong></span>
+                  <span><strong>₹{calculateRent(selectedItem.monthlyRent, modalTenure).toFixed(2)}</strong></span>
                 </div>
                 <div className="mp-summary-row">
                   <span>Refundable Security Deposit (Held in Escrow)</span>
-                  <span><strong>${selectedItem.securityDeposit.toFixed(2)}</strong></span>
+                  <span><strong>₹{selectedItem.securityDeposit.toFixed(2)}</strong></span>
                 </div>
                 <div className="mp-summary-row">
                   <span>Doorstep Delivery & Assembly</span>
@@ -1215,7 +1215,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="mp-summary-row mp-summary-row--total">
                   <span>Total Due Today</span>
-                  <span>${(calculateRent(selectedItem.monthlyRent, modalTenure) + selectedItem.securityDeposit).toFixed(2)}</span>
+                  <span>₹{(calculateRent(selectedItem.monthlyRent, modalTenure) + selectedItem.securityDeposit).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -1375,7 +1375,7 @@ export default function DashboardPage() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                   <div className="mp-form-group">
-                    <label>Monthly Rent ($)</label>
+                    <label>Monthly Rent (₹)</label>
                     <input
                       type="number"
                       required
@@ -1387,7 +1387,7 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="mp-form-group">
-                    <label>Deposit ($)</label>
+                    <label>Deposit (₹)</label>
                     <input
                       type="number"
                       className="mp-form-input"

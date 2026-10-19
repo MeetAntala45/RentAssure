@@ -4,7 +4,7 @@ import AuthLayout from '../../../../src/shared/AuthLayout';
 import { GoogleLogin } from '@react-oauth/google';
 
 const CustomerAuthPage = ({ onSuccess = () => {} }) => {
-  const { login, register, googleLogin } = useAuth();
+  const { customerLogin, register, googleLogin } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,7 +32,7 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
         setSuccessMsg('Account registered! You can now log in.');
         setIsSignUp(false);
       } else {
-        await login(email, password);
+        await customerLogin(email, password);
         onSuccess();
       }
     } catch (err) {
@@ -50,7 +50,7 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
     setLoading(true);
     try {
       if (credentialResponse.credential) {
-        await googleLogin(credentialResponse.credential);
+        await googleLogin(credentialResponse.credential, 'Customer');
         onSuccess();
       }
     } catch (err) {

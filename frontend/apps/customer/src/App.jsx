@@ -1,22 +1,33 @@
-import React, { useState } from 'react';
-import { AuthProvider } from '../../../src/shared/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { AuthProvider, useAuth } from '../../../src/shared/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import CustomerNavbar from './components/CustomerNavbar';
 import CustomerCatalogPage from './pages/CustomerCatalogPage';
 import CustomerAuthPage from './pages/CustomerAuthPage';
+import SupportForm from '../../../src/shared/SupportForm';
 
 const GOOGLE_CLIENT_ID =
   import.meta.env.VITE_GOOGLE_CLIENT_ID ||
   '506539799908-8asi0s04856u5bv25fjdtebq5r2npt9l.apps.googleusercontent.com';
 
 const CustomerAppContent = () => {
+  const { user, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState('All');
+
+  // Enforce customer role on Customer portal
+  useEffect(() => {
+    if (user && user.role !== 'Customer') {
+      logout();
+    }
+  }, [user]);
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <CustomerNavbar
         onOpenAuth={() => setShowAuthModal(true)}
+        onOpenSupport={() => setShowSupportModal(true)}
         selectedCity={selectedCity}
         onCityChange={(c) => setSelectedCity(c)}
       />
@@ -42,7 +53,22 @@ const CustomerAppContent = () => {
           <div>
             <strong>RentAssure</strong> — Peer-to-Merchant Rental Marketplace © 2026. All rights reserved.
           </div>
-          <div style={{ display: 'flex', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <button
+              onClick={() => setShowSupportModal(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#18181b',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: '13px',
+                padding: 0,
+              }}
+            >
+              Support & Help
+            </button>
+            <span style={{ color: '#d4d4d8' }}>|</span>
             <a href="http://localhost:5174" target="_blank" rel="noreferrer" style={{ fontWeight: 600 }}>
               Merchant Portal (Port 5174)
             </a>
@@ -52,6 +78,30 @@ const CustomerAppContent = () => {
           </div>
         </div>
       </footer>
+
+      {showSupportModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '16px',
+          }}
+          onClick={() => setShowSupportModal(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: '560px' }}>
+            <SupportForm isModal={true} onClose={() => setShowSupportModal(false)} />
+          </div>
+        </div>
+      )}
 
       {showAuthModal && (
         <div className="ra-modal-backdrop">

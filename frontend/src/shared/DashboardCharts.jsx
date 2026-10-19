@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 
-// Curated harmonious palette matching the reference UI
-const CHART_PALETTE = ['#18181b', '#3f3f46', '#52525b', '#71717a', '#a1a1aa', '#d4d4d8', '#27272a'];
+// Curated harmonious aesthetic blue palette
+const CHART_PALETTE = ['#033047', '#304C62', '#5C677D', '#466882', '#6E8CA2', '#97ADC0', '#05476B'];
 
 /**
  * 1. Dynamic Donut Chart for RentAssure Categories
@@ -56,14 +56,14 @@ export const DonutCategoryChart = ({
               className={`ra-time-pill ${metric === 'volume' ? 'active' : ''}`}
               onClick={() => setMetric('volume')}
             >
-              By Volume ($)
+              By Volume (₹)
             </button>
           </div>
         )}
       </div>
 
       {!hasRealData ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', color: '#71717a', fontSize: '13px' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', color: '#5C677D', fontSize: '13px' }}>
           No category distribution data recorded yet.
         </div>
       ) : (
@@ -101,7 +101,7 @@ export const DonutCategoryChart = ({
                     strokeLinecap="round"
                     style={{ transition: 'all 0.5s ease' }}
                   >
-                    <title>{`${item.label}: ${metric === 'volume' ? '$' + item.value.toLocaleString() : item.value} (${((item.value / total) * 100).toFixed(1)}%)`}</title>
+                    <title>{`${item.label}: ${metric === 'volume' ? '₹' + item.value.toLocaleString('en-IN') : item.value} (${((item.value / total) * 100).toFixed(1)}%)`}</title>
                   </circle>
                 );
               })}
@@ -119,10 +119,10 @@ export const DonutCategoryChart = ({
                 pointerEvents: 'none',
               }}
             >
-              <span style={{ fontSize: '22px', fontWeight: 800, color: '#18181b', lineHeight: 1.1 }}>
-                {metric === 'volume' ? `$${total.toLocaleString()}` : total.toLocaleString()}
+              <span style={{ fontSize: '22px', fontWeight: 800, color: '#033047', lineHeight: 1.1 }}>
+                {metric === 'volume' ? `₹${total.toLocaleString('en-IN')}` : total.toLocaleString('en-IN')}
               </span>
-              <span style={{ fontSize: '11px', color: '#71717a', fontWeight: 600, marginTop: '2px' }}>
+              <span style={{ fontSize: '11px', color: '#5C677D', fontWeight: 600, marginTop: '2px' }}>
                 {metric === 'volume' ? 'Total Volume' : subText}
               </span>
             </div>
@@ -155,7 +155,7 @@ export const DonutCategoryChart = ({
                     />
                     <span
                       style={{
-                        color: '#27272a',
+                        color: '#033047',
                         fontWeight: 600,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -168,10 +168,10 @@ export const DonutCategoryChart = ({
                   </div>
 
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <span style={{ fontWeight: 800, color: '#18181b' }}>
-                      {metric === 'volume' ? `$${item.value.toLocaleString()}` : item.value}
+                    <span style={{ fontWeight: 800, color: '#304C62' }}>
+                      {metric === 'volume' ? `₹${item.value.toLocaleString('en-IN')}` : item.value}
                     </span>
-                    <span style={{ fontWeight: 500, color: '#71717a', fontSize: '11px', marginLeft: '4px' }}>
+                    <span style={{ fontWeight: 500, color: '#5C677D', fontSize: '11px', marginLeft: '4px' }}>
                       ({pct}%)
                     </span>
                   </div>
@@ -280,16 +280,20 @@ export const RevenueOverviewBarChart = ({
 
   const formatTick = (val) => {
     if (metric === 'bookings') return `${Math.round(val)}`;
-    if (val === 0) return '$0';
-    if (val >= 1000000) {
-      const m = val / 1000000;
-      return `$${m % 1 === 0 ? m : m.toFixed(1)}M`;
+    if (val === 0) return '₹0';
+    if (val >= 10000000) {
+      const cr = val / 10000000;
+      return `₹${cr % 1 === 0 ? cr : cr.toFixed(1)}Cr`;
+    }
+    if (val >= 100000) {
+      const l = val / 100000;
+      return `₹${l % 1 === 0 ? l : l.toFixed(1)}L`;
     }
     if (val >= 1000) {
       const k = val / 1000;
-      return `$${k % 1 === 0 ? k : k.toFixed(1)}k`;
+      return `₹${k % 1 === 0 ? k : k.toFixed(1)}k`;
     }
-    return `$${Math.round(val)}`;
+    return `₹${Math.round(val)}`;
   };
 
   const ticks = [
@@ -297,7 +301,7 @@ export const RevenueOverviewBarChart = ({
     { label: formatTick(ceiling * 0.75), ratio: 0.75 },
     { label: formatTick(ceiling * 0.5), ratio: 0.5 },
     { label: formatTick(ceiling * 0.25), ratio: 0.25 },
-    { label: '$0', ratio: 0.0 },
+    { label: '₹0', ratio: 0.0 },
   ];
 
   // SVG Coordinate Geometry (viewBox: 0 0 600 230)
@@ -311,15 +315,15 @@ export const RevenueOverviewBarChart = ({
   const colWidth = numBars > 0 ? plotWidth / numBars : plotWidth;
   const barWidth = 22;
 
-  const barColor = metric === 'profit' ? '#18181b' : metric === 'gross' ? '#3f3f46' : '#71717a';
-  const barHoverColor = metric === 'profit' ? '#27272a' : metric === 'gross' ? '#52525b' : '#a1a1aa';
+  const barColor = metric === 'profit' ? '#033047' : metric === 'gross' ? '#304C62' : '#5C677D';
+  const barHoverColor = metric === 'profit' ? '#304C62' : metric === 'gross' ? '#5C677D' : '#466882';
 
   return (
     <div className="ra-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div className="ra-card-header" style={{ flexWrap: 'wrap', gap: '8px' }}>
         <div>
           <h3 className="ra-card-title">{title}</h3>
-          <p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 0' }}>
+          <p style={{ fontSize: '12px', color: '#5C677D', margin: '2px 0 0' }}>
             Real-time monthly store performance from customer reservations
           </p>
         </div>
@@ -330,7 +334,7 @@ export const RevenueOverviewBarChart = ({
               className={`ra-time-pill ${metric === 'profit' ? 'active' : ''}`}
               onClick={() => setMetric('profit')}
             >
-              Net Profit ($)
+              Net Profit (₹)
             </button>
           )}
           <button
@@ -338,7 +342,7 @@ export const RevenueOverviewBarChart = ({
             className={`ra-time-pill ${metric === 'gross' ? 'active' : ''}`}
             onClick={() => setMetric('gross')}
           >
-            Gross Rent ($)
+            Gross Rent (₹)
           </button>
           <button
             type="button"
@@ -398,13 +402,13 @@ export const RevenueOverviewBarChart = ({
             const barHeight = ceiling > 0 && val > 0 ? Math.max(4, (val / ceiling) * plotHeight) : 0;
             const barY = plotBottom - barHeight;
 
-            const tooltipText = `${bar.fullMonth}: $${bar.profit.toLocaleString()} Net Profit | $${bar.gross.toLocaleString()} Gross Rent (${bar.count} Bookings)`;
+            const tooltipText = `${bar.fullMonth}: ₹${bar.profit.toLocaleString('en-IN')} Net Profit | ₹${bar.gross.toLocaleString('en-IN')} Gross Rent (${bar.count} Bookings)`;
             const tipValue =
               metric === 'bookings'
                 ? `${bar.count} Bookings`
                 : metric === 'profit'
-                ? `$${bar.profit.toLocaleString()}`
-                : `$${bar.gross.toLocaleString()}`;
+                ? `₹${bar.profit.toLocaleString('en-IN')}`
+                : `₹${bar.gross.toLocaleString('en-IN')}`;
 
             return (
               <g key={idx}>
@@ -416,7 +420,7 @@ export const RevenueOverviewBarChart = ({
                     width={colWidth - 8}
                     height={plotHeight}
                     rx="6"
-                    fill="#f8fafc"
+                    fill="#e8f1f5"
                     opacity="0.9"
                     pointerEvents="none"
                   />
@@ -456,7 +460,7 @@ export const RevenueOverviewBarChart = ({
                   x={centerX}
                   y={plotBottom + 24}
                   textAnchor="middle"
-                  fill={isHovered ? '#1e293b' : '#64748b'}
+                  fill={isHovered ? '#033047' : '#5C677D'}
                   fontSize="12"
                   fontWeight={isHovered ? 700 : 600}
                   fontFamily="system-ui, -apple-system, sans-serif"
@@ -473,8 +477,8 @@ export const RevenueOverviewBarChart = ({
                       width="92"
                       height="22"
                       rx="5"
-                      fill="#1e293b"
-                      filter="drop-shadow(0 2px 4px rgba(0,0,0,0.15))"
+                      fill="#033047"
+                      filter="drop-shadow(0 2px 4px rgba(3,48,71,0.2))"
                     />
                     <text
                       x={centerX}
@@ -605,16 +609,16 @@ export const TopCitiesSplineChart = ({
             <div style={{ flex: 1, position: 'relative', height: '100%' }}>
               <svg viewBox="0 0 400 180" width="100%" height="100%" preserveAspectRatio="none">
                 {/* Horizontal dashed grid lines */}
-                <line x1="0" y1="20" x2="400" y2="20" stroke="#f1f5f9" strokeDasharray="3 3" />
-                <line x1="0" y1="60" x2="400" y2="60" stroke="#f1f5f9" strokeDasharray="3 3" />
-                <line x1="0" y1="100" x2="400" y2="100" stroke="#f1f5f9" strokeDasharray="3 3" />
-                <line x1="0" y1="140" x2="400" y2="140" stroke="#f1f5f9" strokeDasharray="3 3" />
+                <line x1="0" y1="20" x2="400" y2="20" stroke="#e8f1f5" strokeDasharray="3 3" />
+                <line x1="0" y1="60" x2="400" y2="60" stroke="#e8f1f5" strokeDasharray="3 3" />
+                <line x1="0" y1="100" x2="400" y2="100" stroke="#e8f1f5" strokeDasharray="3 3" />
+                <line x1="0" y1="140" x2="400" y2="140" stroke="#e8f1f5" strokeDasharray="3 3" />
 
-                {/* Volume Path (Slate Grey) */}
-                <path d={volumePath} fill="none" stroke="#71717a" strokeWidth="2.5" strokeLinecap="round" />
+                {/* Volume Path (Steel Blue) */}
+                <path d={volumePath} fill="none" stroke="#5C677D" strokeWidth="2.5" strokeLinecap="round" />
 
-                {/* Bookings Path (Charcoal #18181b) */}
-                <path d={bookingPath} fill="none" stroke="#18181b" strokeWidth="2.5" strokeLinecap="round" />
+                {/* Bookings Path (Dark Blue #033047) */}
+                <path d={bookingPath} fill="none" stroke="#033047" strokeWidth="2.5" strokeLinecap="round" />
 
                 {/* Points */}
                 {points.map((pt, i) => (
@@ -624,7 +628,7 @@ export const TopCitiesSplineChart = ({
                     cy={pt.y}
                     r="4.5"
                     fill="#ffffff"
-                    stroke="#18181b"
+                    stroke="#033047"
                     strokeWidth="2.5"
                   >
                     <title>{`${pt.city}: ${pt.count} Bookings`}</title>
@@ -638,7 +642,7 @@ export const TopCitiesSplineChart = ({
                     cy={pt.y}
                     r="4.5"
                     fill="#ffffff"
-                    stroke="#71717a"
+                    stroke="#304C62"
                     strokeWidth="2.5"
                   />
                 ))}
@@ -718,9 +722,9 @@ export const TopPartnersList = ({
             onClick={onViewAll}
             style={{
               background: 'transparent',
-              border: '1px solid #e4e4e7',
+              border: '1px solid #D9D9D9',
               borderRadius: '8px',
-              color: '#18181b',
+              color: '#033047',
               fontWeight: 700,
               fontSize: '12.5px',
               padding: '5px 14px',
@@ -728,11 +732,11 @@ export const TopPartnersList = ({
               transition: 'all 0.15s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#18181b';
-              e.currentTarget.style.background = '#f4f4f5';
+              e.currentTarget.style.borderColor = '#033047';
+              e.currentTarget.style.background = '#e8f1f5';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#e4e4e7';
+              e.currentTarget.style.borderColor = '#D9D9D9';
               e.currentTarget.style.background = 'transparent';
             }}
           >
@@ -742,7 +746,7 @@ export const TopPartnersList = ({
       </div>
 
       {!hasRealPartners ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', color: '#71717a', fontSize: '13px' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', color: '#5C677D', fontSize: '13px' }}>
           No merchant partners recorded yet.
         </div>
       ) : (
@@ -755,7 +759,7 @@ export const TopPartnersList = ({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '6px 0',
-                borderBottom: idx < displayList.length - 1 ? '1px solid #f8fafc' : 'none',
+                borderBottom: idx < displayList.length - 1 ? '1px solid #e8f1f5' : 'none',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
@@ -768,7 +772,7 @@ export const TopPartnersList = ({
                     justifyContent: 'center',
                     fontSize: idx === 0 ? '18px' : idx === 1 ? '18px' : idx === 2 ? '18px' : '14px',
                     fontWeight: 800,
-                    color: '#64748b',
+                    color: '#5C677D',
                     flexShrink: 0,
                   }}
                 >
@@ -782,14 +786,14 @@ export const TopPartnersList = ({
                     height: '38px',
                     borderRadius: '10px',
                     overflow: 'hidden',
-                    background: '#f4f4f5',
+                    background: '#e8f1f5',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontWeight: 700,
-                    color: '#18181b',
+                    color: '#033047',
                     flexShrink: 0,
-                    border: '1px solid #e4e4e7',
+                    border: '1px solid #D9D9D9',
                   }}
                 >
                   {item.imageUrl ? (
@@ -812,7 +816,7 @@ export const TopPartnersList = ({
                     style={{
                       fontSize: '13.5px',
                       fontWeight: 700,
-                      color: '#18181b',
+                      color: '#033047',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
@@ -820,7 +824,7 @@ export const TopPartnersList = ({
                   >
                     {item.name}
                   </div>
-                  <div style={{ fontSize: '11.5px', color: '#71717a', marginTop: '1px' }}>
+                  <div style={{ fontSize: '11.5px', color: '#5C677D', marginTop: '1px' }}>
                     {item.role}
                   </div>
                 </div>
@@ -828,11 +832,11 @@ export const TopPartnersList = ({
 
               {/* Stat on right */}
               <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: '12px' }}>
-                <div style={{ fontSize: '16px', fontWeight: 800, color: '#18181b', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#033047', lineHeight: 1.1 }}>
                   {item.count.toLocaleString()}
                 </div>
-                <div style={{ fontSize: '11px', color: '#71717a', fontWeight: 500, marginTop: '2px' }}>
-                  {item.earnings ? `$${Math.round(item.earnings).toLocaleString()}` : 'Rentals'}
+                <div style={{ fontSize: '11px', color: '#5C677D', fontWeight: 500, marginTop: '2px' }}>
+                  {item.earnings ? `₹${Math.round(item.earnings).toLocaleString('en-IN')}` : 'Rentals'}
                 </div>
               </div>
             </div>

@@ -127,6 +127,21 @@ public class VendorPortalController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("bookings/{id:int}")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<BookingDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BookingDetailDto>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetVendorBookingById(int id)
+    {
+        var userId = GetCurrentUserId();
+        var result = await _vendorService.GetVendorBookingByIdAsync(userId, id);
+        if (!result.IsSuccess)
+        {
+            return NotFound(result);
+        }
+        return Ok(result);
+    }
+
     [HttpPut("bookings/{id:int}/status")]
     [Authorize]
     [ProducesResponseType(typeof(ApiResponse<BookingDetailDto>), StatusCodes.Status200OK)]
@@ -135,6 +150,20 @@ public class VendorPortalController : ControllerBase
     {
         var userId = GetCurrentUserId();
         var result = await _vendorService.UpdateBookingStatusAsync(userId, id, request);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [HttpGet("earnings")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<VendorEarningsSummaryDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetVendorEarnings()
+    {
+        var userId = GetCurrentUserId();
+        var result = await _vendorService.GetVendorEarningsAsync(userId);
         if (!result.IsSuccess)
         {
             return BadRequest(result);

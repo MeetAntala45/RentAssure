@@ -359,8 +359,8 @@ export default function AdminVendorsPage() {
 
                       <td>
                         <div style={{ fontSize: '0.82rem' }}>
-                          <span style={{ color: '#ffffff', fontWeight: 600 }}>${v.TotalEarnings.toLocaleString()}</span>
-                          <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                          <span style={{ color: 'var(--admin-text-primary)', fontWeight: 600 }}>₹{v.TotalEarnings.toLocaleString('en-IN')}</span>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)' }}>
                             {v.TotalItemsCount} listed • {v.ActiveBookingsCount} active
                           </div>
                         </div>
@@ -478,22 +478,22 @@ export default function AdminVendorsPage() {
                     </span>
                   </div>
 
-                  <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>
-                    <div>Total Gross Volume: <strong>${selectedVendor.TotalEarnings.toLocaleString()}</strong></div>
-                    <div>Platform Commission Paid: <strong>${selectedVendor.TotalCommissionPaid.toLocaleString()}</strong></div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--admin-text-primary)' }}>
+                    <div>Total Gross Volume: <strong>₹{selectedVendor.TotalEarnings.toLocaleString('en-IN')}</strong></div>
+                    <div>Platform Commission Paid: <strong>₹{selectedVendor.TotalCommissionPaid.toLocaleString('en-IN')}</strong></div>
                   </div>
                 </div>
               </div>
 
               {/* Catalog Sample Review */}
               <div style={{ marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.88rem', color: '#ffffff', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h4 style={{ fontSize: '0.88rem', color: 'var(--admin-text-primary)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span>Inventory Catalog Samples ({selectedVendor.Items?.length || 0} items)</span>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Pre-inspected photos & plans</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--admin-text-secondary)' }}>Pre-inspected photos & plans</span>
                 </h4>
 
                 {(!selectedVendor.Items || selectedVendor.Items.length === 0) ? (
-                  <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: 8, textAlign: 'center', color: '#64748b', fontSize: '0.82rem' }}>
+                  <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.05)', borderRadius: 8, textAlign: 'center', color: 'var(--admin-text-secondary)', fontSize: '0.82rem' }}>
                     Vendor has not yet populated draft rental items.
                   </div>
                 ) : (
@@ -502,7 +502,7 @@ export default function AdminVendorsPage() {
                       <div
                         key={item.Id}
                         style={{
-                          background: 'rgba(255,255,255,0.03)',
+                          background: 'var(--primary-subtle, #f0f5f9)',
                           border: '1px solid var(--admin-border)',
                           borderRadius: '8px',
                           padding: '0.75rem',
@@ -511,15 +511,15 @@ export default function AdminVendorsPage() {
                           gap: '0.35rem',
                         }}
                       >
-                        <strong style={{ fontSize: '0.82rem', color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <strong style={{ fontSize: '0.82rem', color: 'var(--admin-text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {item.Title}
                         </strong>
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--admin-text-secondary)' }}>
                           Category: {item.CategoryName} • Condition: {item.Condition}
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginTop: '0.25rem' }}>
-                          <span style={{ color: '#38bdf8', fontWeight: 600 }}>${item.MonthlyRent}/mo</span>
-                          <span style={{ color: '#fbbf24' }}>Dep: ${item.SecurityDeposit}</span>
+                          <span style={{ color: 'var(--admin-accent-blue)', fontWeight: 600 }}>₹{item.MonthlyRent}/mo</span>
+                          <span style={{ color: 'var(--admin-text-secondary)' }}>Dep: ₹{item.SecurityDeposit}</span>
                         </div>
                       </div>
                     ))}

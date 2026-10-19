@@ -120,3 +120,32 @@ public class VendorOnboardingRequestDto
     public string? PreviousExperience { get; set; }
     public string? DocumentsJson { get; set; }
 }
+
+public class VendorEarningsSummaryDto
+{
+    public decimal TotalNetEarnings { get; set; }
+    public decimal PendingEscrowPayouts { get; set; }
+    public decimal TotalGrossRevenue { get; set; }
+    public decimal TotalCommissionPaid { get; set; }
+    public decimal EscrowDepositsHeld { get; set; }
+    public int CompletedBookingsCount { get; set; }
+    public int ActiveBookingsCount { get; set; }
+    public decimal CommissionRate { get; set; }
+    public List<VendorPayoutItemDto> Payouts { get; set; } = new();
+}
+
+public class VendorPayoutItemDto
+{
+    public int BookingId { get; set; }
+    public string BookingReference { get; set; } = string.Empty;
+    public string CustomerName { get; set; } = string.Empty;
+    public string CustomerEmail { get; set; } = string.Empty;
+    public string ItemTitle { get; set; } = string.Empty;
+    public decimal GrossRent { get; set; }
+    public decimal SecurityDeposit { get; set; }
+    public decimal PlatformFee { get; set; }
+    public decimal NetPayout { get; set; }
+    public string PayoutStatus { get; set; } = string.Empty;
+    public string BookingStatus { get; set; } = string.Empty;
+    public DateTime Date { get; set; }
+}

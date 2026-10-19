@@ -160,14 +160,14 @@ const PortalShell = ({
                 className="ra-user-profile"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
               >
-                <div className="ra-avatar" style={{ borderRadius: '50%', overflow: 'hidden', background: '#18181b', color: '#ffffff' }}>
+                <div className="ra-avatar" style={{ borderRadius: '50%', overflow: 'hidden', background: 'var(--color-dark-blue, #033047)', color: '#ffffff' }}>
                   {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'A'}
                 </div>
                 <div className="ra-user-meta">
-                  <div className="ra-user-name" style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b' }}>
+                  <div className="ra-user-name" style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--color-dark-blue, #033047)' }}>
                     {user?.fullName || 'Leslie Alexander'}
                   </div>
-                  <div className="ra-user-role" style={{ fontSize: '11.5px', color: '#64748b' }}>
+                  <div className="ra-user-role" style={{ fontSize: '11.5px', color: 'var(--color-steel-blue, #5C677D)' }}>
                     {user?.role || portalSubtitle || 'Super Admin'}
                   </div>
                 </div>

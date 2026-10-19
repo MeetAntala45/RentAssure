@@ -212,16 +212,16 @@ export default function AdminBookingsPage() {
                       </td>
 
                       <td>
-                        <span style={{ color: '#60a5fa', fontSize: '0.85rem', fontWeight: 500 }}>
+                        <span style={{ color: 'var(--admin-accent-blue)', fontSize: '0.85rem', fontWeight: 600 }}>
                           {b.VendorStoreName}
                         </span>
                       </td>
 
                       <td>
                         <div style={{ fontSize: '0.85rem' }}>
-                          <strong style={{ color: '#ffffff' }}>${b.MonthlyRent.toFixed(2)}</strong>/mo
-                          <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                            Dep: ${b.SecurityDeposit.toFixed(2)}
+                          <strong style={{ color: 'var(--admin-text-primary)' }}>₹{b.MonthlyRent.toFixed(2)}</strong>/mo
+                          <div style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)' }}>
+                            Dep: ₹{b.SecurityDeposit.toFixed(2)}
                           </div>
                         </div>
                       </td>
@@ -234,11 +234,11 @@ export default function AdminBookingsPage() {
 
                       <td>
                         <div style={{ fontSize: '0.8rem' }}>
-                          <div style={{ color: '#34d399', fontWeight: 600 }}>
-                            Fee: ${b.PlatformCommissionAmount.toFixed(2)} ({b.CommissionRateApplied}%)
+                          <div style={{ color: '#033047', fontWeight: 600 }}>
+                            Fee: ₹{b.PlatformCommissionAmount.toFixed(2)} ({b.CommissionRateApplied}%)
                           </div>
-                          <div style={{ color: '#94a3b8', fontSize: '0.72rem' }}>
-                            Vendor: ${b.VendorPayoutAmount.toFixed(2)}
+                          <div style={{ color: 'var(--admin-text-secondary)', fontSize: '0.72rem' }}>
+                            Vendor: ₹{b.VendorPayoutAmount.toFixed(2)}
                           </div>
                         </div>
                       </td>
@@ -287,37 +287,37 @@ export default function AdminBookingsPage() {
               </div>
 
               {/* Financial Split Grid */}
-              <h4 style={{ fontSize: '0.85rem', color: '#38bdf8', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Stripe Split Transaction Breakdown
+              <h4 style={{ fontSize: '0.85rem', color: 'var(--admin-accent-blue)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Marketplace Split Transaction Breakdown
               </h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1.25rem' }}>
-                <div style={{ padding: '0.85rem', background: 'rgba(15,23,42,0.6)', border: '1px solid var(--admin-border)', borderRadius: 8 }}>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Total Paid by Renter</span>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff' }}>${selectedBooking.TotalAmountPaid.toFixed(2)}</div>
-                  <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Includes deposit + first month</span>
+                <div style={{ padding: '0.85rem', background: 'var(--primary-subtle, #f0f5f9)', border: '1px solid var(--admin-border)', borderRadius: 8 }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)', display: 'block' }}>Total Paid by Renter</span>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--admin-text-primary)' }}>₹{selectedBooking.TotalAmountPaid.toFixed(2)}</div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--admin-text-secondary)' }}>Includes deposit + first month</span>
                 </div>
 
-                <div style={{ padding: '0.85rem', background: 'rgba(15,23,42,0.6)', border: '1px solid var(--admin-border)', borderRadius: 8 }}>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Security Deposit in Escrow</span>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fbbf24' }}>${selectedBooking.SecurityDeposit.toFixed(2)}</div>
-                  <span style={{ fontSize: '0.7rem', color: '#34d399' }}>Status: {getDepositBadge(selectedBooking.DepositStatus)}</span>
+                <div style={{ padding: '0.85rem', background: 'var(--primary-subtle, #f0f5f9)', border: '1px solid var(--admin-border)', borderRadius: 8 }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)', display: 'block' }}>Security Deposit in Escrow</span>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--admin-text-primary)' }}>₹{selectedBooking.SecurityDeposit.toFixed(2)}</div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--admin-accent-blue)' }}>Status: {getDepositBadge(selectedBooking.DepositStatus)}</span>
                 </div>
 
-                <div style={{ padding: '0.85rem', background: 'rgba(15,23,42,0.6)', border: '1px solid var(--admin-border)', borderRadius: 8 }}>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Platform Commission Retained</span>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#34d399' }}>${selectedBooking.PlatformCommissionAmount.toFixed(2)}</div>
-                  <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Rate: {selectedBooking.CommissionRateApplied}%</span>
+                <div style={{ padding: '0.85rem', background: 'var(--primary-subtle, #f0f5f9)', border: '1px solid var(--admin-border)', borderRadius: 8 }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)', display: 'block' }}>Platform Commission Retained</span>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--admin-accent-blue)' }}>₹{selectedBooking.PlatformCommissionAmount.toFixed(2)}</div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--admin-text-secondary)' }}>Rate: {selectedBooking.CommissionRateApplied}%</span>
                 </div>
 
-                <div style={{ padding: '0.85rem', background: 'rgba(15,23,42,0.6)', border: '1px solid var(--admin-border)', borderRadius: 8 }}>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Vendor Net Payout</span>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#60a5fa' }}>${selectedBooking.VendorPayoutAmount.toFixed(2)}</div>
-                  <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Disbursed via Stripe Express</span>
+                <div style={{ padding: '0.85rem', background: 'var(--primary-subtle, #f0f5f9)', border: '1px solid var(--admin-border)', borderRadius: 8 }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)', display: 'block' }}>Vendor Net Payout</span>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--admin-text-primary)' }}>₹{selectedBooking.VendorPayoutAmount.toFixed(2)}</div>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--admin-text-secondary)' }}>Disbursed via Direct Bank / Payout</span>
                 </div>
               </div>
 
               {/* Lease Dates */}
-              <div style={{ fontSize: '0.82rem', color: '#cbd5e1', padding: '0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid var(--admin-border)' }}>
+              <div style={{ fontSize: '0.82rem', color: 'var(--admin-text-primary)', padding: '0.75rem', background: '#ffffff', borderRadius: 8, border: '1px solid var(--admin-border)' }}>
                 <div>Lease Start Date: <strong>{new Date(selectedBooking.StartDate).toLocaleDateString()}</strong></div>
                 <div>Lease Scheduled End: <strong>{new Date(selectedBooking.EndDate).toLocaleDateString()}</strong></div>
                 <div>Delivery City: <strong>{selectedBooking.DeliveryCity}</strong></div>

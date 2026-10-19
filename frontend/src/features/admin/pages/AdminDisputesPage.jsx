@@ -290,9 +290,9 @@ export default function AdminDisputesPage() {
 
                       <td>
                         <div style={{ fontSize: '0.85rem' }}>
-                          <strong style={{ color: '#fbbf24' }}>${d.ClaimAmount.toFixed(2)}</strong>
-                          <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
-                            Escrow: ${d.DepositHeld.toFixed(2)}
+                          <strong style={{ color: 'var(--admin-accent-blue)' }}>₹{d.ClaimAmount.toFixed(2)}</strong>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)' }}>
+                            Escrow: ₹{d.DepositHeld.toFixed(2)}
                           </div>
                         </div>
                       </td>
@@ -353,22 +353,22 @@ export default function AdminDisputesPage() {
                 }}
               >
                 <div>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase' }}>Security Deposit Held</span>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fbbf24' }}>
-                    ${selectedDispute.DepositHeld?.toFixed(2)}
+                  <span style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)', textTransform: 'uppercase' }}>Security Deposit Held</span>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--admin-text-primary)' }}>
+                    ₹{selectedDispute.DepositHeld?.toFixed(2)}
                   </div>
                 </div>
 
                 <div>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase' }}>Amount in Dispute</span>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f87171' }}>
-                    ${selectedDispute.ClaimAmount?.toFixed(2)}
+                  <span style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)', textTransform: 'uppercase' }}>Amount in Dispute</span>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#033047' }}>
+                    ₹{selectedDispute.ClaimAmount?.toFixed(2)}
                   </div>
                 </div>
 
                 <div>
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase' }}>Rental Item Subject</span>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--admin-text-secondary)', textTransform: 'uppercase' }}>Rental Item Subject</span>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--admin-text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {selectedDispute.ItemTitle}
                   </div>
                 </div>
@@ -412,13 +412,13 @@ export default function AdminDisputesPage() {
               {/* Already resolved notification if applicable */}
               {(selectedDispute.Status === 3 || selectedDispute.Status === 4 || selectedDispute.Status === 5 || selectedDispute.Status === 6) ? (
                 <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', padding: '1.25rem', borderRadius: 8 }}>
-                  <strong style={{ color: '#34d399', fontSize: '0.9rem', display: 'block', marginBottom: '0.5rem' }}>
+                  <strong style={{ color: '#033047', fontSize: '0.9rem', display: 'block', marginBottom: '0.5rem' }}>
                     ✓ Case Adjudicated on {new Date(selectedDispute.ResolvedAt).toLocaleDateString()}
                   </strong>
-                  <div style={{ fontSize: '0.85rem', color: '#e2e8f0' }}>
-                    <div>Refund to Customer: <strong>${selectedDispute.RefundToCustomerAmount.toFixed(2)}</strong></div>
-                    <div>Payout to Vendor: <strong>${selectedDispute.PayoutToVendorAmount.toFixed(2)}</strong></div>
-                    <div style={{ marginTop: '0.5rem', color: '#94a3b8' }}>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--admin-text-primary)' }}>
+                    <div>Refund to Customer: <strong>₹{selectedDispute.RefundToCustomerAmount.toFixed(2)}</strong></div>
+                    <div>Payout to Vendor: <strong>₹{selectedDispute.PayoutToVendorAmount.toFixed(2)}</strong></div>
+                    <div style={{ marginTop: '0.5rem', color: 'var(--admin-text-secondary)' }}>
                       <em>Notes: {selectedDispute.AdminDecisionNotes}</em>
                     </div>
                   </div>
@@ -426,7 +426,7 @@ export default function AdminDisputesPage() {
               ) : (
                 /* Interactive Settlement Form */
                 <form onSubmit={handleResolveSubmit}>
-                  <h4 style={{ fontSize: '0.9rem', color: '#ffffff', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <h4 style={{ fontSize: '0.9rem', color: 'var(--admin-text-primary)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Adjudication Settlement Calculator
                   </h4>
 
@@ -459,7 +459,7 @@ export default function AdminDisputesPage() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div className="admin-form-group">
-                      <label>Refund to Customer ($)</label>
+                      <label>Refund to Customer (₹)</label>
                       <input
                         type="number"
                         step="0.01"
@@ -475,7 +475,7 @@ export default function AdminDisputesPage() {
                     </div>
 
                     <div className="admin-form-group">
-                      <label>Payout to Vendor for Damage / Delay ($)</label>
+                      <label>Payout to Vendor for Damage / Delay (₹)</label>
                       <input
                         type="number"
                         step="0.01"

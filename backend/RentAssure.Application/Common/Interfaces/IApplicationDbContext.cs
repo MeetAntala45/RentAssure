@@ -14,6 +14,7 @@ public interface IApplicationDbContext
     DbSet<Dispute> Disputes { get; }
     DbSet<PlatformSetting> PlatformSettings { get; }
     DbSet<AuditLog> AuditLogs { get; }
+    DbSet<SupportTicket> SupportTickets { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

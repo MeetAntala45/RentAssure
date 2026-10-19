@@ -4,7 +4,7 @@ import AuthLayout from '../../../../src/shared/AuthLayout';
 import { GoogleLogin } from '@react-oauth/google';
 
 const VendorAuthPage = () => {
-  const { login, register, googleLogin } = useAuth();
+  const { vendorLogin, register, googleLogin } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,7 +32,7 @@ const VendorAuthPage = () => {
         setSuccessMsg('Account created successfully! Please sign in to verify your store.');
         setIsSignUp(false);
       } else {
-        await login(email, password);
+        await vendorLogin(email, password);
       }
     } catch (err) {
       setError(
@@ -49,7 +49,7 @@ const VendorAuthPage = () => {
     setLoading(true);
     try {
       if (credentialResponse.credential) {
-        await googleLogin(credentialResponse.credential);
+        await googleLogin(credentialResponse.credential, 'Vendor');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Google authentication failed.');

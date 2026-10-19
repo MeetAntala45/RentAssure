@@ -6,12 +6,12 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminVendorsPage from './pages/AdminVendorsPage';
 import AdminVendorDetailPage from './pages/AdminVendorDetailPage';
 import AdminMasterDataPage from './pages/AdminMasterDataPage';
+import AdminSupportPage from './pages/AdminSupportPage';
 import {
   IconDashboard,
   IconServices,
   IconUsers,
   IconCalendar,
-  IconOffers,
   IconPayments,
   IconMasterData,
   IconSupport,
@@ -40,10 +40,9 @@ const AdminPortalContent = () => {
     { id: 'services', label: 'Service Management', icon: <IconServices />, disabled: true },
     { id: 'vendors', label: 'User Management', icon: <IconUsers /> },
     { id: 'bookings', label: 'Booking Management', icon: <IconCalendar />, disabled: true },
-    { id: 'offers', label: 'Offers', icon: <IconOffers />, disabled: true },
     { id: 'payments', label: 'Payments & Transactions', icon: <IconPayments />, disabled: true },
     { id: 'master-data', label: 'Master Data', icon: <IconMasterData /> },
-    { id: 'support', label: 'Support', icon: <IconSupport />, disabled: true },
+    { id: 'support', label: 'Support', icon: <IconSupport /> },
   ];
 
   const handleNavClick = (navId) => {
@@ -57,6 +56,7 @@ const AdminPortalContent = () => {
     if (activeNav === 'dashboard') return 'Dashboard';
     if (activeNav === 'vendors') return selectedVendorId ? 'Service Partner Profile' : 'User Management';
     if (activeNav === 'master-data') return 'Master Data';
+    if (activeNav === 'support') return 'Support Inquiries';
     return 'Dashboard';
   };
 
@@ -92,6 +92,8 @@ const AdminPortalContent = () => {
       )}
 
       {activeNav === 'master-data' && <AdminMasterDataPage />}
+
+      {activeNav === 'support' && <AdminSupportPage />}
     </PortalShell>
   );
 };

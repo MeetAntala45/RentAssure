@@ -11,6 +11,27 @@ public static class DatabaseSeeder
     {
         try
         {
+            // Ensure SupportTickets table exists
+            try
+            {
+                await context.Database.ExecuteSqlRawAsync(@"
+                    CREATE TABLE IF NOT EXISTS ""SupportTickets"" (
+                        ""Id"" serial PRIMARY KEY,
+                        ""Name"" varchar(200) NOT NULL,
+                        ""Email"" varchar(200) NOT NULL,
+                        ""PhoneNumber"" varchar(50) NOT NULL,
+                        ""Description"" varchar(2000) NOT NULL,
+                        ""Status"" varchar(50) NOT NULL DEFAULT 'Open',
+                        ""CreatedAt"" timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        ""UpdatedAt"" timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    );
+                ");
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to ensure SupportTickets table exists.");
+            }
+
             // 1. Seed Admin User
             var adminEmail = "admin@rentassure.com";
             var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);

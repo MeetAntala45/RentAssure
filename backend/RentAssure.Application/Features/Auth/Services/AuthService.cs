@@ -95,6 +95,26 @@ public class AuthService : IAuthService
                 nameof(AuthErrorCode.AccountInactive));
         }
 
+        // Strict role verification if a required portal role was specified
+        if (!string.IsNullOrWhiteSpace(request.RequiredRole))
+        {
+            var userRoleStr = user.Role.ToString();
+            if (!string.Equals(userRoleStr, request.RequiredRole, StringComparison.OrdinalIgnoreCase))
+            {
+                string portalName = request.RequiredRole switch
+                {
+                    "Admin" => "Admin Console",
+                    "Vendor" => "Merchant/Vendor Portal",
+                    "Customer" => "Customer Marketplace",
+                    _ => $"{request.RequiredRole} Portal"
+                };
+
+                return ApiResponse<AuthResponseDto>.Fail(
+                    $"Access denied. Your account is registered as '{userRoleStr}' and cannot access the {portalName}.",
+                    "RoleUnauthorized");
+            }
+        }
+
         return await GenerateAuthResponseAsync(user);
     }
 
@@ -135,11 +155,23 @@ public class AuthService : IAuthService
 
             _logger.LogInformation("Google user created: {Email} (ID: {UserId}, Role: {Role})", user.Email, user.Id, user.Role);
         }
-        else if (requestedRole == UserRole.Vendor && user.Role == UserRole.Customer)
+        else
         {
-            // Upgrade existing customer to vendor when signing in via vendor portal
-            user.Role = UserRole.Vendor;
-            await _context.SaveChangesAsync();
+            // Strict role verification: existing account role MUST match the portal being accessed!
+            if (user.Role != requestedRole)
+            {
+                string portalName = requestedRole switch
+                {
+                    UserRole.Admin => "Admin Console",
+                    UserRole.Vendor => "Merchant/Vendor Portal",
+                    UserRole.Customer => "Customer Marketplace",
+                    _ => $"{requestedRole} Portal"
+                };
+
+                return ApiResponse<AuthResponseDto>.Fail(
+                    $"Access denied. Your Google account is registered as '{user.Role}' and cannot access the {portalName}.",
+                    "RoleUnauthorized");
+            }
         }
 
         if (!user.IsActive)

@@ -3,10 +3,10 @@ import { vendorApi } from '../../../../src/shared/api';
 import RentalItemFormModal from '../components/RentalItemFormModal';
 
 const STATUS_MAP = {
-  1: { label: 'Available', badgeClass: 'ra-badge-active', color: '#18181b', bg: '#f4f4f5' },
-  2: { label: 'Rented', badgeClass: 'ra-badge-verified', color: '#27272a', bg: '#f4f4f5' },
-  3: { label: 'Under Maintenance', badgeClass: 'ra-badge-pending', color: '#52525b', bg: '#f4f4f5' },
-  4: { label: 'Inactive', badgeClass: 'ra-badge-rejected', color: '#71717a', bg: '#f4f4f5' },
+  1: { label: 'Available', badgeClass: 'ra-badge-active', color: '#033047', bg: '#e8f1f5' },
+  2: { label: 'Rented', badgeClass: 'ra-badge-verified', color: '#304C62', bg: '#f0f5f9' },
+  3: { label: 'Under Maintenance', badgeClass: 'ra-badge-pending', color: '#5C677D', bg: '#f4f3ee' },
+  4: { label: 'Inactive', badgeClass: 'ra-badge-rejected', color: '#71717a', bg: '#f4f3ee' },
 };
 
 const VendorInventoryPage = () => {
@@ -151,53 +151,53 @@ const VendorInventoryPage = () => {
           gap: '14px',
         }}
       >
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #18181b' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: '#52525b' }}>All Catalog Listings</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#18181b', marginTop: '4px' }}>
+        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #033047' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>All Catalog Listings</div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: '#033047', marginTop: '4px' }}>
             {summary.total}
           </div>
-          <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
             {categoriesList.length - 1} Active Categories
           </div>
         </div>
 
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #27272a' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: '#52525b' }}>Live & Available</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#27272a', marginTop: '4px' }}>
+        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #304C62' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Live & Available</div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: '#304C62', marginTop: '4px' }}>
             {summary.available}
           </div>
-          <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
             Ready for customer bookings
           </div>
         </div>
 
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #3f3f46' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: '#52525b' }}>Currently Rented</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#3f3f46', marginTop: '4px' }}>
+        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #5C677D' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Currently Rented</div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: '#5C677D', marginTop: '4px' }}>
             {summary.rented}
           </div>
-          <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
             Generating recurring rent
           </div>
         </div>
 
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #52525b' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: '#52525b' }}>Under Service / Inactive</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#52525b', marginTop: '4px' }}>
+        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #466882' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Under Service / Inactive</div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: '#466882', marginTop: '4px' }}>
             {summary.maintenance}
           </div>
-          <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
             Maintenance or hidden
           </div>
         </div>
 
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #71717a' }}>
-          <div style={{ fontSize: '12px', fontWeight: 600, color: '#52525b' }}>Catalog Monthly Potential</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#18181b', marginTop: '4px' }}>
-            ${summary.totalMonthlyValue.toLocaleString()}
+        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #033047' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Catalog Monthly Potential</div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: '#033047', marginTop: '4px' }}>
+            ₹{summary.totalMonthlyValue.toLocaleString('en-IN')}
           </div>
-          <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>
-            Est. Net Profit: ${summary.estimatedMonthlyNetProfit.toLocaleString()} / mo
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+            Est. Net Profit: ₹{summary.estimatedMonthlyNetProfit.toLocaleString('en-IN')} / mo
           </div>
         </div>
       </div>
@@ -472,18 +472,18 @@ const VendorInventoryPage = () => {
                       {/* Monthly Rent & Net Profit */}
                       <td style={{ padding: '14px 20px' }}>
                         <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>
-                          ${rent.toFixed(2)}
+                          ₹{rent.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-muted)' }}> / mo</span>
                         </div>
-                        <div style={{ fontSize: '11px', color: '#18181b', fontWeight: 700, marginTop: '1px' }}>
-                          Net Profit: ${netProfit.toFixed(2)}
+                        <div style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700, marginTop: '1px' }}>
+                          Net Profit: ₹{netProfit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                       </td>
 
                       {/* Security Deposit */}
                       <td style={{ padding: '14px 20px' }}>
                         <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-body)' }}>
-                          ${item.securityDeposit}
+                          ₹{Number(item.securityDeposit).toLocaleString('en-IN')}
                         </div>
                         <div style={{ fontSize: '11px', color: 'var(--text-light)' }}>
                           Escrow Deposit

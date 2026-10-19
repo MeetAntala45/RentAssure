@@ -88,12 +88,12 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
               </div>
               <div className="ra-kpi-label">Active Subscriptions</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#18181b' }}>
+            <div className="ra-kpi-icon-badge" style={{ background: '#033047' }}>
               <IconServices width={24} height={24} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#18181b', border: '1px solid #d4d4d8' }}>Live</span>
+            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid var(--border-light)' }}>Live</span>
             <span className="ra-kpi-trend-subtext">Active Leases</span>
           </div>
         </div>
@@ -109,12 +109,12 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
               </div>
               <div className="ra-kpi-label">Registered Renters</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#27272a' }}>
+            <div className="ra-kpi-icon-badge" style={{ background: '#304C62' }}>
               <IconUserSingle width={24} height={24} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#18181b', border: '1px solid #d4d4d8' }}>Platform</span>
+            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid var(--border-light)' }}>Platform</span>
             <span className="ra-kpi-trend-subtext">Customer Base</span>
           </div>
         </div>
@@ -130,12 +130,12 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
               </div>
               <div className="ra-kpi-label">Verified Merchants</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#3f3f46' }}>
+            <div className="ra-kpi-icon-badge" style={{ background: '#5C677D' }}>
               <IconWrench width={24} height={24} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#18181b', border: '1px solid #d4d4d8' }}>
+            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid var(--border-light)' }}>
               {stats?.totalVendorsCount || 0} Total
             </span>
             <span className="ra-kpi-trend-subtext">Store Partners</span>
@@ -147,17 +147,17 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
           <div className="ra-kpi-top">
             <div className="ra-kpi-info">
               <div className="ra-kpi-value">
-                ${stats?.totalGrossVolume !== undefined ? Math.round(stats.totalGrossVolume).toLocaleString() : '0'}
+                ₹{stats?.totalGrossVolume !== undefined ? Math.round(stats.totalGrossVolume).toLocaleString('en-IN') : '0'}
               </div>
               <div className="ra-kpi-label">Gross Platform Volume</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#52525b' }}>
+            <div className="ra-kpi-icon-badge" style={{ background: '#033047' }}>
               <IconCurrency width={24} height={24} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#18181b', border: '1px solid #d4d4d8' }}>
-              ${stats?.platformCommissionEarned !== undefined ? Math.round(stats.platformCommissionEarned).toLocaleString() : '0'}
+            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid var(--border-light)' }}>
+              ₹{stats?.platformCommissionEarned !== undefined ? Math.round(stats.platformCommissionEarned).toLocaleString('en-IN') : '0'}
             </span>
             <span className="ra-kpi-trend-subtext">Marketplace Commission</span>
           </div>
@@ -228,7 +228,7 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
                       {b.itemTitle}
                     </td>
                     <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>
-                      ${b.monthlyRent}/mo
+                      ₹{b.monthlyRent}/mo
                     </td>
                     <td style={{ padding: '14px 20px' }}>
                       <span className={`ra-badge ${b.status === 'Active' || b.status === 'Delivered' ? 'ra-badge-active' : 'ra-badge-pending'}`}>

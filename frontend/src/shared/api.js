@@ -38,8 +38,28 @@ api.interceptors.response.use(
 
 // ─── AUTH APIS ─────────────────────────────────────────────────────────────
 export const authApi = {
-  login: async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
+  login: async (email, password, requiredRole = null) => {
+    const payload = { email, password };
+    if (requiredRole) payload.requiredRole = requiredRole;
+    const res = await api.post('/auth/login', payload);
+    if (res.data?.data?.token) {
+      localStorage.setItem('ra_token', res.data.data.token);
+      localStorage.setItem('ra_user', JSON.stringify(res.data.data));
+    }
+    return res.data;
+  },
+
+  customerLogin: async (email, password) => {
+    const res = await api.post('/auth/customer/login', { email, password });
+    if (res.data?.data?.token) {
+      localStorage.setItem('ra_token', res.data.data.token);
+      localStorage.setItem('ra_user', JSON.stringify(res.data.data));
+    }
+    return res.data;
+  },
+
+  vendorLogin: async (email, password) => {
+    const res = await api.post('/auth/vendor/login', { email, password });
     if (res.data?.data?.token) {
       localStorage.setItem('ra_token', res.data.data.token);
       localStorage.setItem('ra_user', JSON.stringify(res.data.data));
@@ -67,8 +87,8 @@ export const authApi = {
     return res.data;
   },
 
-  googleLogin: async (idToken) => {
-    const res = await api.post('/auth/google', { idToken });
+  googleLogin: async (idToken, role = 'Customer') => {
+    const res = await api.post('/auth/google', { idToken, role });
     if (res.data?.data?.token) {
       localStorage.setItem('ra_token', res.data.data.token);
       localStorage.setItem('ra_user', JSON.stringify(res.data.data));
@@ -137,6 +157,26 @@ export const vendorApi = {
     const res = await api.get('/v1/items/categories');
     return res.data;
   },
+
+  getBookings: async () => {
+    const res = await api.get('/v1/vendor/bookings');
+    return res.data;
+  },
+
+  getBookingById: async (id) => {
+    const res = await api.get(`/v1/vendor/bookings/${id}`);
+    return res.data;
+  },
+
+  updateBookingStatus: async (id, status, vendorNotes = null) => {
+    const res = await api.put(`/v1/vendor/bookings/${id}/status`, { status, vendorNotes });
+    return res.data;
+  },
+
+  getEarnings: async () => {
+    const res = await api.get('/v1/vendor/earnings');
+    return res.data;
+  },
 };
 
 // ─── ADMIN PORTAL APIS ─────────────────────────────────────────────────────
@@ -176,6 +216,26 @@ export const adminApi = {
 
   createCategory: async (categoryData) => {
     const res = await api.post('/admin/categories', categoryData);
+    return res.data;
+  },
+
+  getSupportTickets: async (status) => {
+    const params = {};
+    if (status) params.status = status;
+    const res = await api.get('/admin/support', { params });
+    return res.data;
+  },
+
+  updateSupportTicketStatus: async (id, status) => {
+    const res = await api.put(`/admin/support/${id}/status`, { status });
+    return res.data;
+  },
+};
+
+// ─── SUPPORT API ───────────────────────────────────────────────────────────
+export const supportApi = {
+  submitTicket: async ({ name, email, phoneNumber, description }) => {
+    const res = await api.post('/v1/support', { name, email, phoneNumber, description });
     return res.data;
   },
 };

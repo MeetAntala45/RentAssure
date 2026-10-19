@@ -18,34 +18,34 @@
   --neutral-900: #0f172a;
 
   /* Surfaces & Backgrounds */
-  --bg-app: #f8fafc;
+  --bg-app: #F4F3EE;
   --bg-card: #ffffff;
-  --bg-subtle: #f1f5f9;
+  --bg-subtle: #e8f1f5;
   --bg-input: #ffffff;
   
   /* Borders */
-  --border-light: #e2e8f0;
-  --border-medium: #cbd5e1;
-  --border-focus: #2563eb;
+  --border-light: #D9D9D9;
+  --border-medium: #cddbe7;
+  --border-focus: #033047;
 
   /* Typography Colors */
-  --text-main: #0f172a;
-  --text-muted: #475569;
-  --text-subtle: #64748b;
-  --text-disabled: #94a3b8;
+  --text-main: #033047;
+  --text-muted: #304C62;
+  --text-subtle: #5C677D;
+  --text-disabled: #8a99a8;
 
-  /* Brand Accents */
-  --brand-primary: #0f172a;
-  --brand-primary-hover: #1e293b;
-  --brand-blue: #2563eb;
-  --brand-blue-hover: #1d4ed8;
-  --brand-blue-subtle: #eff6ff;
+  /* Brand Accents - Aesthetic Blue Palette */
+  --brand-primary: #033047;
+  --brand-primary-hover: #304C62;
+  --brand-blue: #304C62;
+  --brand-blue-hover: #033047;
+  --brand-blue-subtle: #e8f1f5;
 
-  --primary-50: #eff6ff;
-  --primary-100: #dbeafe;
-  --primary-600: #2563eb;
-  --primary-700: #1d4ed8;
-  --primary-800: #1e40af;
+  --primary-50: #f0f5f9;
+  --primary-100: #e8f1f5;
+  --primary-600: #304C62;
+  --primary-700: #033047;
+  --primary-800: #021f2f;
 
   /* Status Colors */
   --status-success: #059669;
