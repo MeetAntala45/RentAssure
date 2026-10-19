@@ -4,12 +4,19 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --config vite.customer.config.js",
+    "dev:customer": "vite --config vite.customer.config.js",
+    "dev:vendor": "vite --config vite.vendor.config.js",
+    "dev:admin": "vite --config vite.admin.config.js",
     "build": "vite build",
+    "build:customer": "vite build --config vite.customer.config.js",
+    "build:vendor": "vite build --config vite.vendor.config.js",
+    "build:admin": "vite build --config vite.admin.config.js",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.13.5",
     "@tanstack/react-query": "^5.103.2",
     "axios": "^1.20.0",
     "bootstrap": "^5.3.8",
