@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { vendorApi } from '../../../../src/shared/api';
+import { vendorApi, paymentsApi } from '../../../../src/shared/api';
 
 export default function VendorBookingsPage({ initialBookingId = null, onNavigateToEarnings }) {
   const [bookings, setBookings] = useState([]);
@@ -34,6 +34,44 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
     notes: '',
     loading: false,
   });
+
+  const [refundingId, setRefundingId] = useState(null);
+  const [refundNotice, setRefundNotice] = useState(null);
+
+  const handleRefundDeposit = async (bookingId) => {
+    if (!window.confirm(`Are you sure you want to release and refund the security deposit for booking #${bookingId} to the customer's card via Stripe?`)) {
+      return;
+    }
+    setRefundingId(bookingId);
+    try {
+      const res = await paymentsApi.refundDeposit(bookingId);
+      if (res.isSuccess) {
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.id === bookingId
+              ? {
+                  ...b,
+                  depositStatus: 'Refunded',
+                  stripeRefundId: res.data?.refundId,
+                  depositRefundedAmount: b.securityDeposit,
+                }
+              : b
+          )
+        );
+        setRefundNotice({
+          bookingId,
+          message: res.message || `Deposit of ₹${res.data?.refundedAmount} refunded via Stripe. Refund ID: ${res.data?.refundId}`,
+        });
+        setTimeout(() => setRefundNotice(null), 8000);
+      } else {
+        alert(res.message || 'Failed to refund deposit.');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error executing Stripe refund.');
+    } finally {
+      setRefundingId(null);
+    }
+  };
 
   const fetchBookings = async () => {
     setLoading(true);
@@ -411,8 +449,46 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                 ₹{selectedBooking.securityDeposit?.toFixed(2)}
               </div>
               <div style={{ fontSize: '11px', fontWeight: 600, color: '#0284c7', marginTop: '4px' }}>
-                {selectedBooking.depositStatus === 'Refunded' ? '✓ Refunded to Customer' : '🛡 Held in Escrow'}
+                {selectedBooking.depositStatus === 'Refunded' || selectedBooking.stripeRefundId
+                  ? '✓ Refunded to Customer Card'
+                  : '🛡 Held in Escrow'}
               </div>
+
+              {selectedBooking.isPaidOnline && (
+                <div style={{ marginTop: '8px', fontSize: '11px', color: '#475569' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600, color: '#0369a1' }}>
+                    <span>💳</span> Stripe Online Payment
+                  </div>
+                  {selectedBooking.stripeRefundId ? (
+                    <div style={{ marginTop: '4px', color: '#15803d', fontWeight: 700 }}>
+                      Stripe Refund ID: <code style={{ fontSize: '10px' }}>{selectedBooking.stripeRefundId}</code>
+                    </div>
+                  ) : selectedBooking.depositStatus !== 'Refunded' && (
+                    <button
+                      type="button"
+                      onClick={() => handleRefundDeposit(selectedBooking.id)}
+                      disabled={refundingId === selectedBooking.id}
+                      style={{
+                        marginTop: '8px',
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        background: '#047857',
+                        color: '#ffffff',
+                        border: 'none',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        cursor: refundingId === selectedBooking.id ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                      }}
+                    >
+                      {refundingId === selectedBooking.id ? 'Refunding via Stripe...' : '⚡ Release Deposit (Refund via Stripe)'}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             <div
@@ -827,6 +903,34 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                                     <span>✓</span> Mark as Completed
                                   </button>
 
+                                  {b.isPaidOnline && b.depositStatus !== 'Refunded' && !b.stripeRefundId && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveMenuId(null);
+                                        handleRefundDeposit(b.id);
+                                      }}
+                                      style={{
+                                        width: '100%',
+                                        padding: '8px 14px',
+                                        border: 'none',
+                                        background: 'none',
+                                        fontSize: '13px',
+                                        color: '#0369a1',
+                                        cursor: 'pointer',
+                                        textAlign: 'left',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        fontWeight: 600,
+                                      }}
+                                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f9ff')}
+                                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                    >
+                                      <span>⚡</span> Release Deposit via Stripe
+                                    </button>
+                                  )}
+
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -1162,6 +1266,28 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                 ? `Completing booking #${confirmModal.booking?.id} (${confirmModal.booking?.itemTitle}) will release customer security deposit of ₹${confirmModal.booking?.securityDeposit?.toFixed(2)} and credit your payout of ₹${confirmModal.booking?.vendorPayoutAmount?.toFixed(2)}.`
                 : `Cancelling booking #${confirmModal.booking?.id} will release the reserved item back to available inventory and initiate deposit refund.`}
             </p>
+
+            {confirmModal.action === 'Completed' && confirmModal.booking?.isPaidOnline && (
+              <div
+                style={{
+                  background: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: '8px',
+                  padding: '10px 14px',
+                  marginBottom: '16px',
+                  fontSize: '12px',
+                  color: '#166534',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <span>💳</span>
+                <span>
+                  <strong>Stripe Online Payment Detected:</strong> The security deposit of ₹{confirmModal.booking?.securityDeposit?.toFixed(2)} will be automatically refunded to the customer's card via Stripe.
+                </span>
+              </div>
+            )}
 
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>

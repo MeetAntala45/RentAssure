@@ -82,6 +82,16 @@ public class VendorSummaryDto
     public DateTime? ApprovedAt { get; set; }
     public string? RejectionReason { get; set; }
     public string? AdminNotes { get; set; }
+
+    // Merchant Performance Scorecard & Tiering
+    public decimal OnTimeDeliveryRate { get; set; } = 98.0m;
+    public decimal DisputeRate { get; set; } = 0.0m;
+    public int ActiveInventoryCount { get; set; } = 0;
+    public int CompletedBookingsCount { get; set; } = 0;
+    public decimal PerformanceScore { get; set; } = 85.0m;
+    public string Tier { get; set; } = "Silver"; // "Gold", "Silver", "Bronze"
+    public string TierBadge { get; set; } = "🥈 Silver Partner";
+    public string NextTierGoal { get; set; } = string.Empty;
 }
 
 public class VendorDetailDto : VendorSummaryDto

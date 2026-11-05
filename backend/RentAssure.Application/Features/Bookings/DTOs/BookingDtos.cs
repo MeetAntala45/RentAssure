@@ -9,6 +9,7 @@ public class CreateBookingRequestDto
     public DateTime? StartDate { get; set; }
     public string DeliveryAddress { get; set; } = string.Empty;
     public string DeliveryCity { get; set; } = string.Empty;
+    public string? StripePaymentIntentId { get; set; }
 }
 
 public class BookingDetailDto
@@ -42,6 +43,9 @@ public class BookingDetailDto
     public string DeliveryCity { get; set; } = string.Empty;
     public string? VendorNotes { get; set; }
     public DateTime CreatedAt { get; set; }
+    public bool IsPaidOnline { get; set; }
+    public string? StripePaymentIntentId { get; set; }
+    public string? StripeRefundId { get; set; }
 }
 
 public class RequestReturnDto

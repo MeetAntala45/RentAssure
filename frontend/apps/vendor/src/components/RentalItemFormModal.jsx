@@ -45,6 +45,9 @@ const RentalItemFormModal = ({
   const [duration, setDuration] = useState(3);
   const [monthlyRent, setMonthlyRent] = useState(65);
   const [securityDeposit, setSecurityDeposit] = useState(195);
+  const [hasTenureDiscount, setHasTenureDiscount] = useState(false);
+  const [discount6Months, setDiscount6Months] = useState(10);
+  const [discount12Months, setDiscount12Months] = useState(20);
   const [city, setCity] = useState('Ahmedabad');
   const [area, setArea] = useState('Downtown');
   const [status, setStatus] = useState(1); // 1 = Available, 2 = Rented, 3 = UnderMaintenance, 4 = Inactive
@@ -98,6 +101,12 @@ const RentalItemFormModal = ({
         setDuration(itemToEdit.minimumRentalMonths || 3);
         setMonthlyRent(itemToEdit.monthlyRent || 45);
         setSecurityDeposit(itemToEdit.securityDeposit || Math.round((itemToEdit.monthlyRent || 45) * 3));
+        const d6 = Number(itemToEdit.discount6MonthsPercent) || 0;
+        const d12 = Number(itemToEdit.discount12MonthsPercent) || 0;
+        const hasDisc = d6 > 0 || d12 > 0;
+        setHasTenureDiscount(hasDisc);
+        setDiscount6Months(d6 > 0 ? d6 : 10);
+        setDiscount12Months(d12 > 0 ? d12 : 20);
         setCity(itemToEdit.city || 'Ahmedabad');
         setArea(itemToEdit.area || 'Downtown Hub');
         setStatus(itemToEdit.status || 1);
@@ -117,6 +126,9 @@ const RentalItemFormModal = ({
         setDuration(3);
         setMonthlyRent(75);
         setSecurityDeposit(225);
+        setHasTenureDiscount(false);
+        setDiscount6Months(10);
+        setDiscount12Months(20);
         setCity('Ahmedabad');
         setArea('Downtown');
         setStatus(1);
@@ -138,6 +150,15 @@ const RentalItemFormModal = ({
   const commissionRate = 0.12; // 12% platform fee
   const platformFee = Math.round(parsedRent * commissionRate * 100) / 100;
   const netVendorProfit = Math.max(0, Math.round((parsedRent - platformFee) * 100) / 100);
+
+  const d6Percent = hasTenureDiscount ? Math.max(0, Math.min(100, parseFloat(discount6Months) || 0)) : 0;
+  const d12Percent = hasTenureDiscount ? Math.max(0, Math.min(100, parseFloat(discount12Months) || 0)) : 0;
+
+  const rent6 = Math.round(parsedRent * (1 - d6Percent / 100));
+  const profit6 = Math.max(0, Math.round(rent6 * (1 - commissionRate) * 100) / 100);
+
+  const rent12 = Math.round(parsedRent * (1 - d12Percent / 100));
+  const profit12 = Math.max(0, Math.round(rent12 * (1 - commissionRate) * 100) / 100);
 
   const handleAddImage = (urlToAdd) => {
     const targetUrl = urlToAdd || newImageUrl.trim();
@@ -187,6 +208,8 @@ const RentalItemFormModal = ({
         monthlyRent: parsedRent,
         securityDeposit: parseFloat(securityDeposit) || Math.round(parsedRent * 3),
         minimumRentalMonths: parseInt(duration, 10) || 1,
+        discount6MonthsPercent: hasTenureDiscount ? Math.round(d6Percent) : 0,
+        discount12MonthsPercent: hasTenureDiscount ? Math.round(d12Percent) : 0,
         city: city?.trim() || 'Ahmedabad',
         area: area?.trim() || 'Downtown',
         images: images.length > 0 ? images : [SAMPLE_IMAGE_PRESETS[0].url],
@@ -479,6 +502,188 @@ const RentalItemFormModal = ({
                     Security Deposit: ₹{parseFloat(securityDeposit) || 0} held in Escrow
                   </span>
                 </div>
+              </div>
+
+              {/* ─── LONG-TERM DURATION DISCOUNTS (VENDOR DECISION) ─── */}
+              <div
+                style={{
+                  marginTop: '14px',
+                  paddingTop: '14px',
+                  borderTop: '1px dashed var(--border-light)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                  <div>
+                    <label
+                      style={{
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        color: 'var(--text-main)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={hasTenureDiscount}
+                        onChange={(e) => setHasTenureDiscount(e.target.checked)}
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          accentColor: 'var(--primary)',
+                          cursor: 'pointer',
+                        }}
+                      />
+                      <span>🏷️ Offer Long-Term Duration Discounts</span>
+                    </label>
+                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '2px 0 0 24px' }}>
+                      Decide whether to reward customers renting for 6 or 12+ months with reduced monthly rates.
+                    </p>
+                  </div>
+                  <span
+                    className="ra-badge"
+                    style={{
+                      fontSize: '11px',
+                      background: hasTenureDiscount ? '#ecfdf5' : '#f1f5f9',
+                      color: hasTenureDiscount ? '#065f46' : 'var(--text-muted)',
+                      border: `1px solid ${hasTenureDiscount ? '#a7f3d0' : '#e2e8f0'}`,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {hasTenureDiscount ? '✓ Discounts Active' : 'No Discount (Standard Rate)'}
+                  </span>
+                </div>
+
+                {hasTenureDiscount && (
+                  <div
+                    style={{
+                      marginTop: '10px',
+                      background: '#ffffff',
+                      border: '1px solid var(--border-light)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '12px 14px',
+                    }}
+                  >
+                    {/* Quick Presets */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)' }}>Presets:</span>
+                      <button
+                        type="button"
+                        onClick={() => { setDiscount6Months(10); setDiscount12Months(20); }}
+                        style={{
+                          fontSize: '11px',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          border: Number(discount6Months) === 10 && Number(discount12Months) === 20 ? '1.5px solid var(--primary)' : '1px solid var(--border-light)',
+                          background: Number(discount6Months) === 10 && Number(discount12Months) === 20 ? 'var(--primary-subtle)' : '#fff',
+                          color: Number(discount6Months) === 10 && Number(discount12Months) === 20 ? 'var(--primary)' : 'var(--text-body)',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                        }}
+                      >
+                        Standard (10% / 20%)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setDiscount6Months(15); setDiscount12Months(25); }}
+                        style={{
+                          fontSize: '11px',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          border: Number(discount6Months) === 15 && Number(discount12Months) === 25 ? '1.5px solid var(--primary)' : '1px solid var(--border-light)',
+                          background: Number(discount6Months) === 15 && Number(discount12Months) === 25 ? 'var(--primary-subtle)' : '#fff',
+                          color: Number(discount6Months) === 15 && Number(discount12Months) === 25 ? 'var(--primary)' : 'var(--text-body)',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                        }}
+                      >
+                        Generous (15% / 25%)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setDiscount6Months(5); setDiscount12Months(10); }}
+                        style={{
+                          fontSize: '11px',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          border: Number(discount6Months) === 5 && Number(discount12Months) === 10 ? '1.5px solid var(--primary)' : '1px solid var(--border-light)',
+                          background: Number(discount6Months) === 5 && Number(discount12Months) === 10 ? 'var(--primary-subtle)' : '#fff',
+                          color: Number(discount6Months) === 5 && Number(discount12Months) === 10 ? 'var(--primary)' : 'var(--text-body)',
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                        }}
+                      >
+                        Conservative (5% / 10%)
+                      </button>
+                    </div>
+
+                    <div className="ra-row-responsive-2" style={{ gap: '12px', marginBottom: '12px' }}>
+                      {/* 6 Months Discount */}
+                      <div className="ra-form-group" style={{ margin: 0 }}>
+                        <label className="ra-label" style={{ fontWeight: 600, fontSize: '12px' }}>
+                          6+ Months Discount (%)
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            className="ra-input"
+                            value={discount6Months}
+                            onChange={(e) => setDiscount6Months(e.target.value)}
+                            style={{ paddingRight: '28px' }}
+                          />
+                          <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'var(--text-muted)' }}>%</span>
+                        </div>
+                      </div>
+
+                      {/* 12 Months Discount */}
+                      <div className="ra-form-group" style={{ margin: 0 }}>
+                        <label className="ra-label" style={{ fontWeight: 600, fontSize: '12px' }}>
+                          12+ Months Discount (%)
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            className="ra-input"
+                            value={discount12Months}
+                            onChange={(e) => setDiscount12Months(e.target.value)}
+                            style={{ paddingRight: '28px' }}
+                          />
+                          <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: 'var(--text-muted)' }}>%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Breakdown Matrix */}
+                    <div style={{ fontSize: '11px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', padding: '10px 12px' }}>
+                      <div style={{ fontWeight: 700, color: 'var(--text-main)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Live Duration Pricing Breakdown
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', textAlign: 'center' }}>
+                        <div style={{ padding: '6px', background: '#fff', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '10px', fontWeight: 600 }}>Standard (1-5 mo)</div>
+                          <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '13px', margin: '2px 0' }}>₹{parsedRent.toFixed(0)}/mo</div>
+                          <div style={{ color: 'var(--primary)', fontSize: '10px', fontWeight: 700 }}>Net: ₹{netVendorProfit.toFixed(0)}</div>
+                        </div>
+                        <div style={{ padding: '6px', background: '#fff', borderRadius: '4px', border: '1px solid #a7f3d0' }}>
+                          <div style={{ color: '#065f46', fontSize: '10px', fontWeight: 700 }}>6+ mo (-{d6Percent}%)</div>
+                          <div style={{ fontWeight: 800, color: '#065f46', fontSize: '13px', margin: '2px 0' }}>₹{rent6.toFixed(0)}/mo</div>
+                          <div style={{ color: 'var(--primary)', fontSize: '10px', fontWeight: 700 }}>Net: ₹{profit6.toFixed(0)}</div>
+                        </div>
+                        <div style={{ padding: '6px', background: '#fff', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+                          <div style={{ color: '#1e40af', fontSize: '10px', fontWeight: 700 }}>12+ mo (-{d12Percent}%)</div>
+                          <div style={{ fontWeight: 800, color: '#1e40af', fontSize: '13px', margin: '2px 0' }}>₹{rent12.toFixed(0)}/mo</div>
+                          <div style={{ color: 'var(--primary)', fontSize: '10px', fontWeight: 700 }}>Net: ₹{profit12.toFixed(0)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

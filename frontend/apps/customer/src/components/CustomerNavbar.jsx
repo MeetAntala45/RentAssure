@@ -1,156 +1,242 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../../../src/shared/AuthContext';
+
+const POPULAR_CITIES = [
+  'All',
+  'Ahmedabad',
+  'Surat',
+  'Vadodara',
+  'Rajkot',
+  'Gandhinagar',
+  'Bhavnagar',
+  'Jamnagar',
+  'Junagadh',
+  'Anand',
+  'Navsari',
+  'Morbi',
+  'Bharuch',
+  'Porbandar',
+  'Mehsana',
+  'Bhuj',
+  'Valsad',
+];
 
 const CustomerNavbar = ({
   onOpenAuth = () => {},
   onOpenSupport = () => {},
+  onOpenMyBookings = () => {},
   selectedCity = 'All',
-  onCityChange = () => {}
+  onCityChange = () => {},
 }) => {
   const { user, logout } = useAuth();
+  const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
+  const [citySearch, setCitySearch] = useState('');
+  const cityDropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(e.target)) {
+        setCityDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredCities = POPULAR_CITIES.filter((c) =>
+    c.toLowerCase().includes(citySearch.toLowerCase())
+  );
 
   return (
-    <header
-      style={{
-        background: '#ffffff',
-        borderBottom: '1px solid var(--border-light)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-      }}
-    >
-      <div className="ra-customer-nav-container">
-        {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)' }}>
-            Rent<span style={{ color: 'var(--primary)' }}>Assure</span>
-          </div>
+    <header className="ra-customer-header">
+      <div className="ra-customer-nav-wrap">
+        {/* Brand & City Picker */}
+        <div className="ra-nav-left-wrap">
+          <a href="#" className="ra-brand-mark" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+            <div className="ra-brand-logo-icon">🛡️</div>
+            <div>
+              <div className="ra-brand-text">
+                Rent<span>Assure</span>
+              </div>
+              <div className="ra-brand-subtitle">Verified Rental Marketplace</div>
+            </div>
+          </a>
 
-          {/* City Selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '14px' }}>📍</span>
-            <select
-              value={selectedCity}
-              onChange={(e) => onCityChange(e.target.value)}
-              style={{
-                border: 'none',
-                background: 'transparent',
-                fontSize: '13px',
-                fontWeight: 600,
-                color: 'var(--text-main)',
-                cursor: 'pointer',
-                outline: 'none',
-              }}
+          {/* City Selector Pill with Custom Popover */}
+          <div className="ra-city-selector-relative" ref={cityDropdownRef}>
+            <button
+              type="button"
+              className="ra-city-pill-btn"
+              onClick={() => setCityDropdownOpen(!cityDropdownOpen)}
+              title="Select delivery location"
             >
-              <option value="All">All Cities</option>
-              <option value="Ahmedabad">Ahmedabad</option>
-              <option value="Surat">Surat</option>
-              <option value="Vadodara">Vadodara</option>
-              <option value="Rajkot">Rajkot</option>
-              <option value="Bhavnagar">Bhavnagar</option>
-              <option value="Jamnagar">Jamnagar</option>
-              <option value="Junagadh">Junagadh</option>
-              <option value="Gandhinagar">Gandhinagar</option>
-              <option value="Anand">Anand</option>
-              <option value="Navsari">Navsari</option>
-              <option value="Morbi">Morbi</option>
-              <option value="Bharuch">Bharuch</option>
-              <option value="Porbandar">Porbandar</option>
-              <option value="Mehsana">Mehsana</option>
-              <option value="Bhuj">Bhuj</option>
-              <option value="Valsad">Valsad</option>
-            </select>
+              <span style={{ fontSize: '15px' }}>📍</span>
+              <span>{selectedCity === 'All' ? 'All Cities' : selectedCity}</span>
+              <span style={{ fontSize: '10px', opacity: 0.7, transform: cityDropdownOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+                ▼
+              </span>
+            </button>
+
+            {cityDropdownOpen && (
+              <div className="ra-city-popover-menu">
+                <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--border-light)', background: 'var(--primary-subtle)' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px' }}>
+                    Select Your City
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search city..."
+                    value={citySearch}
+                    onChange={(e) => setCitySearch(e.target.value)}
+                    autoFocus
+                    style={{
+                      width: '100%',
+                      padding: '7px 10px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-light)',
+                      fontSize: '12px',
+                      outline: 'none',
+                      background: '#ffffff',
+                    }}
+                  />
+                </div>
+
+                <div style={{ maxHeight: '240px', overflowY: 'auto', padding: '6px' }}>
+                  {filteredCities.map((city) => {
+                    const isSelected = selectedCity === city;
+                    return (
+                      <div
+                        key={city}
+                        onClick={() => {
+                          onCityChange(city);
+                          setCityDropdownOpen(false);
+                          setCitySearch('');
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          fontWeight: isSelected ? 800 : 500,
+                          color: isSelected ? 'var(--primary)' : 'var(--text-body)',
+                          background: isSelected ? 'var(--primary-light)' : 'transparent',
+                          cursor: 'pointer',
+                          transition: 'background 0.12s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = '#f8fafc';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span>{city === 'All' ? '🌐' : '📍'}</span>
+                          <span>{city === 'All' ? 'All Cities' : city}</span>
+                        </div>
+                        {isSelected && <span style={{ color: 'var(--primary)', fontWeight: 800 }}>✓</span>}
+                      </div>
+                    );
+                  })}
+                  {filteredCities.length === 0 && (
+                    <div style={{ padding: '16px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      No matching cities found
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Port switcher banner */}
-        <div
-          className="ra-customer-port-banner"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '12px',
-            fontWeight: 600,
-            background: 'var(--primary-subtle)',
-            padding: '6px 14px',
-            borderRadius: 'var(--radius-full)',
-            border: '1px solid #e0e7ff',
-          }}
-        >
-          <span style={{ color: 'var(--text-muted)' }}>Merchant Portal:</span>
-          <a
-            href="http://localhost:5174"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: 'var(--primary)', fontWeight: 700 }}
-          >
-            Port 5174 ↗
-          </a>
-          <span style={{ color: 'var(--border-light)' }}>|</span>
-          <span style={{ color: 'var(--text-muted)' }}>Admin Portal:</span>
-          <a
-            href="http://localhost:5175"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: 'var(--primary)', fontWeight: 700 }}
-          >
-            Port 5175 ↗
-          </a>
-        </div>
-
-        {/* User Account / Sign In */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Right Action Menu: Support & Profile */}
+        <div className="ra-nav-right-wrap">
+          {/* Support Ticket Button */}
           <button
+            type="button"
             onClick={onOpenSupport}
-            style={{
-              padding: '7px 14px',
-              borderRadius: '6px',
-              border: '1px solid #d4d4d8',
-              background: '#ffffff',
-              color: '#18181b',
-              fontSize: '13px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
+            className="ra-nav-help-btn"
+            title="Help Desk Support"
           >
-            <span>💬</span> Support
+            <span style={{ fontSize: '15px' }}>💬</span>
+            <span className="ra-nav-help-text">Help Desk</span>
           </button>
+
+          {/* User Profile or Sign In */}
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={onOpenMyBookings}
+                className="ra-btn ra-btn-secondary ra-btn-sm"
                 style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  background: 'var(--primary-light)',
-                  color: 'var(--primary)',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  gap: '6px',
+                  borderRadius: '9999px',
                   fontWeight: 700,
-                  fontSize: '14px',
                 }}
               >
-                {user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
+                <span>📦</span>
+                <span className="ra-nav-rentals-text">My Rentals</span>
+              </button>
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'var(--primary-light)',
+                  padding: '4px 10px 4px 6px',
+                  borderRadius: '9999px',
+                  border: '1px solid var(--color-light-blue-border)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #033047 0%, #304C62 100%)',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: '13px',
+                  }}
+                >
+                  {user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="ra-nav-user-name" style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)', maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {user.fullName || 'Customer'}
+                </div>
               </div>
-              <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-main)' }}>
-                {user.fullName}
-              </div>
+
               <button
+                type="button"
                 onClick={logout}
                 className="ra-btn ra-btn-secondary ra-btn-sm"
+                style={{ padding: '6px 12px', fontSize: '12px' }}
+                title="Sign out of account"
               >
                 Sign Out
               </button>
             </div>
           ) : (
             <button
+              type="button"
               onClick={onOpenAuth}
               className="ra-btn ra-btn-primary ra-btn-sm"
+              style={{
+                borderRadius: '9999px',
+                padding: '9px 20px',
+                fontWeight: 700,
+                boxShadow: '0 4px 12px rgba(3, 48, 71, 0.2)',
+              }}
             >
               Sign In / Register
             </button>

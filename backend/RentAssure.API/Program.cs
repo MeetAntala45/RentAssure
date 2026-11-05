@@ -3,6 +3,7 @@ using RentAssure.API.Filters;
 using RentAssure.API.Middleware;
 using RentAssure.Infrastructure;
 using Serilog;
+using Stripe;
 
 // ─── Bootstrap Logger (catches startup errors) ─────────────────────
 Log.Logger = new LoggerConfiguration()
@@ -12,6 +13,9 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
+    // ─── Load .env Environment File if present ─────────────────────
+    DotEnvLoader.Load();
+
     Log.Information("Starting RentAssure API...");
 
     var builder = WebApplication.CreateBuilder(args);
@@ -66,6 +70,11 @@ try
     // Infrastructure (EF Core, Repositories, Services)
     builder.Services.AddInfrastructure(builder.Configuration);
 
+    // ─── Stripe Payment Gateway (Test Mode) ─────────────────────────
+    StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"]
+        ?? Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY")
+        ?? Environment.GetEnvironmentVariable("Stripe__SecretKey");
+
     var app = builder.Build();
 
     // ─── Middleware Pipeline ────────────────────────────────────────
@@ -112,3 +121,60 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+public static class DotEnvLoader
+{
+    public static void Load()
+    {
+        var currentDir = Directory.GetCurrentDirectory();
+        var searchPaths = new List<string>
+        {
+            Path.Combine(currentDir, ".env"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".env"),
+            Path.Combine(currentDir, "backend", ".env"),
+            Path.Combine(currentDir, "backend", "RentAssure.API", ".env")
+        };
+
+        var parent = Directory.GetParent(currentDir);
+        if (parent != null)
+        {
+            searchPaths.Add(Path.Combine(parent.FullName, ".env"));
+            var grandParent = parent.Parent;
+            if (grandParent != null)
+            {
+                searchPaths.Add(Path.Combine(grandParent.FullName, ".env"));
+            }
+        }
+
+        foreach (var path in searchPaths)
+        {
+            if (System.IO.File.Exists(path))
+            {
+                foreach (var rawLine in System.IO.File.ReadAllLines(path))
+                {
+                    var line = rawLine.Trim();
+                    if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
+
+                    var eqIdx = line.IndexOf('=');
+                    if (eqIdx <= 0) continue;
+
+                    var key = line.Substring(0, eqIdx).Trim();
+                    var val = line.Substring(eqIdx + 1).Trim().Trim('"', '\'');
+
+                    Environment.SetEnvironmentVariable(key, val);
+
+                    if (key.Equals("STRIPE_SECRET_KEY", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Environment.SetEnvironmentVariable("Stripe__SecretKey", val);
+                    }
+                    else if (key.Equals("STRIPE_PUBLISHABLE_KEY", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Environment.SetEnvironmentVariable("Stripe__PublishableKey", val);
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+

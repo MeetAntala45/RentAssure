@@ -56,6 +56,8 @@ public class VendorItemListingDto
     public decimal MonthlyRent { get; set; }
     public decimal SecurityDeposit { get; set; }
     public int MinimumRentalMonths { get; set; }
+    public int Discount6MonthsPercent { get; set; }
+    public int Discount12MonthsPercent { get; set; }
     public ItemStatus Status { get; set; }
     public string City { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;

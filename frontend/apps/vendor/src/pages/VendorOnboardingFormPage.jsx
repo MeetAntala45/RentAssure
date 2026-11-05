@@ -245,12 +245,50 @@ const VendorOnboardingFormPage = ({ vendorStatus, onStatusChange = () => {} }) =
     }
   };
 
-  // ─── 1. VERIFIED STORE PROFILE DETAILS VIEW (Matching Image 2 Reference) ──
-  if (isApproved) {
+  // ─── 1. STORE PROFILE DETAILS VIEW (Matching Image 2 Reference - Locked Once Filled) ──
+  if (isApproved || isPending) {
     const docs = uploadedDocs.length > 0 ? uploadedDocs : initialDocs;
 
     return (
       <div style={{ maxWidth: '960px', margin: '0 auto', padding: '24px 16px' }}>
+        {/* Verification Under Review Alert when pending */}
+        {isPending && (
+          <div
+            style={{
+              background: 'var(--primary-subtle)',
+              border: '1px solid var(--border-light)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              marginBottom: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '16px',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '24px' }}>⏳</span>
+              <div>
+                <strong style={{ fontSize: '15px', color: 'var(--primary)', display: 'block' }}>
+                  Verification Under Review — Details Locked
+                </strong>
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                  Your merchant details have been submitted and locked. Platform administrators will review your license and credentials on Admin Console.
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={handleCheckStatus}
+              disabled={checking}
+              className="ra-btn ra-btn-secondary ra-btn-sm"
+              style={{ flexShrink: 0 }}
+            >
+              {checking ? 'Checking...' : '🔄 Refresh Status'}
+            </button>
+          </div>
+        )}
+
         {/* Header Bar matching Image 2 */}
         <div
           style={{
@@ -263,27 +301,57 @@ const VendorOnboardingFormPage = ({ vendorStatus, onStatusChange = () => {} }) =
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#1e293b', margin: 0 }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
               {vendorStatus?.ownerName || vendorStatus?.storeName || user?.fullName || 'Store Partner'}
             </h2>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 12px',
-                borderRadius: '9999px',
-                background: '#f4f4f5',
-                color: '#18181b',
-                border: '1px solid #d4d4d8',
-                fontSize: '13px',
-                fontWeight: 700,
-              }}
-            >
-              <IconCheckCircle width={16} height={16} stroke="#18181b" />
-              Verified
-            </span>
+            {isApproved ? (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 12px',
+                  borderRadius: '9999px',
+                  background: 'var(--success-bg)',
+                  color: 'var(--success-text)',
+                  border: '1px solid var(--success-border)',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                }}
+              >
+                <IconCheckCircle width={16} height={16} stroke="var(--success-text)" />
+                Verified Partner
+              </span>
+            ) : (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 12px',
+                  borderRadius: '9999px',
+                  background: 'var(--warning-bg)',
+                  color: 'var(--warning-text)',
+                  border: '1px solid var(--warning-border)',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                }}
+              >
+                <span>⏳</span>
+                Pending Verification
+              </span>
+            )}
           </div>
+
+          {isApproved && (
+            <button
+              onClick={handleCheckStatus}
+              disabled={checking}
+              className="ra-btn ra-btn-secondary ra-btn-sm"
+            >
+              {checking ? 'Refreshing...' : '🔄 Sync Status'}
+            </button>
+          )}
         </div>
 
         {/* Primary Details Card (Grid Matching Image 2) */}
@@ -562,42 +630,9 @@ const VendorOnboardingFormPage = ({ vendorStatus, onStatusChange = () => {} }) =
     );
   }
 
-  // ─── 2. ONBOARDING & VERIFICATION FORM (Only when not verified, or editing) ─
+  // ─── 2. ONBOARDING & VERIFICATION FORM (Only when fresh or rejected) ────────
   return (
     <div style={{ maxWidth: '860px', margin: '0 auto', padding: '32px 16px' }}>
-      {/* ─── PENDING VERIFICATION NOTICE ──────────────────────────────────── */}
-      {isPending && (
-        <div className="ra-card" style={{ marginBottom: '28px', borderLeft: '5px solid #f59e0b' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '20px' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <span style={{ fontSize: '24px' }}>⏳</span>
-                <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)' }}>
-                  Verification Under Review
-                </h3>
-                <span className="ra-badge ra-badge-pending">Pending Admin Approval</span>
-              </div>
-              <p style={{ color: 'var(--text-body)', fontSize: '14px', lineHeight: 1.6 }}>
-                Your store application for <strong>{vendorStatus?.storeName || 'Your Store'}</strong> has been submitted.
-                To maintain high quality on RentAssure, our Administrator verifies all merchant licenses before unlocking listings.
-              </p>
-              <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '6px' }}>
-                Admin Portal reviews applications at <code>http://localhost:5175</code>. Once approved by the admin, your full dashboard and "+ Add Rental Item" capabilities will automatically unlock.
-              </p>
-            </div>
-
-            <button
-              onClick={handleCheckStatus}
-              disabled={checking}
-              className="ra-btn ra-btn-primary ra-btn-sm"
-              style={{ flexShrink: 0 }}
-            >
-              {checking ? 'Checking...' : '🔄 Refresh Status'}
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* ─── REJECTION ALERT ─────────────────────────────────────────────── */}
       {isRejected && (
         <div
@@ -633,7 +668,7 @@ const VendorOnboardingFormPage = ({ vendorStatus, onStatusChange = () => {} }) =
           }}
         >
           <h2 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '6px' }}>
-            {isPending ? 'Edit Store Verification Details' : 'Store Partner Verification'}
+            {isRejected ? 'Update Store Verification Details' : 'Store Partner Verification'}
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: 0 }}>
             Please fill in your merchant details to register as an authorized rental provider on RentAssure.
@@ -757,7 +792,7 @@ const VendorOnboardingFormPage = ({ vendorStatus, onStatusChange = () => {} }) =
           {/* Row 4: City (Gujarat only) & State (Gujarat auto-filled) */}
           <div className="ra-form-grid-2">
             <div className="ra-form-group">
-              <label className="ra-label">City (Gujarat)*</label>
+              <label className="ra-label">City *</label>
               <select
                 className="ra-select"
                 value={city}

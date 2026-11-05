@@ -186,6 +186,8 @@ public class ItemService : IItemService
             MonthlyRent = item.MonthlyRent,
             SecurityDeposit = item.SecurityDeposit,
             MinimumRentalMonths = item.MinimumRentalMonths,
+            Discount6MonthsPercent = item.Discount6MonthsPercent,
+            Discount12MonthsPercent = item.Discount12MonthsPercent,
             Images = images,
             Status = item.Status,
             City = item.City,

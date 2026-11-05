@@ -490,9 +490,27 @@ const VendorInventoryPage = () => {
                         </div>
                       </td>
 
-                      {/* Min. Tenure */}
+                      {/* Min. Tenure & Duration Discounts */}
                       <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--text-body)' }}>
-                        {item.minimumRentalMonths || 3} months
+                        <div style={{ fontWeight: 600 }}>{item.minimumRentalMonths || 1} mo min.</div>
+                        {(item.discount6MonthsPercent > 0 || item.discount12MonthsPercent > 0) ? (
+                          <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
+                            {item.discount6MonthsPercent > 0 && (
+                              <span style={{ fontSize: '10px', background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>
+                                6m: -{item.discount6MonthsPercent}%
+                              </span>
+                            )}
+                            {item.discount12MonthsPercent > 0 && (
+                              <span style={{ fontSize: '10px', background: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>
+                                12m: -{item.discount12MonthsPercent}%
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: '11px', color: 'var(--text-light)', marginTop: '2px' }}>
+                            Fixed rate
+                          </div>
+                        )}
                       </td>
 
                       {/* Status */}

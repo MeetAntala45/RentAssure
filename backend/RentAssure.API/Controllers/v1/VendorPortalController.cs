@@ -11,6 +11,7 @@ namespace RentAssure.API.Controllers.v1;
 
 [ApiController]
 [Route("api/v1/vendor")]
+[Authorize(Roles = "Vendor,Admin")]
 public class VendorPortalController : ControllerBase
 {
     private readonly IVendorService _vendorService;
@@ -24,7 +25,7 @@ public class VendorPortalController : ControllerBase
     {
         var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (int.TryParse(idStr, out var id)) return id;
-        return 1;
+        throw new UnauthorizedAccessException("User is not authenticated or access token is invalid.");
     }
 
     [HttpGet("status")]

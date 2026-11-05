@@ -209,6 +209,11 @@ export const adminApi = {
     return res.data;
   },
 
+  updateVendorCommission: async (id, commissionRate) => {
+    const res = await api.put(`/admin/vendors/${id}/commission`, { commissionRate });
+    return res.data;
+  },
+
   getCategories: async () => {
     const res = await api.get('/admin/categories');
     return res.data;
@@ -216,6 +221,36 @@ export const adminApi = {
 
   createCategory: async (categoryData) => {
     const res = await api.post('/admin/categories', categoryData);
+    return res.data;
+  },
+
+  updateCategory: async (id, categoryData) => {
+    const res = await api.put(`/admin/categories/${id}`, categoryData);
+    return res.data;
+  },
+
+  toggleCategoryStatus: async (id) => {
+    const res = await api.patch(`/admin/categories/${id}/toggle-status`);
+    return res.data;
+  },
+
+  deleteCategory: async (id) => {
+    const res = await api.delete(`/admin/categories/${id}`);
+    return res.data;
+  },
+
+  getSettings: async () => {
+    const res = await api.get('/admin/settings');
+    return res.data;
+  },
+
+  updateSetting: async (settingKey, settingValue) => {
+    const res = await api.put('/admin/settings', { settingKey, settingValue });
+    return res.data;
+  },
+
+  getCities: async () => {
+    const res = await api.get('/v1/items/cities');
     return res.data;
   },
 
@@ -259,6 +294,54 @@ export const customerApi = {
 
   getCities: async () => {
     const res = await api.get('/v1/items/cities');
+    return res.data;
+  },
+
+  createBooking: async (bookingData) => {
+    const res = await api.post('/v1/bookings', bookingData);
+    return res.data;
+  },
+
+  getMyBookings: async () => {
+    const res = await api.get('/v1/bookings/my');
+    return res.data;
+  },
+
+  getBookingById: async (id) => {
+    const res = await api.get(`/v1/bookings/${id}`);
+    return res.data;
+  },
+
+  requestReturn: async (id, returnData) => {
+    const res = await api.post(`/v1/bookings/${id}/return`, returnData);
+    return res.data;
+  },
+
+  raiseDispute: async (id, disputeData) => {
+    const res = await api.post(`/v1/bookings/${id}/dispute`, disputeData);
+    return res.data;
+  },
+};
+
+// ─── PAYMENTS API (STRIPE) ──────────────────────────────────────────────────
+export const paymentsApi = {
+  getConfig: async () => {
+    const res = await api.get('/v1/payments/config');
+    return res.data;
+  },
+
+  createPaymentIntent: async ({ itemId, rentalMonths, amount }) => {
+    const res = await api.post('/v1/payments/create-intent', { itemId, rentalMonths, amount });
+    return res.data;
+  },
+
+  testConfirm: async (paymentIntentId) => {
+    const res = await api.post(`/v1/payments/test-confirm/${paymentIntentId}`);
+    return res.data;
+  },
+
+  refundDeposit: async (bookingId) => {
+    const res = await api.post(`/v1/payments/refund-deposit/${bookingId}`);
     return res.data;
   },
 };

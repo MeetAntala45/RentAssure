@@ -1339,3 +1339,652 @@ input:checked + .ra-slider::before {
   }
 }
 
+/* ==========================================================================
+   CUSTOMER MARKETPLACE DESIGN SYSTEM (PORT 5173)
+   ========================================================================== */
+
+/* Animations */
+@keyframes raFadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes raScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes raPulseSubtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Sticky Customer Header */
+.ra-customer-header {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: all 0.2s ease;
+}
+
+.ra-customer-nav-wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 28px);
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Logo mark */
+.ra-brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.ra-brand-logo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #033047 0%, #304C62 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 20px;
+  box-shadow: 0 4px 12px rgba(3, 48, 71, 0.2);
+}
+
+.ra-brand-text {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.ra-brand-text span {
+  color: #304C62;
+  font-weight: 800;
+}
+
+.ra-brand-subtitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* City Selector Pill & Popover */
+.ra-city-selector-relative {
+  position: relative;
+}
+
+.ra-city-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--color-light-blue-border);
+  transition: all 0.15s ease;
+}
+
+.ra-city-pill-btn:hover {
+  background: var(--color-light-blue-hover);
+  border-color: var(--primary);
+}
+
+.ra-city-popover-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 280px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+  z-index: 300;
+  overflow: hidden;
+  animation: raFadeDown 0.18s ease-out;
+}
+
+/* Responsive Customer Navbar Alignment */
+.ra-nav-left-wrap {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 20px);
+  flex-shrink: 0;
+}
+
+.ra-nav-right-wrap {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.5vw, 14px);
+  flex-shrink: 0;
+}
+
+.ra-nav-help-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-light);
+  background: #ffffff;
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.ra-nav-help-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+@media (max-width: 768px) {
+  .ra-customer-nav-wrap {
+    height: 64px;
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .ra-brand-subtitle {
+    display: none;
+  }
+  .ra-brand-text {
+    font-size: 19px;
+  }
+  .ra-brand-logo-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  .ra-city-pill-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 520px) {
+  .ra-customer-nav-wrap {
+    height: 58px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .ra-brand-mark {
+    gap: 8px;
+  }
+  .ra-brand-text {
+    font-size: 17px;
+  }
+  .ra-brand-logo-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  .ra-city-pill-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .ra-city-popover-menu {
+    width: min(280px, calc(100vw - 24px));
+    left: -40px;
+  }
+  .ra-nav-help-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .ra-nav-help-text {
+    display: none;
+  }
+  .ra-nav-user-name {
+    display: none;
+  }
+  .ra-nav-rentals-text {
+    display: none;
+  }
+}
+
+/* Modern Customer Hero */
+.ra-customer-hero-section {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #033047 0%, #1e3d54 50%, #304C62 100%);
+  color: #ffffff;
+  padding: clamp(32px, 5vw, 60px) clamp(20px, 4vw, 52px);
+  box-shadow: 0 20px 45px -15px rgba(3, 48, 71, 0.3);
+  margin-bottom: 36px;
+}
+
+.ra-hero-bg-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ra-hero-shape-1 {
+  position: absolute;
+  width: 450px;
+  height: 450px;
+  top: -120px;
+  right: -80px;
+  background: radial-gradient(circle, rgba(232, 241, 245, 0.15) 0%, rgba(3, 48, 71, 0) 70%);
+  border-radius: 50%;
+}
+
+.ra-hero-shape-2 {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  bottom: -60px;
+  left: 30%;
+  background: radial-gradient(circle, rgba(92, 103, 125, 0.2) 0%, rgba(3, 48, 71, 0) 70%);
+  border-radius: 50%;
+}
+
+.ra-hero-trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+  margin-bottom: 16px;
+}
+
+.ra-hero-title-main {
+  font-size: clamp(28px, 4.5vw, 44px);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.18;
+  letter-spacing: -0.5px;
+  margin-bottom: 14px;
+  max-width: 820px;
+}
+
+.ra-hero-title-main span {
+  color: #b8daf0;
+  background: linear-gradient(90deg, #ffffff, #c2e0f4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ra-hero-desc-main {
+  font-size: clamp(14px, 2vw, 17px);
+  color: #e2e8f0;
+  line-height: 1.6;
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+/* Modern Floating Search Bar */
+.ra-search-bar-modern {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: var(--radius-full);
+  padding: 6px 8px 6px 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+  width: 100%;
+  max-width: 660px;
+  gap: 12px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.ra-search-bar-modern:focus-within {
+  border-color: #304C62;
+  box-shadow: 0 16px 36px rgba(3, 48, 71, 0.22);
+}
+
+.ra-search-bar-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-main);
+  outline: none;
+  font-weight: 500;
+  padding: 8px 0;
+}
+
+.ra-search-bar-input::placeholder {
+  color: #94a3b8;
+}
+
+/* Hero Trust Guarantee Pillars */
+.ra-hero-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.ra-hero-pillar-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ra-pillar-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.ra-pillar-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.ra-pillar-desc {
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+/* Category Filter Bar */
+.ra-category-carousel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px 14px 2px;
+  margin-bottom: 24px;
+  scrollbar-width: thin;
+}
+
+.ra-category-pill-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1.5px solid var(--border-light);
+  background: #ffffff;
+  color: var(--text-body);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.ra-category-pill-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.ra-category-pill-card.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 6px 16px rgba(3, 48, 71, 0.22);
+}
+
+/* Product Card - Modern Production Quality */
+.ra-product-card-modern {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid var(--border-light);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.ra-product-card-modern:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px -6px rgba(3, 48, 71, 0.12);
+  border-color: #304C62;
+}
+
+.ra-product-thumb-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #f1f5f9;
+  margin-bottom: 14px;
+}
+
+.ra-product-thumb-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.ra-product-card-modern:hover .ra-product-thumb-container img {
+  transform: scale(1.06);
+}
+
+.ra-badge-overlay-top-left {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(3, 48, 71, 0.88);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.ra-badge-overlay-top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Tenure Selection Pill Grid */
+.ra-tenure-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.ra-tenure-card-interactive {
+  border: 2px solid var(--border-light);
+  border-radius: 14px;
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  background: #ffffff;
+  position: relative;
+}
+
+.ra-tenure-card-interactive:hover {
+  border-color: #304C62;
+  transform: translateY(-2px);
+}
+
+.ra-tenure-card-interactive.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 4px 14px rgba(3, 48, 71, 0.1);
+}
+
+/* Why RentAssure Escrow Section */
+.ra-trust-section {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid var(--border-light);
+  padding: clamp(28px, 4vw, 44px) clamp(20px, 4vw, 36px);
+  margin: 48px 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.ra-trust-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-top: 28px;
+}
+
+.ra-trust-card {
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--primary-subtle);
+  border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.ra-trust-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: #304C62;
+}
+
+/* How It Works Steps */
+.ra-how-it-works-wrap {
+  margin: 48px 0;
+  text-align: center;
+}
+
+.ra-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+  text-align: left;
+}
+
+.ra-step-item {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border-light);
+  padding: 28px 24px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.ra-step-number-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(3, 48, 71, 0.2);
+}
+
+/* Modern Auth Modal Specifics */
+.ra-customer-auth-dialog {
+  max-width: 480px !important;
+  width: 100% !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+  box-shadow: 0 25px 60px -15px rgba(3, 48, 71, 0.35);
+}
+
+.ra-auth-tab-bar {
+  display: flex;
+  background: var(--primary-light);
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.ra-auth-tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ra-auth-tab-btn.active {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+

@@ -41,6 +41,11 @@ public class Booking : BaseEntity
     public string? VendorNotes { get; set; }
     public string? StripeSubscriptionId { get; set; }
 
+    // Stripe Payment Tracking
+    public string? StripePaymentIntentId { get; set; }
+    public string? StripeRefundId { get; set; }
+    public bool IsPaidOnline { get; set; } = false;
+
     // Navigation
     public ICollection<Dispute> Disputes { get; set; } = new List<Dispute>();
 }

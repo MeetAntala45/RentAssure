@@ -39,6 +39,16 @@ public class BookingService : IBookingService
             return ApiResponse<BookingDetailDto>.Fail("This item is currently inactive.");
         }
 
+        if (item.Status == ItemStatus.Rented)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("This item is currently rented out by another customer.");
+        }
+
+        if (item.Status == ItemStatus.UnderMaintenance)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("This item is currently undergoing maintenance.");
+        }
+
         if (request.RentalDurationMonths < item.MinimumRentalMonths)
         {
             return ApiResponse<BookingDetailDto>.Fail($"Minimum rental tenure for this item is {item.MinimumRentalMonths} months.");
@@ -50,15 +60,17 @@ public class BookingService : IBookingService
             return ApiResponse<BookingDetailDto>.Fail("Customer account not found.");
         }
 
-        // Calculate discounted monthly rent based on tenure
+        // Calculate discounted monthly rent based on tenure (decided per product by the vendor)
         var monthlyRent = item.MonthlyRent;
-        if (request.RentalDurationMonths >= 12)
+        if (request.RentalDurationMonths >= 12 && item.Discount12MonthsPercent > 0)
         {
-            monthlyRent = Math.Round(item.MonthlyRent * 0.80m, 2); // 20% discount
+            var discount = Math.Clamp(item.Discount12MonthsPercent, 0, 100);
+            monthlyRent = Math.Round(item.MonthlyRent * (1m - (discount / 100m)), 2);
         }
-        else if (request.RentalDurationMonths >= 6)
+        else if (request.RentalDurationMonths >= 6 && item.Discount6MonthsPercent > 0)
         {
-            monthlyRent = Math.Round(item.MonthlyRent * 0.90m, 2); // 10% discount
+            var discount = Math.Clamp(item.Discount6MonthsPercent, 0, 100);
+            monthlyRent = Math.Round(item.MonthlyRent * (1m - (discount / 100m)), 2);
         }
 
         var securityDeposit = item.SecurityDeposit;
@@ -99,7 +111,9 @@ public class BookingService : IBookingService
             Status = BookingStatus.Active,
             DepositStatus = DepositStatus.Held,
             DeliveryAddress = string.IsNullOrWhiteSpace(request.DeliveryAddress) ? "Default Customer Address" : request.DeliveryAddress.Trim(),
-            DeliveryCity = string.IsNullOrWhiteSpace(request.DeliveryCity) ? item.City : request.DeliveryCity.Trim()
+            DeliveryCity = string.IsNullOrWhiteSpace(request.DeliveryCity) ? item.City : request.DeliveryCity.Trim(),
+            StripePaymentIntentId = request.StripePaymentIntentId,
+            IsPaidOnline = !string.IsNullOrWhiteSpace(request.StripePaymentIntentId)
         };
 
         item.Status = ItemStatus.Rented;
@@ -275,7 +289,10 @@ public class BookingService : IBookingService
             DeliveryAddress = b.DeliveryAddress,
             DeliveryCity = b.DeliveryCity,
             VendorNotes = b.VendorNotes,
-            CreatedAt = b.CreatedAt
+            CreatedAt = b.CreatedAt,
+            IsPaidOnline = b.IsPaidOnline,
+            StripePaymentIntentId = b.StripePaymentIntentId,
+            StripeRefundId = b.StripeRefundId
         };
     }
 }

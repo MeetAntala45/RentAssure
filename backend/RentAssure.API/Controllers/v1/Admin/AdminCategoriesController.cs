@@ -63,4 +63,14 @@ public class AdminCategoriesController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteCategory([FromRoute] int id)
+    {
+        var result = await _adminService.DeleteCategoryAsync(id, GetAdminUserId(), GetAdminName());
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
 }

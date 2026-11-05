@@ -42,6 +42,8 @@ public interface IAdminService
         int id, CreateOrUpdateCategoryDto request, int adminUserId, string adminName);
     Task<ApiResponse<bool>> ToggleCategoryStatusAsync(
         int id, int adminUserId, string adminName);
+    Task<ApiResponse<bool>> DeleteCategoryAsync(
+        int id, int adminUserId, string adminName);
 
     // Platform Settings & Commission Rules
     Task<ApiResponse<List<PlatformSettingDto>>> GetSettingsAsync();

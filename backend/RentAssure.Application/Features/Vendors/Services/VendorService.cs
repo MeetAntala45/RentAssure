@@ -14,10 +14,12 @@ namespace RentAssure.Application.Features.Vendors.Services;
 public class VendorService : IVendorService
 {
     private readonly IApplicationDbContext _context;
+    private readonly IStripePaymentService _paymentService;
 
-    public VendorService(IApplicationDbContext context)
+    public VendorService(IApplicationDbContext context, IStripePaymentService paymentService)
     {
         _context = context;
+        _paymentService = paymentService;
     }
 
     private async Task<Vendor?> GetVendorOrFirstAsync(int userId)
@@ -369,6 +371,8 @@ public class VendorService : IVendorService
                 MonthlyRent = i.MonthlyRent,
                 SecurityDeposit = i.SecurityDeposit,
                 MinimumRentalMonths = i.MinimumRentalMonths,
+                Discount6MonthsPercent = i.Discount6MonthsPercent,
+                Discount12MonthsPercent = i.Discount12MonthsPercent,
                 Status = i.Status,
                 City = i.City,
                 Area = i.Area,
@@ -414,6 +418,8 @@ public class VendorService : IVendorService
             MonthlyRent = request.MonthlyRent,
             SecurityDeposit = request.SecurityDeposit > 0 ? request.SecurityDeposit : Math.Round(request.MonthlyRent * 3m, 2),
             MinimumRentalMonths = request.MinimumRentalMonths > 0 ? request.MinimumRentalMonths : 3,
+            Discount6MonthsPercent = Math.Clamp(request.Discount6MonthsPercent, 0, 100),
+            Discount12MonthsPercent = Math.Clamp(request.Discount12MonthsPercent, 0, 100),
             City = string.IsNullOrWhiteSpace(request.City) ? vendor.City : request.City.Trim(),
             Area = string.IsNullOrWhiteSpace(request.Area) ? "Main Hub" : request.Area.Trim(),
             ImagesJson = imagesJson,
@@ -436,6 +442,8 @@ public class VendorService : IVendorService
             MonthlyRent = item.MonthlyRent,
             SecurityDeposit = item.SecurityDeposit,
             MinimumRentalMonths = item.MinimumRentalMonths,
+            Discount6MonthsPercent = item.Discount6MonthsPercent,
+            Discount12MonthsPercent = item.Discount12MonthsPercent,
             Status = item.Status,
             City = item.City,
             Area = item.Area,
@@ -480,6 +488,8 @@ public class VendorService : IVendorService
         item.MonthlyRent = request.MonthlyRent;
         item.SecurityDeposit = request.SecurityDeposit > 0 ? request.SecurityDeposit : Math.Round(request.MonthlyRent * 3m, 2);
         item.MinimumRentalMonths = request.MinimumRentalMonths > 0 ? request.MinimumRentalMonths : 3;
+        item.Discount6MonthsPercent = Math.Clamp(request.Discount6MonthsPercent, 0, 100);
+        item.Discount12MonthsPercent = Math.Clamp(request.Discount12MonthsPercent, 0, 100);
         item.City = string.IsNullOrWhiteSpace(request.City) ? vendor.City : request.City.Trim();
         item.Area = string.IsNullOrWhiteSpace(request.Area) ? "Main Hub" : request.Area.Trim();
         item.Status = request.Status;
@@ -511,6 +521,8 @@ public class VendorService : IVendorService
             MonthlyRent = item.MonthlyRent,
             SecurityDeposit = item.SecurityDeposit,
             MinimumRentalMonths = item.MinimumRentalMonths,
+            Discount6MonthsPercent = item.Discount6MonthsPercent,
+            Discount12MonthsPercent = item.Discount12MonthsPercent,
             Status = item.Status,
             City = item.City,
             Area = item.Area,
@@ -608,7 +620,10 @@ public class VendorService : IVendorService
                 DeliveryAddress = b.DeliveryAddress,
                 DeliveryCity = b.DeliveryCity,
                 VendorNotes = b.VendorNotes,
-                CreatedAt = b.CreatedAt
+                CreatedAt = b.CreatedAt,
+                IsPaidOnline = b.IsPaidOnline,
+                StripePaymentIntentId = b.StripePaymentIntentId,
+                StripeRefundId = b.StripeRefundId
             };
         }).ToList();
 
@@ -651,6 +666,32 @@ public class VendorService : IVendorService
             {
                 booking.DepositStatus = DepositStatus.Refunded;
                 booking.DepositRefundedAmount = booking.SecurityDeposit;
+
+                // Process Stripe deposit refund if booking was paid online and not yet refunded
+                if (booking.IsPaidOnline && !string.IsNullOrEmpty(booking.StripePaymentIntentId) && string.IsNullOrEmpty(booking.StripeRefundId) && booking.SecurityDeposit > 0)
+                {
+                    var (refundSuccess, refundId, refundErr) = await _paymentService.RefundDepositAsync(
+                        booking.StripePaymentIntentId,
+                        booking.SecurityDeposit,
+                        booking.Id,
+                        booking.BookingReference,
+                        booking.Customer?.Email);
+
+                    if (refundSuccess && !string.IsNullOrEmpty(refundId))
+                    {
+                        booking.StripeRefundId = refundId;
+                        _context.AuditLogs.Add(new AuditLog
+                        {
+                            Action = "StripeDepositRefund",
+                            EntityType = "Booking",
+                            EntityId = booking.BookingReference,
+                            PerformedByUserId = userId,
+                            PerformedByUserName = vendor.StoreName,
+                            Details = $"Security deposit ₹{booking.SecurityDeposit:N2} automatically refunded to customer card via Stripe upon return completion. Refund ID: {refundId}",
+                            Severity = "Info"
+                        });
+                    }
+                }
 
                 if (previousStatus != BookingStatus.Completed)
                 {
@@ -718,7 +759,10 @@ public class VendorService : IVendorService
             DeliveryAddress = booking.DeliveryAddress,
             DeliveryCity = booking.DeliveryCity,
             VendorNotes = booking.VendorNotes,
-            CreatedAt = booking.CreatedAt
+            CreatedAt = booking.CreatedAt,
+            IsPaidOnline = booking.IsPaidOnline,
+            StripePaymentIntentId = booking.StripePaymentIntentId,
+            StripeRefundId = booking.StripeRefundId
         }, $"Order status updated to {request.Status}.");
     }
 
@@ -781,7 +825,10 @@ public class VendorService : IVendorService
             DeliveryAddress = b.DeliveryAddress,
             DeliveryCity = b.DeliveryCity,
             VendorNotes = b.VendorNotes,
-            CreatedAt = b.CreatedAt
+            CreatedAt = b.CreatedAt,
+            IsPaidOnline = b.IsPaidOnline,
+            StripePaymentIntentId = b.StripePaymentIntentId,
+            StripeRefundId = b.StripeRefundId
         };
 
         return ApiResponse<BookingDetailDto>.Success(dto);

@@ -61,6 +61,15 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(b => b.StripePaymentIntentId)
+            .HasMaxLength(150);
+
+        builder.Property(b => b.StripeRefundId)
+            .HasMaxLength(150);
+
+        builder.Property(b => b.IsPaidOnline)
+            .HasDefaultValue(false);
+
         builder.HasOne(b => b.Item)
             .WithMany(i => i.Bookings)
             .HasForeignKey(b => b.ItemId)

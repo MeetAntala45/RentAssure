@@ -22,8 +22,7 @@ public class BookingsController : ControllerBase
     {
         var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (int.TryParse(idStr, out var id)) return id;
-        // Fallback for seamless demo/customer session if not authenticated
-        return 1;
+        throw new UnauthorizedAccessException("User is not authenticated or access token is invalid.");
     }
 
     [HttpPost]

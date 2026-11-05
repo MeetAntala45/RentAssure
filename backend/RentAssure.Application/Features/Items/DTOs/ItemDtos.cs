@@ -28,10 +28,18 @@ public class RentalItemDto
     public int TotalRentalsCount { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    // Calculated pricing for 3, 6, 12 month subscriptions
+    // Tenure Discounts (decided per product by the vendor)
+    public int Discount6MonthsPercent { get; set; } = 0;
+    public int Discount12MonthsPercent { get; set; } = 0;
+
+    // Calculated pricing for 3, 6, 12 month subscriptions based on vendor settings
     public decimal Rent3Months => MonthlyRent;
-    public decimal Rent6Months => Math.Round(MonthlyRent * 0.90m, 2); // 10% discount
-    public decimal Rent12Months => Math.Round(MonthlyRent * 0.80m, 2); // 20% discount
+    public decimal Rent6Months => Discount6MonthsPercent > 0 
+        ? Math.Round(MonthlyRent * (1m - (Discount6MonthsPercent / 100m)), 2) 
+        : MonthlyRent;
+    public decimal Rent12Months => Discount12MonthsPercent > 0 
+        ? Math.Round(MonthlyRent * (1m - (Discount12MonthsPercent / 100m)), 2) 
+        : MonthlyRent;
 }
 
 public class ItemFilterDto
@@ -60,6 +68,8 @@ public class CreateRentalItemDto
     public decimal MonthlyRent { get; set; }
     public decimal SecurityDeposit { get; set; }
     public int MinimumRentalMonths { get; set; } = 3;
+    public int Discount6MonthsPercent { get; set; } = 0;
+    public int Discount12MonthsPercent { get; set; } = 0;
     public string City { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;
     public List<string> Images { get; set; } = new();
@@ -76,6 +86,8 @@ public class UpdateRentalItemDto
     public decimal MonthlyRent { get; set; }
     public decimal SecurityDeposit { get; set; }
     public int MinimumRentalMonths { get; set; } = 3;
+    public int Discount6MonthsPercent { get; set; } = 0;
+    public int Discount12MonthsPercent { get; set; } = 0;
     public string City { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;
     public List<string> Images { get; set; } = new();

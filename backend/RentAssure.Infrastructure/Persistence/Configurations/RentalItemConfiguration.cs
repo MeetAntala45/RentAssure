@@ -35,6 +35,12 @@ public class RentalItemConfiguration : IEntityTypeConfiguration<RentalItem>
         builder.Property(i => i.SecurityDeposit)
             .HasPrecision(18, 2);
 
+        builder.Property(i => i.Discount6MonthsPercent)
+            .HasDefaultValue(0);
+
+        builder.Property(i => i.Discount12MonthsPercent)
+            .HasDefaultValue(0);
+
         builder.Property(i => i.Status)
             .IsRequired()
             .HasConversion<string>()

@@ -481,7 +481,7 @@ export default function DashboardPage() {
                 Rent Furniture, Appliances & Gear <span>Monthly</span>
               </h1>
               <p className="mp-hero__subtitle">
-                Subscribe directly from verified local shop owners in {selectedCity === 'All' ? 'Gujarat' : selectedCity}. Enjoy free doorstep delivery, zero upfront buying cost, and 100% escrow-backed security deposits.
+                Subscribe directly from verified local shop owners in {selectedCity === 'All' ? 'your city' : selectedCity}. Enjoy free doorstep delivery, zero upfront buying cost, and 100% escrow-backed security deposits.
               </p>
               <div className="mp-hero__perks">
                 <div className="mp-perk-item">

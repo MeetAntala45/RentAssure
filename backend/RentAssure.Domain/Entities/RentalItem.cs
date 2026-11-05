@@ -22,6 +22,10 @@ public class RentalItem : BaseEntity
     public decimal SecurityDeposit { get; set; }
     public int MinimumRentalMonths { get; set; } = 3;
 
+    // Tenure Discounts (decided per product by the vendor)
+    public int Discount6MonthsPercent { get; set; } = 0;  // 0 means no discount
+    public int Discount12MonthsPercent { get; set; } = 0; // 0 means no discount
+
     // Assets & Metadata
     public string ImagesJson { get; set; } = "[]"; // JSON array of image URLs
     public ItemStatus Status { get; set; } = ItemStatus.Available;
