@@ -1,64 +1,64 @@
 /* ==========================================================================
-   RentAssure Design System - Matches Reference UI ("HomeCare" Style)
+   RentAssure Design System - Clean Professional Light Theme
    ========================================================================== */
 
 :root {
-  /* Aesthetic Blue Palette */
-  --primary: #033047;
-  --primary-hover: #304C62;
-  --primary-active: #021f2f;
-  --primary-light: #e8f1f5;
-  --primary-subtle: #f0f5f9;
-  --primary-shadow: rgba(3, 48, 71, 0.18);
+  /* Clean, Calm Professional Palette */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-active: #1e40af;
+  --primary-light: #eff6ff;
+  --primary-subtle: #f8fafc;
+  --primary-shadow: rgba(37, 99, 235, 0.14);
 
-  --color-dark-blue: #033047;
-  --color-slate-blue: #304C62;
-  --color-steel-blue: #5C677D;
-  --color-silver: #D9D9D9;
-  --color-canvas: #F4F3EE;
-  --color-light-blue: #e8f1f5;
-  --color-light-blue-hover: #d3e2ed;
-  --color-light-blue-border: #bfd4e4;
+  --color-dark-blue: #0f172a;
+  --color-slate-blue: #334155;
+  --color-steel-blue: #64748b;
+  --color-silver: #e2e8f0;
+  --color-canvas: #f8fafc;
+  --color-light-blue: #eff6ff;
+  --color-light-blue-hover: #dbeafe;
+  --color-light-blue-border: #bfdbfe;
 
-  --text-main: #033047;
-  --text-body: #304C62;
-  --text-muted: #5C677D;
-  --text-light: #8a99a8;
+  --text-main: #0f172a;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
 
-  --bg-page: #F4F3EE;
+  --bg-page: #f8fafc;
   --bg-card: #ffffff;
   --bg-sidebar: #ffffff;
   --bg-input: #ffffff;
 
-  --border-light: #D9D9D9;
-  --border-focus: #033047;
+  --border-light: #e2e8f0;
+  --border-focus: #2563eb;
 
-  --success-bg: #e8f5e9;
-  --success-text: #1b5e20;
-  --success-border: #c8e6c9;
+  --success-bg: #f0fdf4;
+  --success-text: #166534;
+  --success-border: #bbf7d0;
 
-  --danger-bg: #ffebee;
-  --danger-text: #b71c1c;
-  --danger-border: #ffcdd2;
+  --danger-bg: #fef2f2;
+  --danger-text: #991b1b;
+  --danger-border: #fecaca;
 
-  --warning-bg: #fff8e1;
-  --warning-text: #f57f17;
-  --warning-border: #ffecb3;
+  --warning-bg: #fffbeb;
+  --warning-text: #92400e;
+  --warning-border: #fde68a;
 
-  --badge-verified-bg: #e8f1f5;
-  --badge-verified-text: #033047;
-  --badge-verified-border: #bfd4e4;
+  --badge-verified-bg: #eff6ff;
+  --badge-verified-text: #1d4ed8;
+  --badge-verified-border: #bfdbfe;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 1px 2px 0 rgba(3, 48, 71, 0.04);
-  --shadow-md: 0 4px 12px -2px rgba(3, 48, 71, 0.08), 0 2px 6px -1px rgba(3, 48, 71, 0.04);
-  --shadow-lg: 0 10px 25px -4px rgba(3, 48, 71, 0.10), 0 4px 10px -2px rgba(3, 48, 71, 0.05);
-  --shadow-modal: 0 25px 50px -12px rgba(3, 48, 71, 0.30);
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-modal: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.06);
 }
 
 *, *::before, *::after {

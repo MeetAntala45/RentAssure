@@ -190,6 +190,8 @@ public class ItemService : IItemService
             Discount12MonthsPercent = item.Discount12MonthsPercent,
             Images = images,
             Status = item.Status,
+            Quantity = item.Quantity > 0 ? item.Quantity : 1,
+            AvailableQuantity = item.AvailableQuantity >= 0 ? item.AvailableQuantity : (item.Status == ItemStatus.Available ? 1 : 0),
             City = item.City,
             Area = item.Area,
             TotalRentalsCount = item.TotalRentalsCount,

@@ -158,6 +158,51 @@ public class VendorPortalController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("bookings/{id:int}/verify-delivery")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<BookingDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BookingDetailDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> VerifyDeliveryOtp(int id, [FromBody] VerifyVendorDeliveryDto request)
+    {
+        var userId = GetCurrentUserId();
+        var result = await _vendorService.VerifyDeliveryOtpAsync(userId, id, request.Otp);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [HttpPost("bookings/{id:int}/record-offline-payment")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<BookingDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BookingDetailDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RecordOfflineMonthlyRent(int id)
+    {
+        var userId = GetCurrentUserId();
+        var result = await _vendorService.RecordOfflineMonthlyRentAsync(userId, id);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [HttpPost("bookings/{id:int}/release-deposit")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<BookingDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<BookingDetailDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> VerifyReturnAndReleaseDeposit(int id, [FromBody] ReleaseDepositDto request)
+    {
+        var userId = GetCurrentUserId();
+        var result = await _vendorService.VerifyReturnAndReleaseDepositAsync(userId, id, request?.ConditionNotes);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
     [HttpGet("earnings")]
     [Authorize]
     [ProducesResponseType(typeof(ApiResponse<VendorEarningsSummaryDto>), StatusCodes.Status200OK)]

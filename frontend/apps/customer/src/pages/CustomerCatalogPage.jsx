@@ -31,6 +31,7 @@ const CustomerCatalogPage = ({
   selectedCity = 'All',
   onRequireAuth = () => {},
   onOpenMyRentals = () => {},
+  onSelectItem = null,
 }) => {
   const { user } = useAuth();
   const [items, setItems] = useState([]);
@@ -119,6 +120,10 @@ const CustomerCatalogPage = ({
   };
 
   const handleOpenItem = (item) => {
+    if (onSelectItem) {
+      onSelectItem(item);
+      return;
+    }
     setSelectedItem(item);
     const minM = item.minimumRentalMonths || 1;
     const initialMonths = [3, 6, 12].find((m) => m >= minM) || minM;

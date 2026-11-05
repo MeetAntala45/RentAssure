@@ -35,6 +35,16 @@ public class Booking : BaseEntity
     public decimal? DepositRefundedAmount { get; set; }
     public decimal? DepositDeductedAmount { get; set; }
 
+    // Delivery & OTP Verification (Lease begins on verified delivery)
+    public string? DeliveryOtp { get; set; }
+    public bool IsDeliveryVerified { get; set; } = false;
+    public DateTime? DeliveredAt { get; set; }
+
+    // Recurring Monthly Rent Cycles
+    public int MonthsPaidCount { get; set; } = 1; // Month 1 paid at initial reservation
+    public DateTime? NextPaymentDueDate { get; set; }
+    public DateTime? LastPaymentDate { get; set; }
+
     // Logistics & Details
     public string DeliveryAddress { get; set; } = string.Empty;
     public string DeliveryCity { get; set; } = string.Empty;

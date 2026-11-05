@@ -59,11 +59,23 @@ public class VendorItemListingDto
     public int Discount6MonthsPercent { get; set; }
     public int Discount12MonthsPercent { get; set; }
     public ItemStatus Status { get; set; }
+    public int Quantity { get; set; } = 1;
+    public int AvailableQuantity { get; set; } = 1;
     public string City { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;
     public int TotalRentalsCount { get; set; }
     public List<string> Images { get; set; } = new();
     public DateTime CreatedAt { get; set; }
+}
+
+public class VerifyVendorDeliveryDto
+{
+    public string Otp { get; set; } = string.Empty;
+}
+
+public class ReleaseDepositDto
+{
+    public string? ConditionNotes { get; set; }
 }
 
 public class UpdateVendorOrderStatusDto

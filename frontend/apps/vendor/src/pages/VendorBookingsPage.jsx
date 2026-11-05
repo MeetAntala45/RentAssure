@@ -35,8 +35,93 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
     loading: false,
   });
 
+  // Verify Delivery OTP modal
+  const [otpModal, setOtpModal] = useState({
+    isOpen: false,
+    booking: null,
+    otp: '',
+    loading: false,
+    error: '',
+  });
+
+  // Record Offline Payment modal
+  const [offlinePayModal, setOfflinePayModal] = useState({
+    isOpen: false,
+    booking: null,
+    loading: false,
+  });
+
+  // Physical Return & Release Deposit modal
+  const [returnInspectModal, setReturnInspectModal] = useState({
+    isOpen: false,
+    booking: null,
+    notes: 'Physical item inspected at return pickup. Item returned in good condition, all accessories verified.',
+    loading: false,
+    error: '',
+  });
+
   const [refundingId, setRefundingId] = useState(null);
   const [refundNotice, setRefundNotice] = useState(null);
+
+  const handleVerifyOtp = async () => {
+    if (!otpModal.otp || otpModal.otp.trim().length !== 6) {
+      setOtpModal((prev) => ({ ...prev, error: 'Please enter a valid 6-digit OTP code provided by the customer.' }));
+      return;
+    }
+    setOtpModal((prev) => ({ ...prev, loading: true, error: '' }));
+    try {
+      const res = await vendorApi.verifyDeliveryOtp(otpModal.booking.id, otpModal.otp.trim());
+      if (res.isSuccess) {
+        alert('✓ Delivery confirmed! Rental lease duration has officially started from today.');
+        setOtpModal({ isOpen: false, booking: null, otp: '', loading: false, error: '' });
+        await fetchBookings();
+      } else {
+        setOtpModal((prev) => ({ ...prev, error: res.message || 'Invalid delivery OTP.' }));
+      }
+    } catch (err) {
+      setOtpModal((prev) => ({ ...prev, error: err.response?.data?.message || 'Error verifying delivery OTP.' }));
+    } finally {
+      setOtpModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleRecordOfflinePayment = async () => {
+    if (!offlinePayModal.booking) return;
+    setOfflinePayModal((prev) => ({ ...prev, loading: true }));
+    try {
+      const res = await vendorApi.recordOfflinePayment(offlinePayModal.booking.id);
+      if (res.isSuccess) {
+        alert('✓ Offline monthly rent recorded! Vendor payout credited and next billing cycle updated.');
+        setOfflinePayModal({ isOpen: false, booking: null, loading: false });
+        await fetchBookings();
+      } else {
+        alert(res.message || 'Failed to record offline payment.');
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error recording offline payment.');
+    } finally {
+      setOfflinePayModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleReturnAndReleaseDeposit = async () => {
+    if (!returnInspectModal.booking) return;
+    setReturnInspectModal((prev) => ({ ...prev, loading: true, error: '' }));
+    try {
+      const res = await vendorApi.releaseDeposit(returnInspectModal.booking.id, returnInspectModal.notes);
+      if (res.isSuccess) {
+        alert('✓ Physical return verified! Security deposit refunded to customer via Stripe and item returned to available stock.');
+        setReturnInspectModal({ isOpen: false, booking: null, notes: '', loading: false, error: '' });
+        await fetchBookings();
+      } else {
+        setReturnInspectModal((prev) => ({ ...prev, error: res.message || 'Failed to release deposit.' }));
+      }
+    } catch (err) {
+      setReturnInspectModal((prev) => ({ ...prev, error: err.response?.data?.message || 'Error releasing deposit.' }));
+    } finally {
+      setReturnInspectModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
 
   const handleRefundDeposit = async (bookingId) => {
     if (!window.confirm(`Are you sure you want to release and refund the security deposit for booking #${bookingId} to the customer's card via Stripe?`)) {
@@ -274,7 +359,87 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
           </div>
 
           {canModify && (
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              {(!selectedBooking.isDeliveryVerified || (selectedBooking.status || '').toLowerCase() === 'reserved') && (
+                <button
+                  onClick={() =>
+                    setOtpModal({
+                      isOpen: true,
+                      booking: selectedBooking,
+                      otp: '',
+                      loading: false,
+                      error: '',
+                    })
+                  }
+                  style={{
+                    padding: '9px 18px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  🔑 Verify Delivery OTP
+                </button>
+              )}
+
+              {(selectedBooking.status || '').toLowerCase() === 'returnrequested' && (
+                <button
+                  onClick={() =>
+                    setReturnInspectModal({
+                      isOpen: true,
+                      booking: selectedBooking,
+                      notes: 'Item physically inspected at return pickup. Good condition.',
+                      loading: false,
+                      error: '',
+                    })
+                  }
+                  style={{
+                    padding: '9px 18px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: '#047857',
+                    color: '#ffffff',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  🛡 Inspect Return & Release Deposit
+                </button>
+              )}
+
+              {(selectedBooking.status || '').toLowerCase() === 'active' &&
+                (selectedBooking.monthsPaidCount || 1) < selectedBooking.rentalDurationMonths && (
+                  <button
+                    onClick={() =>
+                      setOfflinePayModal({
+                        isOpen: true,
+                        booking: selectedBooking,
+                        loading: false,
+                      })
+                    }
+                    style={{
+                      padding: '9px 18px',
+                      borderRadius: '8px',
+                      border: '1px solid #16a34a',
+                      background: '#f0fdf4',
+                      color: '#166534',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    💵 Record Offline Month {(selectedBooking.monthsPaidCount || 1) + 1}
+                  </button>
+                )}
+
               <button
                 onClick={() =>
                   setConfirmModal({
@@ -288,16 +453,17 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                 style={{
                   padding: '9px 18px',
                   borderRadius: '8px',
-                  border: 'none',
-                  background: '#1e293b',
-                  color: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#1e293b',
                   fontSize: '13px',
                   fontWeight: 700,
                   cursor: 'pointer',
                 }}
               >
-                ✓ Mark as Completed
+                ✓ Mark Completed
               </button>
+
               <button
                 onClick={() =>
                   setConfirmModal({
@@ -319,7 +485,7 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                   cursor: 'pointer',
                 }}
               >
-                ✕ Cancel Booking
+                ✕ Cancel
               </button>
             </div>
           )}
@@ -408,6 +574,236 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
             </div>
           </div>
         </div>
+
+        {/* Doorstep Delivery & Monthly Rental Cycle Section */}
+        {(!selectedBooking.isDeliveryVerified || (selectedBooking.status || '').toLowerCase() === 'reserved') ? (
+          <div
+            style={{
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: '12px',
+              padding: '20px 24px',
+              marginBottom: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '16px',
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <span style={{ fontSize: '20px' }}>📦</span>
+                <span style={{ fontSize: '16px', fontWeight: 800, color: '#1e40af' }}>
+                  Awaiting Doorstep Delivery Verification
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '13px', color: '#1e3a8a', lineHeight: '1.5' }}>
+                The rental period begins from the physical delivery date, not the order date. Ask the customer for their 6-digit OTP upon delivery to start the rental.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setOtpModal({
+                  isOpen: true,
+                  booking: selectedBooking,
+                  otp: '',
+                  loading: false,
+                  error: '',
+                })
+              }
+              style={{
+                padding: '10px 22px',
+                borderRadius: '8px',
+                border: 'none',
+                background: '#2563eb',
+                color: '#ffffff',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 4px rgba(37,99,235,0.25)',
+              }}
+            >
+              🔑 Enter Delivery OTP
+            </button>
+          </div>
+        ) : (
+          <div
+            style={{
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '20px 24px',
+              marginBottom: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '12px',
+                marginBottom: '16px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '18px' }}>📅</span>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Rental Lifecycle & Monthly Billing Cycle
+                </h3>
+              </div>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  background: '#f0fdf4',
+                  color: '#166534',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  border: '1px solid #bbf7d0',
+                }}
+              >
+                ✓ Delivered & Active
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '16px',
+                marginBottom: '16px',
+              }}
+            >
+              <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>DELIVERY CONFIRMED ON</div>
+                <div style={{ fontSize: '14px', color: '#0f172a', fontWeight: 700, marginTop: '4px' }}>
+                  {selectedBooking.deliveredAt
+                    ? new Date(selectedBooking.deliveredAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : startDateStr}
+                </div>
+              </div>
+
+              <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>MONTHLY PAYMENT PROGRESS</div>
+                <div style={{ fontSize: '14px', color: '#0f172a', fontWeight: 700, marginTop: '4px' }}>
+                  Month {selectedBooking.monthsPaidCount || 1} of {selectedBooking.rentalDurationMonths} Paid
+                </div>
+              </div>
+
+              <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>NEXT PAYMENT DUE DATE</div>
+                <div style={{ fontSize: '14px', color: selectedBooking.nextPaymentDueDate ? '#2563eb' : '#64748b', fontWeight: 700, marginTop: '4px' }}>
+                  {selectedBooking.nextPaymentDueDate
+                    ? new Date(selectedBooking.nextPaymentDueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : 'Rental Completed'}
+                </div>
+              </div>
+            </div>
+
+            {(selectedBooking.monthsPaidCount || 1) < selectedBooking.rentalDurationMonths && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 16px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px dashed #cbd5e1',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                }}
+              >
+                <div style={{ fontSize: '13px', color: '#475569' }}>
+                  Customer can pay Month {(selectedBooking.monthsPaidCount || 1) + 1} online via Stripe. If received offline or in cash, record it below:
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOfflinePayModal({ isOpen: true, booking: selectedBooking, loading: false })}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    border: '1px solid #16a34a',
+                    background: '#f0fdf4',
+                    color: '#166534',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  💵 Record Month {(selectedBooking.monthsPaidCount || 1) + 1} Payment (Offline)
+                </button>
+              </div>
+            )}
+
+            {((selectedBooking.status || '').toLowerCase() === 'returnrequested' || (selectedBooking.status || '').toLowerCase() === 'active') &&
+              selectedBooking.depositStatus !== 'Refunded' && !selectedBooking.stripeRefundId && (
+                <div
+                  style={{
+                    marginTop: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '14px 18px',
+                    background: '#f0fdf4',
+                    borderRadius: '8px',
+                    border: '1px solid #bbf7d0',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#166534' }}>
+                      {(selectedBooking.status || '').toLowerCase() === 'returnrequested'
+                        ? 'Customer has requested item return'
+                        : 'Physical Return Inspection & Security Deposit'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#15803d', marginTop: '2px' }}>
+                      Inspect the item physically upon return. Once verified, release the ₹{selectedBooking.securityDeposit?.toFixed(2)} deposit back to customer's card.
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setReturnInspectModal({
+                        isOpen: true,
+                        booking: selectedBooking,
+                        notes: 'Item physically inspected and returned in good condition.',
+                        loading: false,
+                        error: '',
+                      })
+                    }
+                    style={{
+                      padding: '9px 18px',
+                      borderRadius: '6px',
+                      border: 'none',
+                      background: '#047857',
+                      color: '#ffffff',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    🛡 Verify Return & Release Deposit
+                  </button>
+                </div>
+              )}
+          </div>
+        )}
 
         {/* Financial & Escrow Overview Cards (Styled like Image 2's cards) */}
         <div style={{ marginBottom: '24px' }}>
@@ -871,6 +1267,108 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
 
                               {canModify && (
                                 <>
+                                  {(!b.isDeliveryVerified || (b.status || '').toLowerCase() === 'reserved') && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveMenuId(null);
+                                        setOtpModal({
+                                          isOpen: true,
+                                          booking: b,
+                                          otp: '',
+                                          loading: false,
+                                          error: '',
+                                        });
+                                      }}
+                                      style={{
+                                        width: '100%',
+                                        padding: '8px 14px',
+                                        border: 'none',
+                                        background: 'none',
+                                        fontSize: '13px',
+                                        color: '#2563eb',
+                                        cursor: 'pointer',
+                                        textAlign: 'left',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        fontWeight: 600,
+                                      }}
+                                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#eff6ff')}
+                                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                    >
+                                      <span>🔑</span> Verify Delivery OTP
+                                    </button>
+                                  )}
+
+                                  {(b.status || '').toLowerCase() === 'active' &&
+                                    (b.monthsPaidCount || 1) < b.rentalDurationMonths && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setActiveMenuId(null);
+                                          setOfflinePayModal({
+                                            isOpen: true,
+                                            booking: b,
+                                            loading: false,
+                                          });
+                                        }}
+                                        style={{
+                                          width: '100%',
+                                          padding: '8px 14px',
+                                          border: 'none',
+                                          background: 'none',
+                                          fontSize: '13px',
+                                          color: '#16a34a',
+                                          cursor: 'pointer',
+                                          textAlign: 'left',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '8px',
+                                          fontWeight: 600,
+                                        }}
+                                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0fdf4')}
+                                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                      >
+                                        <span>💵</span> Record Offline Month {(b.monthsPaidCount || 1) + 1}
+                                      </button>
+                                    )}
+
+                                  {((b.status || '').toLowerCase() === 'returnrequested' ||
+                                    ((b.status || '').toLowerCase() === 'active' && b.depositStatus !== 'Refunded')) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveMenuId(null);
+                                        setReturnInspectModal({
+                                          isOpen: true,
+                                          booking: b,
+                                          notes: 'Physical item inspected at return pickup. Good condition.',
+                                          loading: false,
+                                          error: '',
+                                        });
+                                      }}
+                                      style={{
+                                        width: '100%',
+                                        padding: '8px 14px',
+                                        border: 'none',
+                                        background: 'none',
+                                        fontSize: '13px',
+                                        color: '#047857',
+                                        cursor: 'pointer',
+                                        textAlign: 'left',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        fontWeight: 600,
+                                      }}
+                                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ecfdf5')}
+                                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                    >
+                                      <span>🛡</span> Inspect & Release Deposit
+                                    </button>
+                                  )}
+
                                   <button
                                     type="button"
                                     onClick={() => {
@@ -902,34 +1400,6 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                                   >
                                     <span>✓</span> Mark as Completed
                                   </button>
-
-                                  {b.isPaidOnline && b.depositStatus !== 'Refunded' && !b.stripeRefundId && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setActiveMenuId(null);
-                                        handleRefundDeposit(b.id);
-                                      }}
-                                      style={{
-                                        width: '100%',
-                                        padding: '8px 14px',
-                                        border: 'none',
-                                        background: 'none',
-                                        fontSize: '13px',
-                                        color: '#0369a1',
-                                        cursor: 'pointer',
-                                        textAlign: 'left',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        fontWeight: 600,
-                                      }}
-                                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f9ff')}
-                                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                                    >
-                                      <span>⚡</span> Release Deposit via Stripe
-                                    </button>
-                                  )}
 
                                   <button
                                     type="button"
@@ -1349,6 +1819,359 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                   : confirmModal.action === 'Completed'
                   ? 'Confirm Completed'
                   : 'Confirm Cancellation'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── VERIFY DELIVERY OTP MODAL ────────────────────────────────────── */}
+      {otpModal.isOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1100,
+            padding: '16px',
+          }}
+          onClick={() => setOtpModal({ isOpen: false, booking: null, otp: '', loading: false, error: '' })}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '12px',
+              maxWidth: '440px',
+              width: '100%',
+              padding: '24px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '24px' }}>🔑</span>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                Verify Doorstep Delivery OTP
+              </h3>
+            </div>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 18px 0', lineHeight: '1.5' }}>
+              Ask the customer for the 6-digit delivery OTP shown in their app or email. Once entered, the rental lease period starts from today.
+            </p>
+
+            {otpModal.error && (
+              <div
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  background: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  color: '#b91c1c',
+                  fontSize: '13px',
+                  marginBottom: '16px',
+                }}
+              >
+                {otpModal.error}
+              </div>
+            )}
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                6-Digit Delivery OTP
+              </label>
+              <input
+                type="text"
+                maxLength={6}
+                value={otpModal.otp}
+                onChange={(e) => setOtpModal((prev) => ({ ...prev, otp: e.target.value.replace(/\D/g, '') }))}
+                placeholder="e.g. 849201"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '22px',
+                  fontWeight: 800,
+                  letterSpacing: '4px',
+                  textAlign: 'center',
+                  boxSizing: 'border-box',
+                  color: '#0f172a',
+                  outline: 'none',
+                }}
+                autoFocus
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setOtpModal({ isOpen: false, booking: null, otp: '', loading: false, error: '' })}
+                disabled={otpModal.loading}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#334155',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={otpModal.loading}
+                onClick={handleVerifyOtp}
+                style={{
+                  padding: '9px 20px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: '#2563eb',
+                  color: '#ffffff',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: otpModal.loading ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {otpModal.loading ? 'Verifying...' : 'Confirm Delivery'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── RECORD OFFLINE PAYMENT MODAL ─────────────────────────────────── */}
+      {offlinePayModal.isOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1100,
+            padding: '16px',
+          }}
+          onClick={() => setOfflinePayModal({ isOpen: false, booking: null, loading: false })}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '12px',
+              maxWidth: '460px',
+              width: '100%',
+              padding: '24px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '24px' }}>💵</span>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                Record Offline Monthly Payment
+              </h3>
+            </div>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 18px 0', lineHeight: '1.5' }}>
+              Confirm that you have received Month {(offlinePayModal.booking?.monthsPaidCount || 1) + 1} rental fee of{' '}
+              <strong style={{ color: '#0f172a' }}>₹{offlinePayModal.booking?.monthlyRent?.toFixed(2)}</strong> directly from{' '}
+              <strong>{offlinePayModal.booking?.customerName}</strong> via cash, UPI, or other offline method.
+            </p>
+
+            <div
+              style={{
+                background: '#f8fafc',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                padding: '14px',
+                marginBottom: '20px',
+                fontSize: '13px',
+                color: '#334155',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span>Booking Reference:</span>
+                <span style={{ fontWeight: 700 }}>{offlinePayModal.booking?.bookingReference}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span>Monthly Rent:</span>
+                <span style={{ fontWeight: 700 }}>₹{offlinePayModal.booking?.monthlyRent?.toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Payment Cycle:</span>
+                <span style={{ fontWeight: 700 }}>
+                  Month {(offlinePayModal.booking?.monthsPaidCount || 1) + 1} of {offlinePayModal.booking?.rentalDurationMonths}
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setOfflinePayModal({ isOpen: false, booking: null, loading: false })}
+                disabled={offlinePayModal.loading}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#334155',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={offlinePayModal.loading}
+                onClick={handleRecordOfflinePayment}
+                style={{
+                  padding: '9px 20px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: '#16a34a',
+                  color: '#ffffff',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: offlinePayModal.loading ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {offlinePayModal.loading ? 'Recording...' : 'Confirm Payment Received'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── PHYSICAL RETURN & DEPOSIT RELEASE MODAL ───────────────────────── */}
+      {returnInspectModal.isOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1100,
+            padding: '16px',
+          }}
+          onClick={() => setReturnInspectModal({ isOpen: false, booking: null, notes: '', loading: false, error: '' })}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '12px',
+              maxWidth: '500px',
+              width: '100%',
+              padding: '24px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '24px' }}>🛡</span>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                Physical Inspection & Security Deposit Release
+              </h3>
+            </div>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px 0', lineHeight: '1.5' }}>
+              Verify that you have physically inspected the returned equipment. Confirming will automatically refund the security deposit of{' '}
+              <strong style={{ color: '#0f172a' }}>₹{returnInspectModal.booking?.securityDeposit?.toFixed(2)}</strong> back to the customer's card via Stripe and restore 1 unit back to your available inventory.
+            </p>
+
+            {returnInspectModal.error && (
+              <div
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  background: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  color: '#b91c1c',
+                  fontSize: '13px',
+                  marginBottom: '16px',
+                }}
+              >
+                {returnInspectModal.error}
+              </div>
+            )}
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                Physical Inspection Notes
+              </label>
+              <textarea
+                rows={3}
+                value={returnInspectModal.notes}
+                onChange={(e) => setReturnInspectModal((prev) => ({ ...prev, notes: e.target.value }))}
+                placeholder="e.g. Item physically inspected at pickup. Excellent condition, complete accessories."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '13px',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setReturnInspectModal({ isOpen: false, booking: null, notes: '', loading: false, error: '' })}
+                disabled={returnInspectModal.loading}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: '#ffffff',
+                  color: '#334155',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={returnInspectModal.loading}
+                onClick={handleReturnAndReleaseDeposit}
+                style={{
+                  padding: '9px 20px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: '#047857',
+                  color: '#ffffff',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: returnInspectModal.loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                {returnInspectModal.loading ? 'Releasing...' : '✓ Confirm & Release Deposit'}
               </button>
             </div>
           </div>

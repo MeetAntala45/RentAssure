@@ -331,6 +331,9 @@ const VendorInventoryPage = () => {
                 <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>
                   STATUS
                 </th>
+                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>
+                  STOCK / AVAIL
+                </th>
                 <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textAlign: 'right' }}>
                   ACTIONS
                 </th>
@@ -526,6 +529,16 @@ const VendorInventoryPage = () => {
                         >
                           ● {statusInfo.label}
                         </span>
+                      </td>
+
+                      {/* Stock / Available Units */}
+                      <td style={{ padding: '14px 20px' }}>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>
+                          {item.availableQuantity ?? 1} / {item.quantity ?? 1}
+                        </div>
+                        <div style={{ fontSize: '11px', color: (item.availableQuantity ?? 1) > 0 ? '#166534' : '#991b1b', fontWeight: 600 }}>
+                          {(item.availableQuantity ?? 1) > 0 ? '✓ In Stock' : '✕ Rented'}
+                        </div>
                       </td>
 
                       {/* Actions: Edit & Delete */}

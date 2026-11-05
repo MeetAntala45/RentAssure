@@ -30,6 +30,10 @@ public class RentalItem : BaseEntity
     public string ImagesJson { get; set; } = "[]"; // JSON array of image URLs
     public ItemStatus Status { get; set; } = ItemStatus.Available;
 
+    // Inventory Stock
+    public int Quantity { get; set; } = 1;
+    public int AvailableQuantity { get; set; } = 1;
+
     // Location
     public string City { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;

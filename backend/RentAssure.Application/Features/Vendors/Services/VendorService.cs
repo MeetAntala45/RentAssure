@@ -374,6 +374,8 @@ public class VendorService : IVendorService
                 Discount6MonthsPercent = i.Discount6MonthsPercent,
                 Discount12MonthsPercent = i.Discount12MonthsPercent,
                 Status = i.Status,
+                Quantity = i.Quantity,
+                AvailableQuantity = i.AvailableQuantity,
                 City = i.City,
                 Area = i.Area,
                 TotalRentalsCount = i.TotalRentalsCount,
@@ -405,6 +407,7 @@ public class VendorService : IVendorService
         }
 
         var imagesJson = JsonSerializer.Serialize(request.Images ?? new List<string>());
+        var initialQty = request.Quantity > 0 ? request.Quantity : 1;
 
         var item = new RentalItem
         {
@@ -418,6 +421,8 @@ public class VendorService : IVendorService
             MonthlyRent = request.MonthlyRent,
             SecurityDeposit = request.SecurityDeposit > 0 ? request.SecurityDeposit : Math.Round(request.MonthlyRent * 3m, 2),
             MinimumRentalMonths = request.MinimumRentalMonths > 0 ? request.MinimumRentalMonths : 3,
+            Quantity = initialQty,
+            AvailableQuantity = initialQty,
             Discount6MonthsPercent = Math.Clamp(request.Discount6MonthsPercent, 0, 100),
             Discount12MonthsPercent = Math.Clamp(request.Discount12MonthsPercent, 0, 100),
             City = string.IsNullOrWhiteSpace(request.City) ? vendor.City : request.City.Trim(),
@@ -442,6 +447,8 @@ public class VendorService : IVendorService
             MonthlyRent = item.MonthlyRent,
             SecurityDeposit = item.SecurityDeposit,
             MinimumRentalMonths = item.MinimumRentalMonths,
+            Quantity = item.Quantity,
+            AvailableQuantity = item.AvailableQuantity,
             Discount6MonthsPercent = item.Discount6MonthsPercent,
             Discount12MonthsPercent = item.Discount12MonthsPercent,
             Status = item.Status,
@@ -494,6 +501,21 @@ public class VendorService : IVendorService
         item.Area = string.IsNullOrWhiteSpace(request.Area) ? "Main Hub" : request.Area.Trim();
         item.Status = request.Status;
 
+        if (request.Quantity > 0)
+        {
+            var diff = request.Quantity - item.Quantity;
+            item.Quantity = request.Quantity;
+            item.AvailableQuantity = Math.Max(0, item.AvailableQuantity + diff);
+        }
+        if (request.AvailableQuantity.HasValue)
+        {
+            item.AvailableQuantity = Math.Clamp(request.AvailableQuantity.Value, 0, item.Quantity);
+        }
+        if (item.AvailableQuantity > 0 && item.Status == ItemStatus.Rented)
+        {
+            item.Status = ItemStatus.Available;
+        }
+
         if (request.Images != null)
         {
             item.ImagesJson = JsonSerializer.Serialize(request.Images);
@@ -524,6 +546,8 @@ public class VendorService : IVendorService
             Discount6MonthsPercent = item.Discount6MonthsPercent,
             Discount12MonthsPercent = item.Discount12MonthsPercent,
             Status = item.Status,
+            Quantity = item.Quantity,
+            AvailableQuantity = item.AvailableQuantity,
             City = item.City,
             Area = item.Area,
             TotalRentalsCount = item.TotalRentalsCount,
@@ -623,7 +647,13 @@ public class VendorService : IVendorService
                 CreatedAt = b.CreatedAt,
                 IsPaidOnline = b.IsPaidOnline,
                 StripePaymentIntentId = b.StripePaymentIntentId,
-                StripeRefundId = b.StripeRefundId
+                StripeRefundId = b.StripeRefundId,
+                DeliveryOtp = b.DeliveryOtp,
+                IsDeliveryVerified = b.IsDeliveryVerified,
+                DeliveredAt = b.DeliveredAt,
+                MonthsPaidCount = b.MonthsPaidCount,
+                NextPaymentDueDate = b.NextPaymentDueDate,
+                LastPaymentDate = b.LastPaymentDate
             };
         }).ToList();
 
@@ -660,6 +690,7 @@ public class VendorService : IVendorService
         {
             if (booking.Item != null)
             {
+                booking.Item.AvailableQuantity = Math.Min(booking.Item.Quantity, booking.Item.AvailableQuantity + 1);
                 booking.Item.Status = ItemStatus.Available;
             }
             if (request.Status == BookingStatus.Completed)
@@ -704,6 +735,7 @@ public class VendorService : IVendorService
         {
             if (booking.Item != null)
             {
+                booking.Item.AvailableQuantity = Math.Min(booking.Item.Quantity, booking.Item.AvailableQuantity + 1);
                 booking.Item.Status = ItemStatus.Available;
             }
             booking.DepositStatus = DepositStatus.Refunded;
@@ -762,8 +794,182 @@ public class VendorService : IVendorService
             CreatedAt = booking.CreatedAt,
             IsPaidOnline = booking.IsPaidOnline,
             StripePaymentIntentId = booking.StripePaymentIntentId,
-            StripeRefundId = booking.StripeRefundId
+            StripeRefundId = booking.StripeRefundId,
+            DeliveryOtp = booking.DeliveryOtp,
+            IsDeliveryVerified = booking.IsDeliveryVerified,
+            DeliveredAt = booking.DeliveredAt,
+            MonthsPaidCount = booking.MonthsPaidCount,
+            NextPaymentDueDate = booking.NextPaymentDueDate,
+            LastPaymentDate = booking.LastPaymentDate
         }, $"Order status updated to {request.Status}.");
+    }
+
+    public async Task<ApiResponse<BookingDetailDto>> VerifyDeliveryOtpAsync(int userId, int bookingId, string otp)
+    {
+        var vendor = await GetVendorOrFirstAsync(userId);
+        if (vendor == null)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Vendor profile not found.");
+        }
+
+        var booking = await _context.Bookings
+            .Include(b => b.Item)
+            .Include(b => b.Customer)
+            .FirstOrDefaultAsync(b => b.Id == bookingId && b.VendorId == vendor.Id);
+
+        if (booking == null)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Booking not found.");
+        }
+
+        if (string.IsNullOrWhiteSpace(otp) || string.IsNullOrWhiteSpace(booking.DeliveryOtp) || booking.DeliveryOtp.Trim() != otp.Trim())
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Invalid Delivery OTP. Please ask customer to provide the 6-digit OTP displayed on their RentAssure dashboard or confirmation email.");
+        }
+
+        var now = DateTime.UtcNow;
+        booking.IsDeliveryVerified = true;
+        booking.DeliveredAt = now;
+        booking.StartDate = now; // Rental lease tenure officially starts on the day of delivery!
+        booking.EndDate = now.AddMonths(booking.RentalDurationMonths);
+        booking.NextPaymentDueDate = now.AddMonths(1); // 2nd monthly payment due in exactly 1 month
+        booking.Status = BookingStatus.Active;
+
+        _context.AuditLogs.Add(new AuditLog
+        {
+            Action = "DoorstepDeliveryVerified",
+            EntityType = "Booking",
+            EntityId = booking.BookingReference,
+            PerformedByUserId = userId,
+            PerformedByUserName = vendor.StoreName,
+            Details = $"Vendor confirmed physical delivery with customer OTP {otp}. Rental period officially commenced from {now:yyyy-MM-dd}.",
+            Severity = "Info"
+        });
+
+        await _context.SaveChangesAsync();
+
+        return await GetVendorBookingByIdAsync(userId, bookingId);
+    }
+
+    public async Task<ApiResponse<BookingDetailDto>> RecordOfflineMonthlyRentAsync(int userId, int bookingId)
+    {
+        var vendor = await GetVendorOrFirstAsync(userId);
+        if (vendor == null)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Vendor profile not found.");
+        }
+
+        var booking = await _context.Bookings
+            .Include(b => b.Item)
+            .Include(b => b.Customer)
+            .FirstOrDefaultAsync(b => b.Id == bookingId && b.VendorId == vendor.Id);
+
+        if (booking == null)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Booking not found.");
+        }
+
+        if (booking.Status != BookingStatus.Active && booking.Status != BookingStatus.Delivered)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Monthly rent can only be recorded for active ongoing rentals.");
+        }
+
+        if (booking.MonthsPaidCount >= booking.RentalDurationMonths)
+        {
+            return ApiResponse<BookingDetailDto>.Fail($"All {booking.RentalDurationMonths} rental months have already been marked as paid.");
+        }
+
+        booking.MonthsPaidCount++;
+        booking.LastPaymentDate = DateTime.UtcNow;
+        booking.NextPaymentDueDate = (booking.NextPaymentDueDate ?? DateTime.UtcNow).AddMonths(1);
+        booking.TotalAmountPaid += booking.MonthlyRent;
+
+        vendor.TotalEarnings += booking.VendorPayoutAmount;
+        vendor.TotalCommissionPaid += booking.PlatformCommissionAmount;
+
+        _context.AuditLogs.Add(new AuditLog
+        {
+            Action = "VendorRecordedOfflineMonthlyPayment",
+            EntityType = "Booking",
+            EntityId = booking.BookingReference,
+            PerformedByUserId = userId,
+            PerformedByUserName = vendor.StoreName,
+            Details = $"Vendor marked Month {booking.MonthsPaidCount} offline payment received (₹{booking.MonthlyRent:N2}). Next due: {booking.NextPaymentDueDate:yyyy-MM-dd}.",
+            Severity = "Info"
+        });
+
+        await _context.SaveChangesAsync();
+
+        return await GetVendorBookingByIdAsync(userId, bookingId);
+    }
+
+    public async Task<ApiResponse<BookingDetailDto>> VerifyReturnAndReleaseDepositAsync(int userId, int bookingId, string? conditionNotes)
+    {
+        var vendor = await GetVendorOrFirstAsync(userId);
+        if (vendor == null)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Vendor profile not found.");
+        }
+
+        var booking = await _context.Bookings
+            .Include(b => b.Item)
+            .Include(b => b.Customer)
+            .FirstOrDefaultAsync(b => b.Id == bookingId && b.VendorId == vendor.Id);
+
+        if (booking == null)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Booking not found.");
+        }
+
+        if (booking.Status != BookingStatus.ReturnRequested && booking.Status != BookingStatus.Active && booking.Status != BookingStatus.PickedUp)
+        {
+            return ApiResponse<BookingDetailDto>.Fail("Booking is not in return or active status.");
+        }
+
+        // Return verified: restore item inventory back into stock
+        if (booking.Item != null)
+        {
+            booking.Item.AvailableQuantity = Math.Min(booking.Item.Quantity, booking.Item.AvailableQuantity + 1);
+            booking.Item.Status = ItemStatus.Available;
+        }
+
+        booking.Status = BookingStatus.Completed;
+        booking.DepositStatus = DepositStatus.Refunded;
+        booking.DepositRefundedAmount = booking.SecurityDeposit;
+        booking.VendorNotes = string.IsNullOrWhiteSpace(conditionNotes)
+            ? "Physical item verified. Security deposit released to customer."
+            : $"Physical item verified: {conditionNotes}. Security deposit released.";
+
+        // Process Stripe refund if paid online
+        if (booking.IsPaidOnline && !string.IsNullOrEmpty(booking.StripePaymentIntentId) && string.IsNullOrEmpty(booking.StripeRefundId) && booking.SecurityDeposit > 0)
+        {
+            var (refundSuccess, refundId, refundErr) = await _paymentService.RefundDepositAsync(
+                booking.StripePaymentIntentId,
+                booking.SecurityDeposit,
+                booking.Id,
+                booking.BookingReference,
+                booking.Customer?.Email);
+
+            if (refundSuccess && !string.IsNullOrEmpty(refundId))
+            {
+                booking.StripeRefundId = refundId;
+            }
+        }
+
+        _context.AuditLogs.Add(new AuditLog
+        {
+            Action = "PhysicalInspectionReturnVerified",
+            EntityType = "Booking",
+            EntityId = booking.BookingReference,
+            PerformedByUserId = userId,
+            PerformedByUserName = vendor.StoreName,
+            Details = $"Physical item inspected and return verified. Security deposit ₹{booking.SecurityDeposit:N2} released to customer. Item inventory restored.",
+            Severity = "Info"
+        });
+
+        await _context.SaveChangesAsync();
+
+        return await GetVendorBookingByIdAsync(userId, bookingId);
     }
 
     public async Task<ApiResponse<BookingDetailDto>> GetVendorBookingByIdAsync(int userId, int bookingId)
@@ -828,7 +1034,13 @@ public class VendorService : IVendorService
             CreatedAt = b.CreatedAt,
             IsPaidOnline = b.IsPaidOnline,
             StripePaymentIntentId = b.StripePaymentIntentId,
-            StripeRefundId = b.StripeRefundId
+            StripeRefundId = b.StripeRefundId,
+            DeliveryOtp = b.DeliveryOtp,
+            IsDeliveryVerified = b.IsDeliveryVerified,
+            DeliveredAt = b.DeliveredAt,
+            MonthsPaidCount = b.MonthsPaidCount,
+            NextPaymentDueDate = b.NextPaymentDueDate,
+            LastPaymentDate = b.LastPaymentDate
         };
 
         return ApiResponse<BookingDetailDto>.Success(dto);

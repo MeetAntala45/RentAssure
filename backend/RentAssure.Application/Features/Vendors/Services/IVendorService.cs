@@ -17,6 +17,9 @@ public interface IVendorService
     Task<ApiResponse<List<BookingDetailDto>>> GetVendorBookingsAsync(int userId);
     Task<ApiResponse<BookingDetailDto>> GetVendorBookingByIdAsync(int userId, int bookingId);
     Task<ApiResponse<BookingDetailDto>> UpdateBookingStatusAsync(int userId, int bookingId, UpdateVendorOrderStatusDto request);
+    Task<ApiResponse<BookingDetailDto>> VerifyDeliveryOtpAsync(int userId, int bookingId, string otp);
+    Task<ApiResponse<BookingDetailDto>> RecordOfflineMonthlyRentAsync(int userId, int bookingId);
+    Task<ApiResponse<BookingDetailDto>> VerifyReturnAndReleaseDepositAsync(int userId, int bookingId, string? conditionNotes);
     Task<ApiResponse<VendorEarningsSummaryDto>> GetVendorEarningsAsync(int userId);
     Task<ApiResponse<VendorProfileUpdateDto>> UpdateVendorProfileAsync(int userId, VendorProfileUpdateDto request);
 }

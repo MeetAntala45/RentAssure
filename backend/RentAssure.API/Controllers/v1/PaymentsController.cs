@@ -272,6 +272,141 @@ public class PaymentsController : ControllerBase
     }
 
     /// <summary>
+    /// Creates a Stripe PaymentIntent for Month X recurring rental payment.
+    /// </summary>
+    [HttpPost("create-monthly-rent-intent")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateMonthlyRentIntent([FromBody] CreateMonthlyRentIntentRequest request)
+    {
+        var userId = GetCurrentUserId();
+        var booking = await _context.Bookings
+            .Include(b => b.Item)
+            .Include(b => b.Vendor)
+            .Include(b => b.Customer)
+            .FirstOrDefaultAsync(b => b.Id == request.BookingId && b.CustomerId == userId);
+
+        if (booking == null)
+        {
+            return NotFound(ApiResponse<object>.Fail("Booking not found."));
+        }
+
+        if (booking.Status != BookingStatus.Active)
+        {
+            return BadRequest(ApiResponse<object>.Fail("Monthly rent can only be paid for active rentals."));
+        }
+
+        if (booking.MonthsPaidCount >= booking.RentalDurationMonths)
+        {
+            return BadRequest(ApiResponse<object>.Fail("All rental duration months have already been paid."));
+        }
+
+        var nextMonthNum = booking.MonthsPaidCount + 1;
+        var monthlyRent = booking.MonthlyRent;
+        var platformCommission = booking.PlatformCommissionAmount;
+        var vendorPayout = booking.VendorPayoutAmount;
+
+        try
+        {
+            var amountInPaise = (long)(monthlyRent * 100);
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = amountInPaise,
+                Currency = "inr",
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true,
+                    AllowRedirects = "never"
+                },
+                Description = $"RentAssure Month {nextMonthNum} Rent for '{booking.Item?.Title}' (#{booking.BookingReference})",
+                ReceiptEmail = booking.Customer?.Email,
+                Metadata = new Dictionary<string, string>
+                {
+                    { "booking_id", booking.Id.ToString() },
+                    { "booking_ref", booking.BookingReference },
+                    { "month_number", nextMonthNum.ToString() },
+                    { "monthly_rent", monthlyRent.ToString("F2") },
+                    { "platform_commission", platformCommission.ToString("F2") },
+                    { "vendor_payout", vendorPayout.ToString("F2") },
+                    { "customer_id", userId.ToString() },
+                    { "vendor_id", booking.VendorId.ToString() }
+                }
+            };
+
+            var service = new PaymentIntentService();
+            var intent = await service.CreateAsync(options);
+
+            return Ok(ApiResponse<object>.Success(new
+            {
+                clientSecret = intent.ClientSecret,
+                paymentIntentId = intent.Id,
+                amount = monthlyRent,
+                monthNumber = nextMonthNum,
+                bookingReference = booking.BookingReference
+            }, $"Payment intent generated for Month {nextMonthNum} rent."));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.Fail($"Stripe error: {ex.Message}"));
+        }
+    }
+
+    /// <summary>
+    /// Confirms that customer paid Month X rent online directly on app.
+    /// Updates status, dates, and allocates earnings to the vendor.
+    /// </summary>
+    [HttpPost("confirm-monthly-rent")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ConfirmMonthlyRent([FromBody] ConfirmMonthlyRentRequest request)
+    {
+        var userId = GetCurrentUserId();
+        var booking = await _context.Bookings
+            .Include(b => b.Item)
+            .Include(b => b.Vendor)
+            .FirstOrDefaultAsync(b => b.Id == request.BookingId && b.CustomerId == userId);
+
+        if (booking == null)
+        {
+            return NotFound(ApiResponse<object>.Fail("Booking not found."));
+        }
+
+        booking.MonthsPaidCount++;
+        booking.LastPaymentDate = DateTime.UtcNow;
+        booking.NextPaymentDueDate = (booking.NextPaymentDueDate ?? DateTime.UtcNow).AddMonths(1);
+        booking.TotalAmountPaid += booking.MonthlyRent;
+
+        if (booking.Vendor != null)
+        {
+            booking.Vendor.TotalEarnings += booking.VendorPayoutAmount;
+            booking.Vendor.TotalCommissionPaid += booking.PlatformCommissionAmount;
+        }
+
+        _context.AuditLogs.Add(new Domain.Entities.AuditLog
+        {
+            Action = "MonthlyRentOnlinePaid",
+            EntityType = "Booking",
+            EntityId = booking.BookingReference,
+            PerformedByUserId = userId,
+            PerformedByUserName = User.FindFirstValue(ClaimTypes.Name) ?? "Customer",
+            Details = $"Month {booking.MonthsPaidCount} rental payment of ₹{booking.MonthlyRent:N2} processed online directly via Stripe. Intent: {request.StripePaymentIntentId ?? "Direct"}",
+            Severity = "Info"
+        });
+
+        await _context.SaveChangesAsync();
+
+        return Ok(ApiResponse<object>.Success(new
+        {
+            bookingId = booking.Id,
+            monthsPaidCount = booking.MonthsPaidCount,
+            nextPaymentDueDate = booking.NextPaymentDueDate,
+            totalAmountPaid = booking.TotalAmountPaid
+        }, $"Month {booking.MonthsPaidCount} rent paid successfully!"));
+    }
+
+    /// <summary>
     /// Get the Stripe publishable key for the frontend.
     /// </summary>
     [HttpGet("config")]
@@ -289,4 +424,15 @@ public class CreatePaymentIntentRequest
     public int ItemId { get; set; }
     public decimal Amount { get; set; }
     public int RentalMonths { get; set; } = 3;
+}
+
+public class CreateMonthlyRentIntentRequest
+{
+    public int BookingId { get; set; }
+}
+
+public class ConfirmMonthlyRentRequest
+{
+    public int BookingId { get; set; }
+    public string? StripePaymentIntentId { get; set; }
 }

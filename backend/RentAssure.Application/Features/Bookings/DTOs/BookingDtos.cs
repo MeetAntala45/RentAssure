@@ -46,6 +46,23 @@ public class BookingDetailDto
     public bool IsPaidOnline { get; set; }
     public string? StripePaymentIntentId { get; set; }
     public string? StripeRefundId { get; set; }
+    public string? DeliveryOtp { get; set; }
+    public bool IsDeliveryVerified { get; set; }
+    public DateTime? DeliveredAt { get; set; }
+    public int MonthsPaidCount { get; set; } = 1;
+    public DateTime? NextPaymentDueDate { get; set; }
+    public DateTime? LastPaymentDate { get; set; }
+}
+
+public class VerifyDeliveryOtpDto
+{
+    public string Otp { get; set; } = string.Empty;
+}
+
+public class PayMonthlyRentDto
+{
+    public int BookingId { get; set; }
+    public string? StripePaymentIntentId { get; set; }
 }
 
 public class RequestReturnDto

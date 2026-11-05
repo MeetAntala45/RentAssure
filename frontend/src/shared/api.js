@@ -173,6 +173,21 @@ export const vendorApi = {
     return res.data;
   },
 
+  verifyDeliveryOtp: async (id, otp) => {
+    const res = await api.post(`/v1/vendor/bookings/${id}/verify-delivery`, { otp });
+    return res.data;
+  },
+
+  recordOfflinePayment: async (id) => {
+    const res = await api.post(`/v1/vendor/bookings/${id}/record-offline-payment`);
+    return res.data;
+  },
+
+  releaseDeposit: async (id, conditionNotes = null) => {
+    const res = await api.post(`/v1/vendor/bookings/${id}/release-deposit`, { conditionNotes });
+    return res.data;
+  },
+
   getEarnings: async () => {
     const res = await api.get('/v1/vendor/earnings');
     return res.data;
@@ -342,6 +357,16 @@ export const paymentsApi = {
 
   refundDeposit: async (bookingId) => {
     const res = await api.post(`/v1/payments/refund-deposit/${bookingId}`);
+    return res.data;
+  },
+
+  createMonthlyRentIntent: async (bookingId) => {
+    const res = await api.post('/v1/payments/create-monthly-rent-intent', { bookingId });
+    return res.data;
+  },
+
+  confirmMonthlyRent: async (bookingId, stripePaymentIntentId = null) => {
+    const res = await api.post('/v1/payments/confirm-monthly-rent', { bookingId, stripePaymentIntentId });
     return res.data;
   },
 };

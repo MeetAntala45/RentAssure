@@ -3,8 +3,10 @@ import { AuthProvider, useAuth } from '../../../src/shared/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import CustomerNavbar from './components/CustomerNavbar';
 import CustomerCatalogPage from './pages/CustomerCatalogPage';
+import CustomerItemDetailPage from './pages/CustomerItemDetailPage';
+import CustomerCheckoutPage from './pages/CustomerCheckoutPage';
+import CustomerRentalsPage from './pages/CustomerRentalsPage';
 import CustomerAuthPage from './pages/CustomerAuthPage';
-import CustomerBookingsModal from './components/CustomerBookingsModal';
 import SupportForm from '../../../src/shared/SupportForm';
 
 const GOOGLE_CLIENT_ID =
@@ -15,8 +17,12 @@ const CustomerAppContent = () => {
   const { user, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
-  const [showMyBookingsModal, setShowMyBookingsModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState('All');
+
+  // Dedicated Page Routing: 'catalog' | 'item-details' | 'checkout' | 'my-rentals'
+  const [currentPage, setCurrentPage] = useState('catalog');
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedMonths, setSelectedMonths] = useState(3);
 
   // Enforce customer role on Customer portal
   useEffect(() => {
@@ -25,24 +31,87 @@ const CustomerAppContent = () => {
     }
   }, [user]);
 
+  const handleSelectItem = (item) => {
+    setSelectedItem(item);
+    setCurrentPage('item-details');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleProceedToCheckout = (months) => {
+    setSelectedMonths(months);
+    setCurrentPage('checkout');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenMyRentals = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    setCurrentPage('my-rentals');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBackToCatalog = () => {
+    setCurrentPage('catalog');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBackToItem = () => {
+    setCurrentPage('item-details');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-page)' }}>
-      {/* Sticky Modern Navbar */}
+      {/* Sticky Modern Clean Navbar */}
       <CustomerNavbar
         onOpenAuth={() => setShowAuthModal(true)}
         onOpenSupport={() => setShowSupportModal(true)}
-        onOpenMyBookings={() => setShowMyBookingsModal(true)}
+        onOpenMyBookings={handleOpenMyRentals}
+        onGoHome={handleBackToCatalog}
         selectedCity={selectedCity}
         onCityChange={(c) => setSelectedCity(c)}
       />
 
-      {/* Main Marketplace Catalog Experience */}
+      {/* Main Page Routing Container */}
       <main style={{ flex: 1 }}>
-        <CustomerCatalogPage
-          selectedCity={selectedCity}
-          onRequireAuth={() => setShowAuthModal(true)}
-          onOpenMyRentals={() => setShowMyBookingsModal(true)}
-        />
+        {currentPage === 'catalog' && (
+          <CustomerCatalogPage
+            selectedCity={selectedCity}
+            onRequireAuth={() => setShowAuthModal(true)}
+            onOpenMyRentals={handleOpenMyRentals}
+            onSelectItem={handleSelectItem}
+          />
+        )}
+
+        {currentPage === 'item-details' && (
+          <CustomerItemDetailPage
+            item={selectedItem}
+            onBack={handleBackToCatalog}
+            onProceedToCheckout={handleProceedToCheckout}
+            onRequireAuth={() => setShowAuthModal(true)}
+            user={user}
+          />
+        )}
+
+        {currentPage === 'checkout' && (
+          <CustomerCheckoutPage
+            item={selectedItem}
+            selectedMonths={selectedMonths}
+            onBack={handleBackToItem}
+            onViewRentals={handleOpenMyRentals}
+            user={user}
+          />
+        )}
+
+        {currentPage === 'my-rentals' && (
+          <CustomerRentalsPage
+            onBackToCatalog={handleBackToCatalog}
+            onOpenSupport={() => setShowSupportModal(true)}
+            user={user}
+          />
+        )}
       </main>
 
       {/* Modern High-End Marketplace Footer */}
@@ -211,7 +280,7 @@ const CustomerAppContent = () => {
         </div>
       )}
 
-      {/* Sleek Customer Auth Modal */}
+      {/* Customer Auth Modal */}
       {showAuthModal && (
         <div className="ra-modal-backdrop" style={{ zIndex: 1200 }} onClick={() => setShowAuthModal(false)}>
           <div
@@ -246,14 +315,6 @@ const CustomerAppContent = () => {
             <CustomerAuthPage onSuccess={() => setShowAuthModal(false)} />
           </div>
         </div>
-      )}
-
-      {/* My Rentals / Subscriptions Dashboard Modal */}
-      {showMyBookingsModal && (
-        <CustomerBookingsModal
-          onClose={() => setShowMyBookingsModal(false)}
-          onOpenSupport={() => setShowSupportModal(true)}
-        />
       )}
     </div>
   );

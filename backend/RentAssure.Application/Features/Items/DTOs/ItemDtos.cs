@@ -23,6 +23,8 @@ public class RentalItemDto
     public int MinimumRentalMonths { get; set; }
     public List<string> Images { get; set; } = new();
     public ItemStatus Status { get; set; }
+    public int Quantity { get; set; } = 1;
+    public int AvailableQuantity { get; set; } = 1;
     public string City { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;
     public int TotalRentalsCount { get; set; }
@@ -68,6 +70,7 @@ public class CreateRentalItemDto
     public decimal MonthlyRent { get; set; }
     public decimal SecurityDeposit { get; set; }
     public int MinimumRentalMonths { get; set; } = 3;
+    public int Quantity { get; set; } = 1;
     public int Discount6MonthsPercent { get; set; } = 0;
     public int Discount12MonthsPercent { get; set; } = 0;
     public string City { get; set; } = string.Empty;
@@ -86,6 +89,8 @@ public class UpdateRentalItemDto
     public decimal MonthlyRent { get; set; }
     public decimal SecurityDeposit { get; set; }
     public int MinimumRentalMonths { get; set; } = 3;
+    public int Quantity { get; set; } = 1;
+    public int? AvailableQuantity { get; set; }
     public int Discount6MonthsPercent { get; set; } = 0;
     public int Discount12MonthsPercent { get; set; } = 0;
     public string City { get; set; } = string.Empty;

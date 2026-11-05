@@ -39,9 +39,9 @@ public class BookingService : IBookingService
             return ApiResponse<BookingDetailDto>.Fail("This item is currently inactive.");
         }
 
-        if (item.Status == ItemStatus.Rented)
+        if (item.AvailableQuantity <= 0 || item.Status == ItemStatus.Rented)
         {
-            return ApiResponse<BookingDetailDto>.Fail("This item is currently rented out by another customer.");
+            return ApiResponse<BookingDetailDto>.Fail("All units of this item are currently rented out.");
         }
 
         if (item.Status == ItemStatus.UnderMaintenance)
@@ -92,6 +92,7 @@ public class BookingService : IBookingService
         var startDate = request.StartDate ?? DateTime.UtcNow;
         var endDate = startDate.AddMonths(request.RentalDurationMonths);
         var bookingRef = $"RA-BK-{DateTime.UtcNow:yyyyMM}-{Random.Shared.Next(1000, 9999)}";
+        var deliveryOtp = Random.Shared.Next(100000, 999999).ToString();
 
         var booking = new Booking
         {
@@ -108,15 +109,26 @@ public class BookingService : IBookingService
             CommissionRateApplied = commissionRate,
             PlatformCommissionAmount = platformCommission,
             VendorPayoutAmount = vendorPayout,
-            Status = BookingStatus.Active,
+            Status = BookingStatus.Reserved, // Starts in Reserved state until delivery OTP is verified
             DepositStatus = DepositStatus.Held,
+            DeliveryOtp = deliveryOtp,
+            IsDeliveryVerified = false,
+            DeliveredAt = null,
+            MonthsPaidCount = 1,
+            NextPaymentDueDate = null, // Will start counting once item is verified delivered
+            LastPaymentDate = DateTime.UtcNow,
             DeliveryAddress = string.IsNullOrWhiteSpace(request.DeliveryAddress) ? "Default Customer Address" : request.DeliveryAddress.Trim(),
             DeliveryCity = string.IsNullOrWhiteSpace(request.DeliveryCity) ? item.City : request.DeliveryCity.Trim(),
             StripePaymentIntentId = request.StripePaymentIntentId,
             IsPaidOnline = !string.IsNullOrWhiteSpace(request.StripePaymentIntentId)
         };
 
-        item.Status = ItemStatus.Rented;
+        // Decrement available quantity; only mark item Rented if no units remain
+        item.AvailableQuantity = Math.Max(0, item.AvailableQuantity - 1);
+        if (item.AvailableQuantity <= 0)
+        {
+            item.Status = ItemStatus.Rented;
+        }
         item.TotalRentalsCount++;
 
         if (item.Vendor != null)
@@ -134,13 +146,13 @@ public class BookingService : IBookingService
             EntityId = bookingRef,
             PerformedByUserId = customerId,
             PerformedByUserName = customer.FullName,
-            Details = $"Customer created {request.RentalDurationMonths}-month rental for '{item.Title}' from vendor '{item.Vendor?.StoreName ?? "Merchant Partner"}'.",
+            Details = $"Customer booked {request.RentalDurationMonths}-month rental for '{item.Title}' from '{item.Vendor?.StoreName ?? "Merchant"}'. Delivery OTP generated.",
             Severity = "Info"
         });
 
         await _context.SaveChangesAsync();
 
-        return ApiResponse<BookingDetailDto>.Success(MapToDto(booking, item, customer, item.Vendor), "Rental booking created successfully!");
+        return ApiResponse<BookingDetailDto>.Success(MapToDto(booking, item, customer, item.Vendor), "Rental booking created successfully! Delivery OTP issued.");
     }
 
     public async Task<ApiResponse<List<BookingDetailDto>>> GetCustomerBookingsAsync(int customerId)
@@ -292,7 +304,13 @@ public class BookingService : IBookingService
             CreatedAt = b.CreatedAt,
             IsPaidOnline = b.IsPaidOnline,
             StripePaymentIntentId = b.StripePaymentIntentId,
-            StripeRefundId = b.StripeRefundId
+            StripeRefundId = b.StripeRefundId,
+            DeliveryOtp = b.DeliveryOtp,
+            IsDeliveryVerified = b.IsDeliveryVerified,
+            DeliveredAt = b.DeliveredAt,
+            MonthsPaidCount = b.MonthsPaidCount,
+            NextPaymentDueDate = b.NextPaymentDueDate,
+            LastPaymentDate = b.LastPaymentDate
         };
     }
 }

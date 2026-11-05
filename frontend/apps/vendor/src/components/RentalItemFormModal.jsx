@@ -48,6 +48,7 @@ const RentalItemFormModal = ({
   const [hasTenureDiscount, setHasTenureDiscount] = useState(false);
   const [discount6Months, setDiscount6Months] = useState(10);
   const [discount12Months, setDiscount12Months] = useState(20);
+  const [quantity, setQuantity] = useState(1);
   const [city, setCity] = useState('Ahmedabad');
   const [area, setArea] = useState('Downtown');
   const [status, setStatus] = useState(1); // 1 = Available, 2 = Rented, 3 = UnderMaintenance, 4 = Inactive
@@ -107,6 +108,7 @@ const RentalItemFormModal = ({
         setHasTenureDiscount(hasDisc);
         setDiscount6Months(d6 > 0 ? d6 : 10);
         setDiscount12Months(d12 > 0 ? d12 : 20);
+        setQuantity(itemToEdit.quantity || itemToEdit.availableQuantity || 1);
         setCity(itemToEdit.city || 'Ahmedabad');
         setArea(itemToEdit.area || 'Downtown Hub');
         setStatus(itemToEdit.status || 1);
@@ -126,6 +128,7 @@ const RentalItemFormModal = ({
         setDuration(3);
         setMonthlyRent(75);
         setSecurityDeposit(225);
+        setQuantity(1);
         setHasTenureDiscount(false);
         setDiscount6Months(10);
         setDiscount12Months(20);
@@ -208,6 +211,7 @@ const RentalItemFormModal = ({
         monthlyRent: parsedRent,
         securityDeposit: parseFloat(securityDeposit) || Math.round(parsedRent * 3),
         minimumRentalMonths: parseInt(duration, 10) || 1,
+        quantity: Math.max(1, parseInt(quantity, 10) || 1),
         discount6MonthsPercent: hasTenureDiscount ? Math.round(d6Percent) : 0,
         discount12MonthsPercent: hasTenureDiscount ? Math.round(d12Percent) : 0,
         city: city?.trim() || 'Ahmedabad',
@@ -468,6 +472,22 @@ const RentalItemFormModal = ({
                     <option value="6">6 Months</option>
                     <option value="12">12 Months</option>
                   </select>
+                </div>
+
+                <div className="ra-form-group" style={{ margin: 0 }}>
+                  <label className="ra-label" style={{ fontWeight: 700, fontSize: '12px' }}>
+                    Stock Units*
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="999"
+                    required
+                    className="ra-input"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                    placeholder="e.g. 5"
+                  />
                 </div>
               </div>
 

@@ -25,6 +25,7 @@ const CustomerNavbar = ({
   onOpenAuth = () => {},
   onOpenSupport = () => {},
   onOpenMyBookings = () => {},
+  onGoHome = () => {},
   selectedCity = 'All',
   onCityChange = () => {},
 }) => {
@@ -53,7 +54,15 @@ const CustomerNavbar = ({
       <div className="ra-customer-nav-wrap">
         {/* Brand & City Picker */}
         <div className="ra-nav-left-wrap">
-          <a href="#" className="ra-brand-mark" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+          <a
+            href="#"
+            className="ra-brand-mark"
+            onClick={(e) => {
+              e.preventDefault();
+              onGoHome();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
             <div className="ra-brand-logo-icon">🛡️</div>
             <div>
               <div className="ra-brand-text">

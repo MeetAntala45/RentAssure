@@ -41,6 +41,12 @@ public class RentalItemConfiguration : IEntityTypeConfiguration<RentalItem>
         builder.Property(i => i.Discount12MonthsPercent)
             .HasDefaultValue(0);
 
+        builder.Property(i => i.Quantity)
+            .HasDefaultValue(1);
+
+        builder.Property(i => i.AvailableQuantity)
+            .HasDefaultValue(1);
+
         builder.Property(i => i.Status)
             .IsRequired()
             .HasConversion<string>()

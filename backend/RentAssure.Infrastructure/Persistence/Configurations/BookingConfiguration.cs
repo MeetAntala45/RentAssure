@@ -67,6 +67,15 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
         builder.Property(b => b.StripeRefundId)
             .HasMaxLength(150);
 
+        builder.Property(b => b.DeliveryOtp)
+            .HasMaxLength(10);
+
+        builder.Property(b => b.IsDeliveryVerified)
+            .HasDefaultValue(false);
+
+        builder.Property(b => b.MonthsPaidCount)
+            .HasDefaultValue(1);
+
         builder.Property(b => b.IsPaidOnline)
             .HasDefaultValue(false);
 
