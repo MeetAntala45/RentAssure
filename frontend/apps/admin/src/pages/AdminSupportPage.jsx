@@ -92,15 +92,12 @@ export default function AdminSupportPage() {
         <button
           onClick={fetchTickets}
           disabled={loading}
+          className="ra-btn ra-btn-secondary ra-btn-sm"
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
             padding: '9px 16px',
-            borderRadius: '8px',
-            border: '1px solid #d4d4d8',
-            background: '#ffffff',
-            color: '#18181b',
             fontSize: '13px',
             fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer',
@@ -120,43 +117,37 @@ export default function AdminSupportPage() {
         }}
       >
         <div
+          className="ra-card"
           style={{
-            background: '#ffffff',
-            borderRadius: '10px',
-            border: '1px solid #e4e4e7',
-            padding: '16px 20px',
+            padding: '20px 24px',
           }}
         >
-          <div style={{ fontSize: '13px', fontWeight: 600, color: '#71717a' }}>Total Inquiries</div>
-          <div style={{ fontSize: '26px', fontWeight: 800, color: '#18181b', marginTop: '6px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Total Inquiries</div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)', marginTop: '6px' }}>
             {totalCount}
           </div>
         </div>
 
         <div
+          className="ra-card"
           style={{
-            background: '#ffffff',
-            borderRadius: '10px',
-            border: '1px solid #e4e4e7',
-            padding: '16px 20px',
+            padding: '20px 24px',
           }}
         >
-          <div style={{ fontSize: '13px', fontWeight: 600, color: '#71717a' }}>Open Inquiries</div>
-          <div style={{ fontSize: '26px', fontWeight: 800, color: '#18181b', marginTop: '6px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Open Inquiries</div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)', marginTop: '6px' }}>
             {openCount}
           </div>
         </div>
 
         <div
+          className="ra-card"
           style={{
-            background: '#ffffff',
-            borderRadius: '10px',
-            border: '1px solid #e4e4e7',
-            padding: '16px 20px',
+            padding: '20px 24px',
           }}
         >
-          <div style={{ fontSize: '13px', fontWeight: 600, color: '#71717a' }}>Resolved</div>
-          <div style={{ fontSize: '26px', fontWeight: 800, color: '#71717a', marginTop: '6px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Resolved</div>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-muted)', marginTop: '6px' }}>
             {resolvedCount}
           </div>
         </div>
@@ -164,16 +155,14 @@ export default function AdminSupportPage() {
 
       {/* ─── SEARCH & FILTER CONTROLS ─────────────────────────────────────── */}
       <div
+        className="ra-card"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '12px',
-          background: '#ffffff',
+          gap: '14px',
           padding: '16px 20px',
-          borderRadius: '10px',
-          border: '1px solid #e4e4e7',
           marginBottom: '20px',
         }}
       >
@@ -183,34 +172,32 @@ export default function AdminSupportPage() {
             placeholder="Search by name, email, phone, or issue description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="ra-input"
             style={{
               width: '100%',
-              padding: '9px 12px',
-              borderRadius: '8px',
-              border: '1px solid #d4d4d8',
+              padding: '10px 14px',
               fontSize: '13px',
-              color: '#18181b',
-              outline: 'none',
               boxSizing: 'border-box',
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '13px', fontWeight: 600, color: '#71717a' }}>Status:</span>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Status:</span>
           {['All', 'Open', 'In Progress', 'Resolved'].map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
               style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
+                padding: '7px 14px',
+                borderRadius: '8px',
                 fontSize: '12px',
                 fontWeight: 600,
-                border: statusFilter === st ? '1px solid #18181b' : '1px solid #e4e4e7',
-                background: statusFilter === st ? '#18181b' : '#ffffff',
-                color: statusFilter === st ? '#ffffff' : '#52525b',
+                border: 'none',
+                background: statusFilter === st ? '#18181b' : '#f4f4f5',
+                color: statusFilter === st ? '#ffffff' : 'var(--text-main)',
                 cursor: 'pointer',
+                transition: 'all 0.15s ease',
               }}
             >
               {st}
@@ -224,9 +211,8 @@ export default function AdminSupportPage() {
         <div
           style={{
             padding: '14px 18px',
-            borderRadius: '8px',
+            borderRadius: '10px',
             background: '#fef2f2',
-            border: '1px solid #fecaca',
             color: '#991b1b',
             fontSize: '14px',
             marginBottom: '20px',
@@ -238,12 +224,12 @@ export default function AdminSupportPage() {
 
       {/* ─── TABLE VIEW ───────────────────────────────────────────────────── */}
       <div
+        className="ra-table-responsive"
         style={{
           background: '#ffffff',
-          borderRadius: '10px',
-          border: '1px solid #e4e4e7',
+          borderRadius: '16px',
           overflow: 'hidden',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         {loading ? (

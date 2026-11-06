@@ -208,14 +208,14 @@ export default function CustomerBookingsModal({ onClose, onOpenSupport = () => {
     }
     if (s === 'Reserved' || s === '1') {
       return (
-        <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}>
+        <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '11px', fontWeight: 700, background: '#f4f4f5', color: '#18181b', border: '1px solid #e4e4e7' }}>
           ● Reserved / Dispatching
         </span>
       );
     }
     if (s === 'ReturnRequested' || s === '4') {
       return (
-        <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a' }}>
+        <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '11px', fontWeight: 700, background: '#f4f4f5', color: '#18181b', border: '1px solid #e4e4e7' }}>
           ● Return & Inspection Scheduled
         </span>
       );

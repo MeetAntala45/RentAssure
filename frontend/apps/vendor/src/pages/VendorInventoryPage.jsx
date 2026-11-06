@@ -3,10 +3,10 @@ import { vendorApi } from '../../../../src/shared/api';
 import RentalItemFormModal from '../components/RentalItemFormModal';
 
 const STATUS_MAP = {
-  1: { label: 'Available', badgeClass: 'ra-badge-active', color: '#033047', bg: '#e8f1f5' },
-  2: { label: 'Rented', badgeClass: 'ra-badge-verified', color: '#304C62', bg: '#f0f5f9' },
-  3: { label: 'Under Maintenance', badgeClass: 'ra-badge-pending', color: '#5C677D', bg: '#f4f3ee' },
-  4: { label: 'Inactive', badgeClass: 'ra-badge-rejected', color: '#71717a', bg: '#f4f3ee' },
+  1: { label: 'Available', badgeClass: 'ra-badge-active', color: '#166534', bg: '#f0fdf4' },
+  2: { label: 'Rented', badgeClass: 'ra-badge-verified', color: '#18181b', bg: '#f4f4f5' },
+  3: { label: 'Under Maintenance', badgeClass: 'ra-badge-pending', color: '#92400e', bg: '#fef3c7' },
+  4: { label: 'Inactive', badgeClass: 'ra-badge-rejected', color: '#991b1b', bg: '#fee2e2' },
 };
 
 const VendorInventoryPage = () => {
@@ -151,9 +151,9 @@ const VendorInventoryPage = () => {
           gap: '14px',
         }}
       >
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #033047' }}>
+        <div className="ra-card" style={{ padding: '16px' }}>
           <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>All Catalog Listings</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#033047', marginTop: '4px' }}>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
             {summary.total}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
@@ -161,9 +161,9 @@ const VendorInventoryPage = () => {
           </div>
         </div>
 
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #304C62' }}>
+        <div className="ra-card" style={{ padding: '16px' }}>
           <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Live & Available</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#304C62', marginTop: '4px' }}>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
             {summary.available}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
@@ -171,9 +171,9 @@ const VendorInventoryPage = () => {
           </div>
         </div>
 
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #5C677D' }}>
+        <div className="ra-card" style={{ padding: '16px' }}>
           <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Currently Rented</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#5C677D', marginTop: '4px' }}>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
             {summary.rented}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
@@ -181,9 +181,9 @@ const VendorInventoryPage = () => {
           </div>
         </div>
 
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #466882' }}>
+        <div className="ra-card" style={{ padding: '16px' }}>
           <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Under Service / Inactive</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#466882', marginTop: '4px' }}>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-muted)', marginTop: '4px' }}>
             {summary.maintenance}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
@@ -191,9 +191,9 @@ const VendorInventoryPage = () => {
           </div>
         </div>
 
-        <div className="ra-card" style={{ padding: '16px', borderLeft: '4px solid #033047' }}>
+        <div className="ra-card" style={{ padding: '16px' }}>
           <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)' }}>Catalog Monthly Potential</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, color: '#033047', marginTop: '4px' }}>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
             ₹{summary.totalMonthlyValue.toLocaleString('en-IN')}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
@@ -401,11 +401,10 @@ const VendorInventoryPage = () => {
                               position: 'relative',
                               width: '56px',
                               height: '56px',
-                              borderRadius: 'var(--radius-sm)',
+                              borderRadius: '10px',
                               overflow: 'hidden',
                               background: '#f1f5f9',
                               flexShrink: 0,
-                              border: '1px solid var(--border-light)',
                             }}
                           >
                             <img
@@ -523,7 +522,6 @@ const VendorInventoryPage = () => {
                           style={{
                             background: statusInfo.bg,
                             color: statusInfo.color,
-                            border: `1px solid ${statusInfo.color}33`,
                             fontSize: '11px',
                           }}
                         >

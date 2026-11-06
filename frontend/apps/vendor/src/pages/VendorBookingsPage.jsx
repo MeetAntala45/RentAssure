@@ -375,7 +375,7 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                     padding: '9px 18px',
                     borderRadius: '8px',
                     border: 'none',
-                    background: '#2563eb',
+                    background: '#18181b',
                     color: '#ffffff',
                     fontSize: '13px',
                     fontWeight: 700,
@@ -579,9 +579,8 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
         {(!selectedBooking.isDeliveryVerified || (selectedBooking.status || '').toLowerCase() === 'reserved') ? (
           <div
             style={{
-              background: '#eff6ff',
-              border: '1px solid #bfdbfe',
-              borderRadius: '12px',
+              background: '#f4f4f5',
+              borderRadius: '16px',
               padding: '20px 24px',
               marginBottom: '24px',
               display: 'flex',
@@ -594,11 +593,11 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                 <span style={{ fontSize: '20px' }}>📦</span>
-                <span style={{ fontSize: '16px', fontWeight: 800, color: '#1e40af' }}>
+                <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-main)' }}>
                   Awaiting Doorstep Delivery Verification
                 </span>
               </div>
-              <p style={{ margin: 0, fontSize: '13px', color: '#1e3a8a', lineHeight: '1.5' }}>
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-body)', lineHeight: '1.5' }}>
                 The rental period begins from the physical delivery date, not the order date. Ask the customer for their 6-digit OTP upon delivery to start the rental.
               </p>
             </div>
@@ -617,7 +616,7 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                 padding: '10px 22px',
                 borderRadius: '8px',
                 border: 'none',
-                background: '#2563eb',
+                background: '#18181b',
                 color: '#ffffff',
                 fontSize: '13px',
                 fontWeight: 700,
@@ -625,7 +624,7 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                boxShadow: '0 2px 4px rgba(37,99,235,0.25)',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
               }}
             >
               🔑 Enter Delivery OTP
@@ -635,11 +634,10 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
+              borderRadius: '16px',
               padding: '20px 24px',
               marginBottom: '24px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
             <div
@@ -654,7 +652,7 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '18px' }}>📅</span>
-                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
                   Rental Lifecycle & Monthly Billing Cycle
                 </h3>
               </div>
@@ -669,7 +667,6 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                   color: '#166534',
                   fontSize: '12px',
                   fontWeight: 700,
-                  border: '1px solid #bbf7d0',
                 }}
               >
                 ✓ Delivered & Active
@@ -684,25 +681,25 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                 marginBottom: '16px',
               }}
             >
-              <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>DELIVERY CONFIRMED ON</div>
-                <div style={{ fontSize: '14px', color: '#0f172a', fontWeight: 700, marginTop: '4px' }}>
+              <div style={{ padding: '14px 16px', background: '#f8f8f9', borderRadius: '10px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>DELIVERY CONFIRMED ON</div>
+                <div style={{ fontSize: '14px', color: 'var(--text-main)', fontWeight: 700, marginTop: '4px' }}>
                   {selectedBooking.deliveredAt
                     ? new Date(selectedBooking.deliveredAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                     : startDateStr}
                 </div>
               </div>
 
-              <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>MONTHLY PAYMENT PROGRESS</div>
-                <div style={{ fontSize: '14px', color: '#0f172a', fontWeight: 700, marginTop: '4px' }}>
+              <div style={{ padding: '14px 16px', background: '#f8f8f9', borderRadius: '10px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>MONTHLY PAYMENT PROGRESS</div>
+                <div style={{ fontSize: '14px', color: 'var(--text-main)', fontWeight: 700, marginTop: '4px' }}>
                   Month {selectedBooking.monthsPaidCount || 1} of {selectedBooking.rentalDurationMonths} Paid
                 </div>
               </div>
 
-              <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>NEXT PAYMENT DUE DATE</div>
-                <div style={{ fontSize: '14px', color: selectedBooking.nextPaymentDueDate ? '#2563eb' : '#64748b', fontWeight: 700, marginTop: '4px' }}>
+              <div style={{ padding: '14px 16px', background: '#f8f8f9', borderRadius: '10px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>NEXT PAYMENT DUE DATE</div>
+                <div style={{ fontSize: '14px', color: selectedBooking.nextPaymentDueDate ? '#18181b' : 'var(--text-muted)', fontWeight: 700, marginTop: '4px' }}>
                   {selectedBooking.nextPaymentDueDate
                     ? new Date(selectedBooking.nextPaymentDueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                     : 'Rental Completed'}
@@ -996,11 +993,11 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 2. BOOKINGS LIST TABLE VIEW (Matches Image 1 & 3 format)
+  // 2. BOOKINGS LIST TABLE VIEW
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 20px', fontFamily: 'inherit' }}>
-      {/* ─── HEADER BAR (Matching Image 1) ─────────────────────────────────── */}
+    <div className="ra-page-container">
+      {/* ─── HEADER BAR ─────────────────────────────────── */}
       <div
         style={{
           display: 'flex',
@@ -1012,16 +1009,16 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
         }}
       >
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#1e293b', margin: '0 0 4px 0' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 4px 0' }}>
             Booking Management
           </h1>
-          <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
             Track and manage all customer equipment rentals, fulfillment, and returns.
           </p>
         </div>
 
-        {/* Filter Button (Image 1 style) */}
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        {/* Filter Controls */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             type="text"
             placeholder="Search bookings by customer, phone, item..."
@@ -1030,32 +1027,25 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
+            className="ra-input"
             style={{
               padding: '8px 14px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
               fontSize: '13px',
-              color: '#1e293b',
-              width: '280px',
-              outline: 'none',
-              background: '#ffffff',
+              width: '260px',
             }}
           />
 
           <button
             onClick={() => setShowFilterDrawer(true)}
+            className="ra-btn ra-btn-secondary"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               padding: '8px 16px',
               borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              background: statusFilter !== 'All' || durationFilter !== 'All' ? '#e2e8f0' : '#ffffff',
-              color: '#1e293b',
               fontSize: '13px',
               fontWeight: 600,
-              cursor: 'pointer',
             }}
           >
             <span>⚡</span> Filter
@@ -1065,7 +1055,7 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                   width: '6px',
                   height: '6px',
                   borderRadius: '50%',
-                  background: '#2563eb',
+                  background: '#18181b',
                   display: 'inline-block',
                 }}
               />
@@ -1079,10 +1069,9 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
         <div
           style={{
             padding: '12px 16px',
-            borderRadius: '8px',
+            borderRadius: '10px',
             background: '#fef2f2',
-            border: '1px solid #fecaca',
-            color: '#b91c1c',
+            color: '#991b1b',
             fontSize: '13px',
             marginBottom: '16px',
           }}
@@ -1091,34 +1080,34 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
         </div>
       )}
 
-      {/* ─── TABLE VIEW (Matches Image 1 Layout) ──────────────────────────── */}
+      {/* ─── TABLE VIEW ──────────────────────────── */}
       <div
+        className="ra-table-responsive"
         style={{
           background: '#ffffff',
-          borderRadius: '10px',
-          border: '1px solid #e2e8f0',
+          borderRadius: '16px',
           overflow: 'hidden',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         {loading ? (
-          <div style={{ padding: '60px', textAlign: 'center', color: '#64748b', fontSize: '14px' }}>
+          <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
             Loading bookings...
           </div>
         ) : filteredBookings.length === 0 ? (
           <div style={{ padding: '60px 20px', textAlign: 'center' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📋</div>
-            <div style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', marginBottom: '4px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '4px' }}>
               No bookings found
             </div>
-            <div style={{ fontSize: '13px', color: '#64748b' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
               {searchQuery || statusFilter !== 'All'
                 ? 'Try adjusting your search criteria or clearing filters.'
                 : 'No rental bookings have been recorded yet.'}
             </div>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ width: '100%' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
@@ -1286,7 +1275,7 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                                         border: 'none',
                                         background: 'none',
                                         fontSize: '13px',
-                                        color: '#2563eb',
+                                        color: '#18181b',
                                         cursor: 'pointer',
                                         textAlign: 'left',
                                         display: 'flex',
@@ -1294,7 +1283,7 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                                         gap: '8px',
                                         fontWeight: 600,
                                       }}
-                                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#eff6ff')}
+                                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f4f4f5')}
                                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                                     >
                                       <span>🔑</span> Verify Delivery OTP
@@ -1934,7 +1923,7 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
                   padding: '9px 20px',
                   borderRadius: '6px',
                   border: 'none',
-                  background: '#2563eb',
+                  background: '#18181b',
                   color: '#ffffff',
                   fontSize: '13px',
                   fontWeight: 700,

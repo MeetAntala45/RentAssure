@@ -5,6 +5,7 @@ namespace RentAssure.Application.Features.Bookings.DTOs;
 public class CreateBookingRequestDto
 {
     public int ItemId { get; set; }
+    public int Quantity { get; set; } = 1;
     public int RentalDurationMonths { get; set; } = 3;
     public DateTime? StartDate { get; set; }
     public string DeliveryAddress { get; set; } = string.Empty;
@@ -26,6 +27,7 @@ public class BookingDetailDto
     public int ItemId { get; set; }
     public string ItemTitle { get; set; } = string.Empty;
     public string ItemImageUrl { get; set; } = string.Empty;
+    public int Quantity { get; set; } = 1;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int RentalDurationMonths { get; set; }

@@ -73,7 +73,6 @@ const VendorAuthPage = () => {
           style={{
             background: 'var(--danger-bg)',
             color: 'var(--danger-text)',
-            border: '1px solid var(--danger-border)',
             borderRadius: 'var(--radius-md)',
             padding: '12px 16px',
             fontSize: '13px',
@@ -90,7 +89,6 @@ const VendorAuthPage = () => {
           style={{
             background: 'var(--success-bg)',
             color: 'var(--success-text)',
-            border: '1px solid var(--success-border)',
             borderRadius: 'var(--radius-md)',
             padding: '12px 16px',
             fontSize: '13px',

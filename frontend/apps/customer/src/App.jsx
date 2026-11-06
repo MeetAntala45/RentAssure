@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../../../src/shared/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import CustomerNavbar from './components/CustomerNavbar';
@@ -13,16 +14,19 @@ const GOOGLE_CLIENT_ID =
   import.meta.env.VITE_GOOGLE_CLIENT_ID ||
   '506539799908-8asi0s04856u5bv25fjdtebq5r2npt9l.apps.googleusercontent.com';
 
+const ItemRedirectWrapper = () => {
+  const { id } = useParams();
+  return <Navigate to={`/rental-items/${id}`} replace />;
+};
+
 const CustomerAppContent = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState('All');
-
-  // Dedicated Page Routing: 'catalog' | 'item-details' | 'checkout' | 'my-rentals'
-  const [currentPage, setCurrentPage] = useState('catalog');
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedMonths, setSelectedMonths] = useState(3);
 
   // Enforce customer role on Customer portal
   useEffect(() => {
@@ -32,14 +36,15 @@ const CustomerAppContent = () => {
   }, [user]);
 
   const handleSelectItem = (item) => {
-    setSelectedItem(item);
-    setCurrentPage('item-details');
+    navigate(`/rental-items/${item.id}`, { state: { item } });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleProceedToCheckout = (months) => {
-    setSelectedMonths(months);
-    setCurrentPage('checkout');
+  const handleProceedToCheckout = (months, quantity = 1, item) => {
+    const targetId = item?.id || 'select';
+    navigate(`/checkout/${targetId}?months=${months}&quantity=${quantity}`, {
+      state: { item, selectedMonths: months, selectedQuantity: quantity },
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -48,17 +53,12 @@ const CustomerAppContent = () => {
       setShowAuthModal(true);
       return;
     }
-    setCurrentPage('my-rentals');
+    navigate('/my-rentals');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBackToCatalog = () => {
-    setCurrentPage('catalog');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleBackToItem = () => {
-    setCurrentPage('item-details');
+    navigate('/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -76,42 +76,63 @@ const CustomerAppContent = () => {
 
       {/* Main Page Routing Container */}
       <main style={{ flex: 1 }}>
-        {currentPage === 'catalog' && (
-          <CustomerCatalogPage
-            selectedCity={selectedCity}
-            onRequireAuth={() => setShowAuthModal(true)}
-            onOpenMyRentals={handleOpenMyRentals}
-            onSelectItem={handleSelectItem}
+        <Routes>
+          {/* Marketplace / Catalog */}
+          <Route
+            path="/"
+            element={
+              <CustomerCatalogPage
+                selectedCity={selectedCity}
+                onRequireAuth={() => setShowAuthModal(true)}
+                onOpenMyRentals={handleOpenMyRentals}
+                onSelectItem={handleSelectItem}
+              />
+            }
           />
-        )}
+          <Route path="/catalog" element={<Navigate to="/" replace />} />
 
-        {currentPage === 'item-details' && (
-          <CustomerItemDetailPage
-            item={selectedItem}
-            onBack={handleBackToCatalog}
-            onProceedToCheckout={handleProceedToCheckout}
-            onRequireAuth={() => setShowAuthModal(true)}
-            user={user}
+          {/* Item Details Page */}
+          <Route
+            path="/rental-items/:id"
+            element={
+              <CustomerItemDetailPage
+                onBack={handleBackToCatalog}
+                onProceedToCheckout={handleProceedToCheckout}
+                onRequireAuth={() => setShowAuthModal(true)}
+                user={user}
+              />
+            }
           />
-        )}
+          <Route path="/items/:id" element={<ItemRedirectWrapper />} />
 
-        {currentPage === 'checkout' && (
-          <CustomerCheckoutPage
-            item={selectedItem}
-            selectedMonths={selectedMonths}
-            onBack={handleBackToItem}
-            onViewRentals={handleOpenMyRentals}
-            user={user}
+          {/* Checkout Page */}
+          <Route
+            path="/checkout/:id"
+            element={
+              <CustomerCheckoutPage
+                onBack={() => navigate(-1)}
+                onViewRentals={handleOpenMyRentals}
+                user={user}
+              />
+            }
           />
-        )}
+          <Route path="/checkout" element={<Navigate to="/" replace />} />
 
-        {currentPage === 'my-rentals' && (
-          <CustomerRentalsPage
-            onBackToCatalog={handleBackToCatalog}
-            onOpenSupport={() => setShowSupportModal(true)}
-            user={user}
+          {/* Customer Rentals */}
+          <Route
+            path="/my-rentals"
+            element={
+              <CustomerRentalsPage
+                onBackToCatalog={handleBackToCatalog}
+                onOpenSupport={() => setShowSupportModal(true)}
+                user={user}
+              />
+            }
           />
-        )}
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       {/* Modern High-End Marketplace Footer */}
@@ -322,10 +343,12 @@ const CustomerAppContent = () => {
 
 export default function App() {
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <AuthProvider>
-        <CustomerAppContent />
-      </AuthProvider>
-    </GoogleOAuthProvider>
+    <BrowserRouter>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <AuthProvider>
+          <CustomerAppContent />
+        </AuthProvider>
+      </GoogleOAuthProvider>
+    </BrowserRouter>
   );
 }

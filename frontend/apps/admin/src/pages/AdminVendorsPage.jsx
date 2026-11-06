@@ -63,21 +63,21 @@ const AdminVendorsPage = ({ onSelectVendor = () => {} }) => {
   const getStatusBadge = (status) => {
     if (status === 'Approved' || status === 1) {
       return (
-        <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0' }}>
+        <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#f0fdf4', color: '#166534' }}>
           ✔ Approved
         </span>
       );
     }
     if (status === 'PendingApproval' || status === 0) {
       return (
-        <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a' }}>
+        <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#fef3c7', color: '#92400e' }}>
           ⏳ Pending Review
         </span>
       );
     }
     if (status === 'Rejected' || status === 2) {
       return (
-        <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }}>
+        <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#fef2f2', color: '#991b1b' }}>
           ✖ Rejected
         </span>
       );
@@ -94,14 +94,12 @@ const AdminVendorsPage = ({ onSelectVendor = () => {} }) => {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '5px',
-            background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+            background: '#fef3c7',
             color: '#92400e',
-            border: '1.5px solid #f59e0b',
             padding: '3px 10px',
             borderRadius: '9999px',
             fontSize: '11px',
             fontWeight: 800,
-            boxShadow: '0 2px 6px rgba(245, 158, 11, 0.15)',
           }}
           title="Gold Tier Partner: Top SLA fulfillment and lowest dispute rate"
         >
@@ -117,14 +115,12 @@ const AdminVendorsPage = ({ onSelectVendor = () => {} }) => {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '5px',
-            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-            color: '#334155',
-            border: '1.5px solid #94a3b8',
+            background: '#f4f4f5',
+            color: '#18181b',
             padding: '3px 10px',
             borderRadius: '9999px',
             fontSize: '11px',
             fontWeight: 800,
-            boxShadow: '0 2px 6px rgba(148, 163, 184, 0.15)',
           }}
           title="Silver Tier Partner: Reliable merchant with consistent delivery record"
         >
@@ -139,9 +135,8 @@ const AdminVendorsPage = ({ onSelectVendor = () => {} }) => {
           display: 'inline-flex',
           alignItems: 'center',
           gap: '5px',
-          background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+          background: '#ffedd5',
           color: '#9a3412',
-          border: '1.5px solid #fdba74',
           padding: '3px 10px',
           borderRadius: '9999px',
           fontSize: '11px',
@@ -157,29 +152,29 @@ const AdminVendorsPage = ({ onSelectVendor = () => {} }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-      {/* ─── 1. SCORECARD METRICS HERO ─────────────────────────────────────── */}
+      {/* ─── 1. SCORECARD METRICS HERO (Clean Light Theme) ─────────────────── */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #033047 0%, #304C62 100%)',
-          borderRadius: '18px',
+          background: '#ffffff',
+          borderRadius: '16px',
           padding: '24px 28px',
-          color: '#ffffff',
-          boxShadow: '0 8px 24px rgba(3, 48, 71, 0.18)',
+          color: 'var(--text-main)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '18px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
               <span style={{ fontSize: '18px' }}>📊</span>
-              <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: '#cbd5e1' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)' }}>
                 Merchant Governance & Trust Framework
               </span>
             </div>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
               Merchant Performance Scorecards & Partner Tiering
             </h2>
           </div>
-          <span style={{ fontSize: '12px', background: 'rgba(255, 255, 255, 0.12)', padding: '5px 12px', borderRadius: '9999px', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+          <span style={{ fontSize: '12px', background: '#f4f4f5', color: 'var(--text-main)', padding: '5px 12px', borderRadius: '9999px', fontWeight: 600 }}>
             Real-Time SLA Engine Active
           </span>
         </div>
@@ -196,8 +191,7 @@ const AdminVendorsPage = ({ onSelectVendor = () => {} }) => {
           <div
             onClick={() => setFilterTier(filterTier === 'gold' ? 'All' : 'gold')}
             style={{
-              background: filterTier === 'gold' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-              border: filterTier === 'gold' ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.12)',
+              background: filterTier === 'gold' ? '#fef3c7' : '#f4f4f5',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -205,23 +199,22 @@ const AdminVendorsPage = ({ onSelectVendor = () => {} }) => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '11px', color: '#fef3c7', fontWeight: 700 }}>🥇 Gold Partners</span>
-              <span style={{ fontSize: '10px', background: 'rgba(245, 158, 11, 0.3)', color: '#fef3c7', padding: '2px 6px', borderRadius: '4px' }}>
+              <span style={{ fontSize: '11px', color: '#92400e', fontWeight: 700 }}>🥇 Gold Partners</span>
+              <span style={{ fontSize: '10px', background: '#ffffff', color: '#92400e', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 8% Fee
               </span>
             </div>
-            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#fbbf24' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#92400e' }}>
               {scorecardStats.goldCount} Stores
             </div>
-            <span style={{ fontSize: '10px', color: '#cbd5e1' }}>≥ 95% On-Time & ≤ 2% Disputes</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>≥ 95% On-Time & ≤ 2% Disputes</span>
           </div>
 
           {/* Silver */}
           <div
             onClick={() => setFilterTier(filterTier === 'silver' ? 'All' : 'silver')}
             style={{
-              background: filterTier === 'silver' ? 'rgba(148, 163, 184, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-              border: filterTier === 'silver' ? '2px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.12)',
+              background: filterTier === 'silver' ? '#e4e4e7' : '#f4f4f5',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -229,23 +222,22 @@ const AdminVendorsPage = ({ onSelectVendor = () => {} }) => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '11px', color: '#e2e8f0', fontWeight: 700 }}>🥈 Silver Partners</span>
-              <span style={{ fontSize: '10px', background: 'rgba(255, 255, 255, 0.2)', color: '#ffffff', padding: '2px 6px', borderRadius: '4px' }}>
+              <span style={{ fontSize: '11px', color: '#18181b', fontWeight: 700 }}>🥈 Silver Partners</span>
+              <span style={{ fontSize: '10px', background: '#ffffff', color: '#18181b', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 10% Fee
               </span>
             </div>
-            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#f1f5f9' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#18181b' }}>
               {scorecardStats.silverCount} Stores
             </div>
-            <span style={{ fontSize: '10px', color: '#cbd5e1' }}>≥ 90% On-Time & Standard SLA</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>≥ 90% On-Time & Standard SLA</span>
           </div>
 
           {/* Bronze */}
           <div
             onClick={() => setFilterTier(filterTier === 'bronze' ? 'All' : 'bronze')}
             style={{
-              background: filterTier === 'bronze' ? 'rgba(217, 119, 6, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-              border: filterTier === 'bronze' ? '2px solid #ea580c' : '1px solid rgba(255, 255, 255, 0.12)',
+              background: filterTier === 'bronze' ? '#ffedd5' : '#f4f4f5',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -253,33 +245,33 @@ const AdminVendorsPage = ({ onSelectVendor = () => {} }) => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '11px', color: '#ffedd5', fontWeight: 700 }}>🥉 Bronze Partners</span>
-              <span style={{ fontSize: '10px', background: 'rgba(234, 88, 12, 0.3)', color: '#fed7aa', padding: '2px 6px', borderRadius: '4px' }}>
+              <span style={{ fontSize: '11px', color: '#9a3412', fontWeight: 700 }}>🥉 Bronze Partners</span>
+              <span style={{ fontSize: '10px', background: '#ffffff', color: '#9a3412', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Standard
               </span>
             </div>
-            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#fdba74' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#9a3412' }}>
               {scorecardStats.bronzeCount} Stores
             </div>
-            <span style={{ fontSize: '10px', color: '#cbd5e1' }}>New or Probationary Status</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>New or Probationary Status</span>
           </div>
 
           {/* Avg On-Time SLA */}
-          <div style={{ background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '12px', padding: '14px 16px' }}>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 600 }}>Network On-Time SLA</span>
-            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#86efac' }}>
+          <div style={{ background: '#f4f4f5', borderRadius: '12px', padding: '14px 16px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>Network On-Time SLA</span>
+            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#166534' }}>
               {scorecardStats.avgOnTime}%
             </div>
-            <span style={{ fontSize: '10px', color: '#cbd5e1' }}>Target ≥ 95.0% threshold</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Target ≥ 95.0% threshold</span>
           </div>
 
           {/* Avg Dispute Rate */}
-          <div style={{ background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '12px', padding: '14px 16px' }}>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 600 }}>Avg Escrow Dispute Rate</span>
-            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#e0f2fe' }}>
+          <div style={{ background: '#f4f4f5', borderRadius: '12px', padding: '14px 16px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>Avg Escrow Dispute Rate</span>
+            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '4px', color: '#18181b' }}>
               {scorecardStats.avgDispute}%
             </div>
-            <span style={{ fontSize: '10px', color: '#cbd5e1' }}>Target ≤ 2.5% platform limit</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Target ≤ 2.5% platform limit</span>
           </div>
         </div>
       </div>

@@ -402,10 +402,10 @@ const CustomerCatalogPage = ({
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: '14px',
-            padding: '12px 18px',
+            padding: '14px 20px',
             background: '#ffffff',
             borderRadius: '14px',
-            border: '1px solid var(--border-light)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
@@ -448,10 +448,10 @@ const CustomerCatalogPage = ({
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               style={{
-                padding: '6px 12px',
+                padding: '8px 14px',
                 borderRadius: '8px',
-                border: '1px solid var(--border-light)',
-                background: '#ffffff',
+                border: 'none',
+                background: '#f4f4f5',
                 fontSize: '13px',
                 fontWeight: 600,
                 color: 'var(--text-main)',
@@ -470,7 +470,7 @@ const CustomerCatalogPage = ({
 
       {/* ─── 4. PRODUCT CARDS GRID ───────────────────────────────────────── */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#ffffff', borderRadius: '18px', border: '1px solid var(--border-light)' }}>
+        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#ffffff', borderRadius: '18px', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ fontSize: '36px', marginBottom: '12px', animation: 'raPulseSubtle 1.5s infinite' }}>⏳</div>
           <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '6px' }}>
             Loading Verified Listings...
@@ -480,7 +480,7 @@ const CustomerCatalogPage = ({
           </p>
         </div>
       ) : sortedItems.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#ffffff', borderRadius: '18px', border: '1px solid var(--border-light)' }}>
+        <div style={{ textAlign: 'center', padding: '80px 20px', background: '#ffffff', borderRadius: '18px', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>📦</div>
           <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px' }}>
             No Rental Items Found
@@ -500,7 +500,7 @@ const CustomerCatalogPage = ({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
             gap: '24px',
             marginBottom: '48px',
           }}
@@ -536,95 +536,64 @@ const CustomerCatalogPage = ({
                   </span>
 
                   {/* Stock Status Badge */}
-                  {isRented ? (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        bottom: '10px',
-                        left: '10px',
-                        background: 'rgba(146, 64, 14, 0.92)',
-                        color: '#ffffff',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        padding: '3px 10px',
-                        borderRadius: 'var(--radius-full)',
-                        backdropFilter: 'blur(6px)',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                      }}
-                    >
-                      ● Currently Rented
+                  <span
+                    style={{
+                      position: 'absolute',
+                      bottom: '10px',
+                      left: '10px',
+                      background: 'rgba(255, 255, 255, 0.95)',
+                      color: isRented ? '#991b1b' : '#18181b',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      padding: '4px 10px',
+                      borderRadius: 'var(--radius-full)',
+                      backdropFilter: 'blur(6px)',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                    }}
+                  >
+                    <span style={{ fontSize: '8px', color: isRented ? '#991b1b' : '#15803d' }}>●</span>
+                    <span>
+                      {isRented
+                        ? 'Currently Rented'
+                        : isMaintenance
+                        ? 'Under Maintenance'
+                        : `${item.availableQuantity ?? 1} Available`}
                     </span>
-                  ) : isMaintenance ? (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        bottom: '10px',
-                        left: '10px',
-                        background: 'rgba(70, 104, 130, 0.92)',
-                        color: '#ffffff',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        padding: '3px 10px',
-                        borderRadius: 'var(--radius-full)',
-                        backdropFilter: 'blur(6px)',
-                      }}
-                    >
-                      ● Maintenance
-                    </span>
-                  ) : (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        bottom: '10px',
-                        left: '10px',
-                        background: 'rgba(6, 95, 70, 0.92)',
-                        color: '#ffffff',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        padding: '3px 10px',
-                        borderRadius: 'var(--radius-full)',
-                        backdropFilter: 'blur(6px)',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                      }}
-                    >
-                      ● In Stock
-                    </span>
-                  )}
+                  </span>
                 </div>
 
                 {/* Merchant Details */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span>🏪</span>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ maxWidth: '180px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {item.vendorStoreName || 'Verified Merchant'}
+                      {item.vendorStoreName || 'Certified Store'}
                     </span>
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--success-text)', background: 'var(--success-bg)', padding: '2px 6px', borderRadius: '4px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-main)', background: '#f4f4f5', padding: '3px 8px', borderRadius: '6px' }}>
                     ★ 4.9 Verified
                   </span>
                 </div>
 
                 {/* Item Title */}
-                <h3 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px', lineHeight: 1.35, minHeight: '44px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '8px', lineHeight: 1.35, minHeight: '40px' }}>
                   {item.title}
                 </h3>
 
-                {/* Badges snippet */}
+                {/* Feature snippets */}
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'var(--primary-subtle)', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', background: '#f4f4f5', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
                     Min {item.minimumRentalMonths || 1} {item.minimumRentalMonths === 1 ? 'Mo' : 'Mos'}
                   </span>
                   {(item.discount12MonthsPercent > 0 || item.discount6MonthsPercent > 0) && (
-                    <span style={{ fontSize: '11px', color: '#065f46', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '3px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                    <span style={{ fontSize: '11px', color: '#18181b', background: '#f4f4f5', padding: '3px 8px', borderRadius: '6px', fontWeight: 700 }}>
                       Up to {Math.max(item.discount12MonthsPercent || 0, item.discount6MonthsPercent || 0)}% Off
                     </span>
                   )}
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'var(--primary-subtle)', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', background: '#f4f4f5', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
                     Free Setup
-                  </span>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'var(--primary-subtle)', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
-                    🛡️ Escrow
                   </span>
                 </div>
 
@@ -636,31 +605,31 @@ const CustomerCatalogPage = ({
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     paddingTop: '12px',
-                    borderTop: '1px solid var(--border-light)',
+                    borderTop: '1px solid rgba(0,0,0,0.05)',
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: '19px', fontWeight: 800, color: 'var(--primary)' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)' }}>
                       ₹{rentNum.toLocaleString('en-IN')}{' '}
                       <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>
                         / mo
                       </span>
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-light)', marginTop: '2px' }}>
-                      Deposit: ₹{depositNum.toLocaleString('en-IN')} (Refundable)
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                      Deposit: ₹{depositNum.toLocaleString('en-IN')} (Held)
                     </div>
                   </div>
 
                   <button
                     type="button"
                     className={isRented ? "ra-btn ra-btn-secondary ra-btn-sm" : "ra-btn ra-btn-primary ra-btn-sm"}
-                    style={{ borderRadius: 'var(--radius-full)', padding: '8px 18px', fontWeight: 700 }}
+                    style={{ borderRadius: '6px', padding: '8px 16px', fontWeight: 700, fontSize: '12px' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleOpenItem(item);
                     }}
                   >
-                    {isRented ? 'View Status' : 'Rent Now'}
+                    {isRented ? 'Rented Out' : 'Rent Now →'}
                   </button>
                 </div>
               </div>

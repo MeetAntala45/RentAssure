@@ -77,7 +77,7 @@ const VendorDashboardPage = ({
             style={{
               fontSize: '24px',
               fontWeight: 800,
-              color: '#033047',
+              color: 'var(--text-main)',
               letterSpacing: '-0.02em',
               margin: 0,
             }}
@@ -85,7 +85,7 @@ const VendorDashboardPage = ({
             {metrics?.storeName || 'Merchant Store'}
           </h1>
           {metrics?.ownerName && (
-            <p style={{ fontSize: '13.5px', color: '#5C677D', marginTop: '3px', margin: 0, fontWeight: 600 }}>
+            <p style={{ fontSize: '13.5px', color: 'var(--text-muted)', marginTop: '3px', margin: 0, fontWeight: 600 }}>
               {metrics.ownerName}
             </p>
           )}
@@ -95,11 +95,8 @@ const VendorDashboardPage = ({
           <button
             onClick={fetchDashboard}
             title="Refresh Data"
-            className="ra-btn"
+            className="ra-btn ra-btn-secondary"
             style={{
-              background: '#ffffff',
-              color: '#033047',
-              border: '1px solid #D9D9D9',
               padding: '9px 14px',
               borderRadius: '8px',
               fontWeight: 600,
@@ -116,12 +113,12 @@ const VendorDashboardPage = ({
         </div>
       </div>
 
-      {/* ─── 2. 5-METRIC KPI GRID IN REFERENCE CARD STYLE ─────────────────── */}
+      {/* ─── 2. 5-METRIC KPI GRID IN FLOWLESS BORDERLESS CARD STYLE ──────── */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '20px',
+          gap: '16px',
         }}
       >
         {/* KPI 1: Net Profit (Take-Home) */}
@@ -138,12 +135,12 @@ const VendorDashboardPage = ({
               </div>
               <div className="ra-kpi-label">Total Store Net Profit ↗</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#033047', boxShadow: '0 4px 12px rgba(3, 48, 71, 0.22)' }}>
-              <IconCurrency width={24} height={24} stroke="#ffffff" />
+            <div className="ra-kpi-icon-badge" style={{ background: '#18181b', color: '#ffffff' }}>
+              <IconCurrency width={22} height={22} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid #bfd4e4' }}>
+            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#18181b' }}>
               +{metrics?.profitMargin || 88}% Margin
             </span>
             <span className="ra-kpi-trend-subtext">Take-Home Disbursed</span>
@@ -159,12 +156,12 @@ const VendorDashboardPage = ({
               </div>
               <div className="ra-kpi-label">Gross Rental Turnover</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#304C62', boxShadow: '0 4px 12px rgba(48, 76, 98, 0.22)' }}>
-              <IconTrendingUp width={24} height={24} stroke="#ffffff" />
+            <div className="ra-kpi-icon-badge" style={{ background: '#27272a', color: '#ffffff' }}>
+              <IconTrendingUp width={22} height={22} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#304C62', border: '1px solid #bfd4e4' }}>
+            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#27272a' }}>
               Billed Volume
             </span>
             <span className="ra-kpi-trend-subtext">Customer Payments</span>
@@ -177,19 +174,19 @@ const VendorDashboardPage = ({
             <div className="ra-kpi-info">
               <div className="ra-kpi-value">
                 {metrics ? formatCurrency(metrics.monthlyNetProfit) : '₹0.00'}
-                <span style={{ fontSize: '13px', fontWeight: 500, color: '#5C677D' }}>/mo</span>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-muted)' }}>/mo</span>
               </div>
               <div className="ra-kpi-label">Monthly Net Recurring Profit</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#5C677D', boxShadow: '0 4px 12px rgba(92, 103, 125, 0.22)' }}>
-              <IconDiamond width={24} height={24} stroke="#ffffff" />
+            <div className="ra-kpi-icon-badge" style={{ background: '#3f3f46', color: '#ffffff' }}>
+              <IconDiamond width={22} height={22} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#5C677D', border: '1px solid #bfd4e4' }}>
+            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: 'var(--text-main)' }}>
               Recurring
             </span>
-            <span className="ra-kpi-trend-subtext">Active Monthly Run-Rate</span>
+            <span className="ra-kpi-trend-subtext">Active Run-Rate</span>
           </div>
         </div>
 
@@ -207,12 +204,12 @@ const VendorDashboardPage = ({
               </div>
               <div className="ra-kpi-label">Active Subscriptions ↗</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#466882', boxShadow: '0 4px 12px rgba(70, 104, 130, 0.22)' }}>
-              <IconServices width={24} height={24} stroke="#ffffff" />
+            <div className="ra-kpi-icon-badge" style={{ background: '#52525b', color: '#ffffff' }}>
+              <IconServices width={22} height={22} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#304C62', border: '1px solid #bfd4e4' }}>
+            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: 'var(--text-main)' }}>
               {metrics?.pendingDeliveriesCount || 0} Pending
             </span>
             <span className="ra-kpi-trend-subtext">Awaiting Delivery</span>
@@ -228,12 +225,12 @@ const VendorDashboardPage = ({
               </div>
               <div className="ra-kpi-label">Customer Security Escrow</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#033047', boxShadow: '0 4px 12px rgba(3, 48, 71, 0.22)' }}>
-              <IconShield width={24} height={24} stroke="#ffffff" />
+            <div className="ra-kpi-icon-badge" style={{ background: '#18181b', color: '#ffffff' }}>
+              <IconShield width={22} height={22} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid #bfd4e4' }}>
+            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: 'var(--text-main)' }}>
               Secured
             </span>
             <span className="ra-kpi-trend-subtext">Damage Protection Held</span>
@@ -246,7 +243,7 @@ const VendorDashboardPage = ({
         <div
           style={{
             padding: '20px 24px',
-            borderBottom: '1px solid #f1f5f9',
+            borderBottom: '1px solid rgba(0,0,0,0.04)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -263,7 +260,7 @@ const VendorDashboardPage = ({
                 Profit Leaderboard
               </span>
             </div>
-            <p style={{ fontSize: '13px', color: '#64748b', marginTop: '3px', margin: 0 }}>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '3px', margin: 0 }}>
               Products ranked by net profit generated for your merchant store.
             </p>
           </div>
@@ -280,26 +277,26 @@ const VendorDashboardPage = ({
         <div className="ra-table-responsive">
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>RANK & ITEM</th>
-                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>CATEGORY</th>
-                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>MONTHLY RENT</th>
-                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>RENTALS</th>
-                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>GROSS REVENUE</th>
-                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>NET STORE PROFIT</th>
-                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b', textAlign: 'right' }}>ACTION</th>
+              <tr style={{ background: '#fafafa', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>RANK & ITEM</th>
+                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>CATEGORY</th>
+                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>MONTHLY RENT</th>
+                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>RENTALS</th>
+                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>GROSS REVENUE</th>
+                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>NET STORE PROFIT</th>
+                <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textAlign: 'right' }}>ACTION</th>
               </tr>
             </thead>
             <tbody>
               {!metrics?.topProfitableItems || metrics.topProfitableItems.length === 0 ? (
                 <tr>
-                  <td colSpan="7" style={{ padding: '36px', textAlign: 'center', color: '#64748b' }}>
+                  <td colSpan="7" style={{ padding: '36px', textAlign: 'center', color: 'var(--text-muted)' }}>
                     No rental inventory items listed yet. Click "+ Add Rental Product" to publish your first item!
                   </td>
                 </tr>
               ) : (
                 metrics.topProfitableItems.map((item, idx) => (
-                  <tr key={item.itemId || idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <tr key={item.itemId || idx} style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
                     <td style={{ padding: '14px 20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <span style={{ fontSize: '18px', fontWeight: 800, width: '22px', textAlign: 'center', flexShrink: 0 }}>
@@ -311,9 +308,8 @@ const VendorDashboardPage = ({
                             height: '42px',
                             borderRadius: '8px',
                             overflow: 'hidden',
-                            background: '#f1f5f9',
+                            background: '#f4f4f5',
                             flexShrink: 0,
-                            border: '1px solid #e2e8f0',
                           }}
                         >
                           {item.imageUrl ? (
@@ -325,14 +321,14 @@ const VendorDashboardPage = ({
                           )}
                         </div>
                         <div>
-                          <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#1e293b' }}>
+                          <div style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text-main)' }}>
                             {item.title}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--text-body)' }}>
-                      <span className="ra-badge" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid var(--border-light)' }}>
+                      <span className="ra-badge" style={{ background: '#f4f4f5', color: '#18181b' }}>
                         {item.categoryName}
                       </span>
                     </td>
@@ -345,7 +341,7 @@ const VendorDashboardPage = ({
                     <td style={{ padding: '14px 20px', fontSize: '13.5px', fontWeight: 700, color: 'var(--text-main)' }}>
                       ₹{Math.round(item.totalGrossRevenue).toLocaleString('en-IN')}
                     </td>
-                    <td style={{ padding: '14px 20px', fontSize: '13.5px', fontWeight: 800, color: '#033047' }}>
+                    <td style={{ padding: '14px 20px', fontSize: '13.5px', fontWeight: 800, color: 'var(--text-main)' }}>
                       +₹{Math.round(item.totalNetProfit).toLocaleString('en-IN')}
                     </td>
                     <td style={{ padding: '14px 20px', textAlign: 'right' }}>
@@ -371,7 +367,7 @@ const VendorDashboardPage = ({
           <div
             style={{
               padding: '20px 24px',
-              borderBottom: '1px solid #f1f5f9',
+              borderBottom: '1px solid rgba(0,0,0,0.04)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -379,7 +375,7 @@ const VendorDashboardPage = ({
           >
             <div>
               <h3 className="ra-card-title">Recent Customer Bookings</h3>
-              <p style={{ fontSize: '13px', color: '#64748b', marginTop: '2px', margin: 0 }}>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px', margin: 0 }}>
                 Latest customer reservations for your store inventory.
               </p>
             </div>
@@ -391,14 +387,14 @@ const VendorDashboardPage = ({
           <div className="ra-table-responsive">
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>BOOKING REF</th>
-                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>CUSTOMER</th>
-                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>RENTAL ITEM</th>
-                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>MONTHLY RENT</th>
-                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>EST. NET PROFIT</th>
-                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>ORDER STATUS</th>
-                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: '#64748b', textAlign: 'right' }}>ACTION</th>
+                <tr style={{ background: '#fafafa', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>BOOKING REF</th>
+                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>CUSTOMER</th>
+                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>RENTAL ITEM</th>
+                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>MONTHLY RENT</th>
+                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>EST. NET PROFIT</th>
+                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>ORDER STATUS</th>
+                  <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textAlign: 'right' }}>ACTION</th>
                 </tr>
               </thead>
               <tbody>
@@ -407,20 +403,20 @@ const VendorDashboardPage = ({
                   const mProfit = Math.round(mRent * 0.88 * 100) / 100;
 
                   return (
-                    <tr key={b.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <tr key={b.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
                       <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 700, color: '#18181b' }}>
                         {b.bookingReference}
                       </td>
-                      <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 600, color: '#1e293b' }}>
+                      <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)' }}>
                         {b.customerName}
                       </td>
-                      <td style={{ padding: '14px 20px', fontSize: '13px', color: '#334155' }}>
+                      <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--text-body)' }}>
                         {b.itemTitle}
                       </td>
                       <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>
                         ₹{mRent}/mo
                       </td>
-                      <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 700, color: '#033047' }}>
+                      <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>
                         +₹{mProfit}/mo
                       </td>
                       <td style={{ padding: '14px 20px' }}>
@@ -463,7 +459,7 @@ const VendorDashboardPage = ({
           showProfitOption={true}
         />
 
-        {/* Order Logistics Card in Reference Style */}
+        {/* Order Logistics Card in Clean Light Style */}
         <div className="ra-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <div className="ra-card-header">
             <h3 className="ra-card-title">Order Logistics & Escrow Overview</h3>
@@ -482,16 +478,15 @@ const VendorDashboardPage = ({
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', flex: 1, justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, justifyContent: 'center' }}>
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '14px 18px',
-                background: '#f8fafc',
+                background: '#fafafa',
                 borderRadius: '12px',
-                border: '1px solid #f1f5f9',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -499,15 +494,15 @@ const VendorDashboardPage = ({
                   <IconTruck width={20} height={20} stroke="#18181b" />
                 </div>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#1e293b' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>
                     Pending Dispatches
                   </div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                     Orders waiting for delivery
                   </div>
                 </div>
               </div>
-              <span className="ra-badge" style={{ background: '#f4f4f5', color: '#18181b', border: '1px solid #e4e4e7' }}>
+              <span className="ra-badge" style={{ background: '#f4f4f5', color: '#18181b' }}>
                 {metrics?.pendingDeliveriesCount || 0} Orders
               </span>
             </div>
@@ -518,9 +513,8 @@ const VendorDashboardPage = ({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '14px 18px',
-                background: '#f8fafc',
+                background: '#fafafa',
                 borderRadius: '12px',
-                border: '1px solid #f1f5f9',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -528,15 +522,15 @@ const VendorDashboardPage = ({
                   <IconServices width={20} height={20} stroke="#27272a" />
                 </div>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#1e293b' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>
                     Pending Pickups & Returns
                   </div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                     Ended subscriptions ready for return
                   </div>
                 </div>
               </div>
-              <span className="ra-badge" style={{ background: '#f4f4f5', color: '#27272a', border: '1px solid #e4e4e7' }}>
+              <span className="ra-badge" style={{ background: '#f4f4f5', color: '#27272a' }}>
                 {metrics?.pendingReturnsCount || 0} Returns
               </span>
             </div>
@@ -547,9 +541,8 @@ const VendorDashboardPage = ({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '14px 18px',
-                background: '#f8fafc',
+                background: '#fafafa',
                 borderRadius: '12px',
-                border: '1px solid #f1f5f9',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -557,15 +550,15 @@ const VendorDashboardPage = ({
                   <IconShield width={20} height={20} stroke="#3f3f46" />
                 </div>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#033047' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>
                     Active Escrow Deposits
                   </div>
-                  <div style={{ fontSize: '12px', color: '#5C677D' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                     Held for potential item damages
                   </div>
                 </div>
               </div>
-              <span className="ra-badge" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid #bfd4e4' }}>
+              <span className="ra-badge" style={{ background: '#f4f4f5', color: '#18181b' }}>
                 {metrics ? formatCurrency(metrics.escrowDepositsHeld) : '₹0.00'}
               </span>
             </div>
@@ -580,7 +573,7 @@ const VendorDashboardPage = ({
             <h3 className="ra-card-title" style={{ margin: 0 }}>
               Store Financial Split & Take-Home Health
             </h3>
-            <p style={{ fontSize: '13px', color: '#5C677D', marginTop: '3px', margin: 0 }}>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '3px', margin: 0 }}>
               RentAssure transparent financial model: 88% net vendor payout with automatic 12% marketplace processing.
             </p>
           </div>
@@ -588,57 +581,57 @@ const VendorDashboardPage = ({
             <span className="ra-badge ra-badge-active" style={{ fontSize: '12px' }}>
               Merchant Share: 88.0%
             </span>
-            <span className="ra-badge" style={{ background: '#e8f1f5', color: '#304C62', border: '1px solid #bfd4e4', fontSize: '12px' }}>
+            <span className="ra-badge" style={{ background: '#f4f4f5', color: '#27272a', fontSize: '12px' }}>
               Fee: 12.0%
             </span>
           </div>
         </div>
 
-        {/* 4-Column Breakdown Stats Grid (Progress bar removed as requested) */}
+        {/* 4-Column Breakdown Stats Grid */}
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '16px',
             paddingTop: '16px',
-            borderTop: '1px solid #D9D9D9',
+            borderTop: '1px solid rgba(0,0,0,0.04)',
           }}
         >
           <div>
-            <div style={{ fontSize: '12px', color: '#5C677D' }}>Merchant Net Take-Home</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#033047', marginTop: '2px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Merchant Net Take-Home</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)', marginTop: '2px' }}>
               {metrics ? formatCurrency(metrics.totalEarnings) : '₹0.00'}
             </div>
-            <div style={{ fontSize: '11px', color: '#5C677D', marginTop: '2px' }}>Disbursed directly to store</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>Disbursed directly to store</div>
           </div>
 
           <div>
-            <div style={{ fontSize: '12px', color: '#5C677D' }}>Marketplace Fees Paid</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#304C62', marginTop: '2px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Marketplace Fees Paid</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)', marginTop: '2px' }}>
               {metrics ? formatCurrency(metrics.totalCommissionPaid) : '₹0.00'}
             </div>
-            <div style={{ fontSize: '11px', color: '#5C677D', marginTop: '2px' }}>Covers payment & fraud protection</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>Covers payment & fraud protection</div>
           </div>
 
           <div>
-            <div style={{ fontSize: '12px', color: '#5C677D' }}>Customer Security Escrow</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#466882', marginTop: '2px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Customer Security Escrow</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)', marginTop: '2px' }}>
               {metrics ? formatCurrency(metrics.escrowDepositsHeld) : '₹0.00'}
             </div>
-            <div style={{ fontSize: '11px', color: '#5C677D', marginTop: '2px' }}>Refundable on inspection</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>Refundable on inspection</div>
           </div>
 
           <div>
-            <div style={{ fontSize: '12px', color: '#5C677D' }}>Current Recurring Rent</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#033047', marginTop: '2px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Current Recurring Rent</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)', marginTop: '2px' }}>
               {metrics ? formatCurrency(metrics.monthlyGrossRent) : '₹0.00'}/mo
             </div>
-            <div style={{ fontSize: '11px', color: '#5C677D', marginTop: '2px' }}>Active monthly subscriptions</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>Active monthly subscriptions</div>
           </div>
         </div>
       </div>
 
-      {/* ─── 8. DUAL-MODE MODAL (ADD / EDIT) ──────────────────────────────── */}
+      {/* ─── 7. DUAL-MODE MODAL (ADD / EDIT) ──────────────────────────────── */}
       <RentalItemFormModal
         isOpen={modalConfig.isOpen}
         itemToEdit={modalConfig.itemToEdit}

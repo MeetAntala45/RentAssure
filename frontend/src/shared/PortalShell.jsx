@@ -40,9 +40,9 @@ const PortalShell = ({
     };
   }, [mobileMenuOpen]);
 
-  const handleNavSelect = (itemId, isDisabled) => {
+  const handleNavSelect = (item, isDisabled) => {
     if (!isDisabled) {
-      onNavClick(itemId);
+      onNavClick(item.id, item.path);
       setMobileMenuOpen(false);
     }
   };
@@ -90,7 +90,7 @@ const PortalShell = ({
               <div
                 key={item.id}
                 className={`ra-nav-item ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
-                onClick={() => handleNavSelect(item.id, isDisabled)}
+                onClick={() => handleNavSelect(item, isDisabled)}
                 title={isDisabled ? `${item.label} (Coming Soon)` : item.label}
               >
                 <span className="ra-nav-icon">{item.icon}</span>
@@ -154,24 +154,24 @@ const PortalShell = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {headerActions}
 
-            {/* User Profile matching reference screenshot */}
+            {/* User Profile */}
             <div style={{ position: 'relative' }}>
               <div
                 className="ra-user-profile"
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
               >
-                <div className="ra-avatar" style={{ borderRadius: '50%', overflow: 'hidden', background: 'var(--color-dark-blue, #033047)', color: '#ffffff' }}>
+                <div className="ra-avatar" style={{ borderRadius: '50%', overflow: 'hidden', background: '#18181b', color: '#ffffff' }}>
                   {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'A'}
                 </div>
                 <div className="ra-user-meta">
-                  <div className="ra-user-name" style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--color-dark-blue, #033047)' }}>
-                    {user?.fullName || 'Leslie Alexander'}
+                  <div className="ra-user-name" style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text-main)' }}>
+                    {user?.fullName || 'User'}
                   </div>
-                  <div className="ra-user-role" style={{ fontSize: '11.5px', color: 'var(--color-steel-blue, #5C677D)' }}>
-                    {user?.role || portalSubtitle || 'Super Admin'}
+                  <div className="ra-user-role" style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>
+                    {user?.role || portalSubtitle || 'Admin'}
                   </div>
                 </div>
-                <span style={{ fontSize: '10px', color: '#94a3b8', marginLeft: '4px' }}>
+                <span style={{ fontSize: '10px', color: '#a1a1aa', marginLeft: '4px' }}>
                   ▼
                 </span>
               </div>
@@ -183,9 +183,9 @@ const PortalShell = ({
                     right: 0,
                     top: '110%',
                     background: '#ffffff',
-                    border: '1px solid var(--border-light)',
+                    border: 'none',
                     borderRadius: 'var(--radius-md)',
-                    boxShadow: 'var(--shadow-md)',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
                     minWidth: '180px',
                     padding: '8px 0',
                     zIndex: 200,
@@ -196,7 +196,7 @@ const PortalShell = ({
                       padding: '8px 16px',
                       fontSize: '12px',
                       color: 'var(--text-muted)',
-                      borderBottom: '1px solid var(--border-light)',
+                      borderBottom: '1px solid rgba(0,0,0,0.04)',
                     }}
                   >
                     {user?.email}
@@ -229,7 +229,9 @@ const PortalShell = ({
           </div>
         </header>
 
-        <main className="ra-page-body">{children}</main>
+        <main className="ra-page-body">
+          <div className="ra-page-container">{children}</div>
+        </main>
       </div>
     </div>
   );

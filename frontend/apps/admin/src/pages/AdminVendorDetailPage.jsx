@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { adminApi } from '../../../../src/shared/api';
 
-const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
+const AdminVendorDetailPage = ({ vendorId: propVendorId, onBack }) => {
+  const params = useParams();
+  const navigate = useNavigate();
+  const vendorId = propVendorId || params.vendorId || params.id;
+
+  const handleBack = () => {
+    if (onBack) onBack();
+    else navigate('/user-management');
+  };
+
   const [vendor, setVendor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -96,7 +106,7 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
     return (
       <div className="ra-card" style={{ textAlign: 'center', padding: '60px' }}>
         <p style={{ color: 'var(--danger-text)', fontSize: '15px', fontWeight: 700 }}>Merchant partner not found.</p>
-        <button className="ra-btn ra-btn-secondary" onClick={onBack} style={{ marginTop: '16px' }}>
+        <button className="ra-btn ra-btn-secondary" onClick={handleBack} style={{ marginTop: '16px' }}>
           ← Back to Partner Directory
         </button>
       </div>
@@ -192,7 +202,7 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <button
-            onClick={onBack}
+            onClick={handleBack}
             className="ra-btn ra-btn-secondary ra-btn-sm"
             style={{ borderRadius: '50%', width: '38px', height: '38px', padding: 0 }}
             title="Back to Directory"
@@ -205,15 +215,15 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
                 {vendor.storeName || vendor.ownerName}
               </h2>
               {isApproved ? (
-                <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0' }}>
+                <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#f0fdf4', color: '#166534' }}>
                   ✔ Verified Store
                 </span>
               ) : isPending ? (
-                <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a' }}>
+                <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#fef3c7', color: '#92400e' }}>
                   ⏳ Pending Review
                 </span>
               ) : (
-                <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }}>
+                <span style={{ padding: '3px 10px', borderRadius: '9999px', fontSize: '11px', fontWeight: 800, background: '#fef2f2', color: '#991b1b' }}>
                   ✖ {vendor.status}
                 </span>
               )}
@@ -276,7 +286,6 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
           style={{
             background: 'var(--success-bg)',
             color: 'var(--success-text)',
-            border: '1px solid var(--success-border)',
             borderRadius: '12px',
             padding: '12px 18px',
             fontSize: '13px',
@@ -287,25 +296,20 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
         </div>
       )}
 
-      {/* ─── 1. PERFORMANCE SCORECARD HERO ─────────────────────────────────── */}
+      {/* ─── 1. PERFORMANCE SCORECARD HERO (Clean Light Theme) ─────────────── */}
       <div
         style={{
-          background:
-            tier === 'gold'
-              ? 'linear-gradient(135deg, #1e293b 0%, #033047 50%, #78350f 100%)'
-              : tier === 'silver'
-              ? 'linear-gradient(135deg, #033047 0%, #1e293b 60%, #334155 100%)'
-              : 'linear-gradient(135deg, #033047 0%, #304C62 100%)',
-          borderRadius: '18px',
+          background: '#ffffff',
+          borderRadius: '16px',
           padding: '24px 30px',
-          color: '#ffffff',
-          boxShadow: '0 8px 24px rgba(3, 48, 71, 0.18)',
+          color: 'var(--text-main)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
           {/* Left: Tier Emblem & Trust Score */}
           <div>
-            <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: '#cbd5e1' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)' }}>
               Performance Evaluation & Tier Assessment
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '6px' }}>
@@ -313,20 +317,20 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
                 {tier === 'gold' ? '🥇' : tier === 'silver' ? '🥈' : '🥉'}
               </span>
               <div>
-                <h3 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 2px 0', color: '#ffffff' }}>
+                <h3 style={{ fontSize: '24px', fontWeight: 800, margin: '0 0 2px 0', color: 'var(--text-main)' }}>
                   {vendor.tierBadge || (tier === 'gold' ? 'Gold Partner' : tier === 'silver' ? 'Silver Partner' : 'Bronze Partner')}
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '13px', color: '#e2e8f0' }}>Overall Trust Index:</span>
-                  <strong style={{ fontSize: '15px', color: tier === 'gold' ? '#fde047' : '#ffffff' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Overall Trust Index:</span>
+                  <strong style={{ fontSize: '15px', color: '#18181b' }}>
                     {score} / 100
                   </strong>
-                  <div style={{ width: '80px', height: '6px', background: 'rgba(255,255,255,0.2)', borderRadius: '9999px', overflow: 'hidden' }}>
+                  <div style={{ width: '80px', height: '6px', background: '#f4f4f5', borderRadius: '9999px', overflow: 'hidden' }}>
                     <div
                       style={{
                         width: `${Math.min(100, score)}%`,
                         height: '100%',
-                        background: tier === 'gold' ? '#f59e0b' : '#38bdf8',
+                        background: '#18181b',
                       }}
                     />
                   </div>
@@ -334,7 +338,7 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
               </div>
             </div>
 
-            <p style={{ fontSize: '13px', color: '#e2e8f0', margin: '12px 0 0 0', maxWidth: '580px', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '13px', color: 'var(--text-body)', margin: '12px 0 0 0', maxWidth: '580px', lineHeight: 1.5 }}>
               💡 {vendor.nextTierGoal || 'Maintain high fulfillment rates and prompt customer delivery to advance partner standing.'}
             </p>
           </div>
@@ -342,23 +346,22 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
           {/* Right: Commission Bracket & Override Button */}
           <div
             style={{
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              background: '#f4f4f5',
               borderRadius: '14px',
               padding: '16px 20px',
               minWidth: '220px',
             }}
           >
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
               Platform Commission
             </span>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: '#ffffff', margin: '4px 0' }}>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', margin: '4px 0' }}>
               {vendor.commissionRateOverride !== null && vendor.commissionRateOverride !== undefined
                 ? `${Number(vendor.commissionRateOverride).toFixed(1)}%`
                 : tier === 'gold'
                 ? '8.0%'
                 : '12.0%'}
-              <span style={{ fontSize: '12px', fontWeight: 500, color: '#cbd5e1', marginLeft: '6px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)', marginLeft: '6px' }}>
                 {vendor.commissionRateOverride !== null && vendor.commissionRateOverride !== undefined ? '(Custom Override)' : tier === 'gold' ? '(Gold Incentive)' : '(Standard)'}
               </span>
             </div>
@@ -367,17 +370,13 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
               <button
                 type="button"
                 onClick={() => setEditingCommission(true)}
+                className="ra-btn ra-btn-secondary"
                 style={{
-                  background: '#ffffff',
-                  color: 'var(--primary)',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '5px 12px',
                   fontSize: '11px',
                   fontWeight: 800,
-                  cursor: 'pointer',
                   marginTop: '6px',
                   width: '100%',
+                  padding: '6px 12px',
                 }}
               >
                 ✏️ Customize Commission Fee
@@ -392,13 +391,13 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
                   placeholder="e.g. 8.0"
                   value={commissionRate}
                   onChange={(e) => setCommissionRate(e.target.value)}
+                  className="ra-input"
                   style={{
                     padding: '6px 10px',
-                    borderRadius: '6px',
-                    border: '1px solid #ffffff',
                     fontSize: '12px',
                     fontWeight: 700,
                     width: '100%',
+                    background: '#ffffff',
                   }}
                   autoFocus
                 />
@@ -406,16 +405,12 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
                   <button
                     type="submit"
                     disabled={savingCommission}
+                    className="ra-btn ra-btn-primary"
                     style={{
                       flex: 1,
-                      background: '#10b981',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '6px',
                       padding: '5px',
                       fontSize: '11px',
                       fontWeight: 800,
-                      cursor: 'pointer',
                     }}
                   >
                     Save
@@ -423,15 +418,11 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
                   <button
                     type="button"
                     onClick={() => setEditingCommission(false)}
+                    className="ra-btn ra-btn-secondary"
                     style={{
                       flex: 1,
-                      background: 'rgba(255,255,255,0.2)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '6px',
                       padding: '5px',
                       fontSize: '11px',
-                      cursor: 'pointer',
                     }}
                   >
                     Cancel
@@ -450,49 +441,49 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
             gap: '12px',
             marginTop: '20px',
             paddingTop: '20px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.15)',
+            borderTop: '1px solid rgba(0, 0, 0, 0.05)',
           }}
         >
           {/* On-Time Fulfillment */}
-          <div style={{ background: 'rgba(255, 255, 255, 0.08)', padding: '12px 16px', borderRadius: '12px' }}>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 600 }}>🚚 On-Time Delivery Rate</span>
-            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '2px', color: onTime >= 95 ? '#86efac' : '#fde047' }}>
+          <div style={{ background: '#f4f4f5', padding: '12px 16px', borderRadius: '12px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>🚚 On-Time Delivery Rate</span>
+            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '2px', color: onTime >= 95 ? '#166534' : '#92400e' }}>
               {onTime}%
             </div>
-            <span style={{ fontSize: '11px', color: '#e2e8f0' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
               {onTime >= 95 ? '✓ Exceeds 95% SLA Target' : '⚠️ Requires Attention'}
             </span>
           </div>
 
           {/* Dispute Rate */}
-          <div style={{ background: 'rgba(255, 255, 255, 0.08)', padding: '12px 16px', borderRadius: '12px' }}>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 600 }}>⚖️ Escrow Dispute Ratio</span>
-            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '2px', color: dispute <= 2.5 ? '#86efac' : '#f87171' }}>
+          <div style={{ background: '#f4f4f5', padding: '12px 16px', borderRadius: '12px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>⚖️ Escrow Dispute Ratio</span>
+            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '2px', color: dispute <= 2.5 ? '#166534' : '#991b1b' }}>
               {dispute}%
             </div>
-            <span style={{ fontSize: '11px', color: '#e2e8f0' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
               {dispute <= 2.5 ? '✓ Below 2.5% platform ceiling' : '⚠️ Elevated Dispute Activity'}
             </span>
           </div>
 
           {/* Active Inventory */}
-          <div style={{ background: 'rgba(255, 255, 255, 0.08)', padding: '12px 16px', borderRadius: '12px' }}>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 600 }}>📦 Active Rental Inventory</span>
-            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '2px', color: '#ffffff' }}>
+          <div style={{ background: '#f4f4f5', padding: '12px 16px', borderRadius: '12px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>📦 Active Rental Inventory</span>
+            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '2px', color: '#18181b' }}>
               {activeStock} Listings
             </div>
-            <span style={{ fontSize: '11px', color: '#e2e8f0' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
               Total Listings: {vendor.totalItemsCount || activeStock}
             </span>
           </div>
 
           {/* Total Earnings */}
-          <div style={{ background: 'rgba(255, 255, 255, 0.08)', padding: '12px 16px', borderRadius: '12px' }}>
-            <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 600 }}>💰 Cumulative Revenue Settled</span>
-            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '2px', color: '#ffffff' }}>
+          <div style={{ background: '#f4f4f5', padding: '12px 16px', borderRadius: '12px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>💰 Cumulative Revenue Settled</span>
+            <div style={{ fontSize: '22px', fontWeight: 800, marginTop: '2px', color: '#18181b' }}>
               ₹{Number(vendor.totalEarnings || 0).toLocaleString('en-IN')}
             </div>
-            <span style={{ fontSize: '11px', color: '#e2e8f0' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
               Commission Paid: ₹{Number(vendor.totalCommissionPaid || 0).toLocaleString('en-IN')}
             </span>
           </div>
@@ -504,10 +495,9 @@ const AdminVendorDetailPage = ({ vendorId, onBack = () => {} }) => {
         style={{
           display: 'flex',
           gap: '8px',
-          background: '#ffffff',
+          background: '#f4f4f5',
           padding: '6px',
           borderRadius: '12px',
-          border: '1px solid var(--border-light)',
           flexWrap: 'wrap',
         }}
       >

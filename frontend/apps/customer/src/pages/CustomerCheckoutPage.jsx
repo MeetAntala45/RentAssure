@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { customerApi, paymentsApi } from '../../../../src/shared/api';
@@ -9,7 +10,7 @@ const STRIPE_PUBLISHABLE_KEY =
 
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
-// Inner Stripe payment form component
+// Inner Stripe payment form component - Production Level Card Element
 const StripePaymentSection = ({
   totalAmount,
   itemId,
@@ -18,14 +19,21 @@ const StripePaymentSection = ({
   onError,
   loading,
   setLoading,
+  user,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const [useTestOneClick, setUseTestOneClick] = useState(true);
+  const [cardholderName, setCardholderName] = useState(user?.fullName || '');
 
   const handleCardSubmit = async (e) => {
     e.preventDefault();
     if (!stripe || !elements) return;
+
+    const cardElem = elements.getElement(CardElement);
+    if (!cardElem) {
+      onError('Card input form not ready. Please refresh.');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -41,30 +49,23 @@ const StripePaymentSection = ({
       }
 
       const clientSecret = intentRes.data.clientSecret;
-      const intentId = intentRes.data.paymentIntentId;
 
-      if (useTestOneClick) {
-        // Fast 1-click test confirmation using server test endpoint
-        const confirmRes = await paymentsApi.testConfirm(intentId);
-        if (confirmRes.isSuccess) {
-          onPaymentSuccess(intentId);
-        } else {
-          throw new Error(confirmRes.message || 'Test confirmation failed.');
-        }
-      } else {
-        // Real card element confirmation via Stripe.js
-        const cardElem = elements.getElement(CardElement);
-        const result = await stripe.confirmCardPayment(clientSecret, {
-          payment_method: {
-            card: cardElem,
+      // 2. Production Card confirmation via Stripe.js CardElement
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElem,
+          billing_details: {
+            name: cardholderName.trim() || user?.fullName || 'RentAssure Customer',
           },
-        });
+        },
+      });
 
-        if (result.error) {
-          throw new Error(result.error.message);
-        } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-          onPaymentSuccess(result.paymentIntent.id);
-        }
+      if (result.error) {
+        throw new Error(result.error.message);
+      } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+        onPaymentSuccess(result.paymentIntent.id);
+      } else {
+        throw new Error('Payment status: ' + (result.paymentIntent?.status || 'incomplete'));
       }
     } catch (err) {
       onError(err.message || 'Payment processing error.');
@@ -74,52 +75,29 @@ const StripePaymentSection = ({
   };
 
   return (
-    <div style={{ marginTop: '14px' }}>
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
-        <button
-          type="button"
-          onClick={() => setUseTestOneClick(true)}
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            fontSize: '12px',
-            fontWeight: 700,
-            borderRadius: 'var(--radius-sm)',
-            border: useTestOneClick ? '2px solid var(--primary)' : '1px solid var(--border-light)',
-            background: useTestOneClick ? 'var(--primary-light)' : '#ffffff',
-            color: useTestOneClick ? 'var(--primary)' : 'var(--text-body)',
-            cursor: 'pointer',
-          }}
-        >
-          ⚡ Stripe Instant Test (1-Click)
-        </button>
-        <button
-          type="button"
-          onClick={() => setUseTestOneClick(false)}
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            fontSize: '12px',
-            fontWeight: 700,
-            borderRadius: 'var(--radius-sm)',
-            border: !useTestOneClick ? '2px solid var(--primary)' : '1px solid var(--border-light)',
-            background: !useTestOneClick ? 'var(--primary-light)' : '#ffffff',
-            color: !useTestOneClick ? 'var(--primary)' : 'var(--text-body)',
-            cursor: 'pointer',
-          }}
-        >
-          💳 Manual Card Entry
-        </button>
+    <div style={{ marginTop: '16px' }}>
+      <div style={{ marginBottom: '14px' }}>
+        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>
+          Cardholder Name
+        </label>
+        <input
+          type="text"
+          value={cardholderName}
+          onChange={(e) => setCardholderName(e.target.value)}
+          placeholder="e.g. John Doe"
+          className="ra-input"
+        />
       </div>
 
-      {!useTestOneClick && (
+      <div style={{ marginBottom: '18px' }}>
+        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', marginBottom: '6px' }}>
+          Credit or Debit Card Details
+        </label>
         <div
           style={{
             padding: '14px',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-light)',
-            background: '#ffffff',
-            marginBottom: '14px',
+            borderRadius: '10px',
+            background: '#f4f4f5',
           }}
         >
           <CardElement
@@ -127,15 +105,16 @@ const StripePaymentSection = ({
               style: {
                 base: {
                   fontSize: '14px',
-                  color: '#0f172a',
-                  '::placeholder': { color: '#94a3b8' },
+                  color: '#18181b',
+                  fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+                  '::placeholder': { color: '#71717a' },
                 },
-                invalid: { color: '#ef4444' },
+                invalid: { color: '#991b1b' },
               },
             }}
           />
         </div>
-      )}
+      </div>
 
       <button
         type="button"
@@ -145,61 +124,138 @@ const StripePaymentSection = ({
         style={{
           width: '100%',
           padding: '13px',
-          fontSize: '15px',
+          fontSize: '14px',
           fontWeight: 700,
-          borderRadius: 'var(--radius-md)',
+          borderRadius: '10px',
+          cursor: loading ? 'not-allowed' : 'pointer',
         }}
       >
-        {loading ? 'Processing via Stripe...' : `Pay ₹${totalAmount.toLocaleString('en-IN')} with Stripe`}
+        {loading ? 'Processing via Stripe...' : `Pay ₹${totalAmount.toLocaleString('en-IN')} with Card`}
       </button>
+
+      <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '11.5px', color: 'var(--text-muted)' }}>
+        🔒 256-bit SSL encrypted Stripe payment gateway
+      </div>
     </div>
   );
 };
 
 export default function CustomerCheckoutPage({
-  item,
-  selectedMonths = 3,
+  item: propItem,
+  selectedMonths: propMonths,
+  selectedQuantity: propQuantity,
   onBack,
   onViewRentals,
   user,
 }) {
+  const params = useParams();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const [fetchedItem, setFetchedItem] = useState(null);
+  const [itemLoading, setItemLoading] = useState(false);
+
+  const item = propItem || location.state?.item || fetchedItem;
+
+  // Fallback fetch if opened via direct URL or reload
+  useEffect(() => {
+    const targetId = params.id;
+    if (!propItem && !location.state?.item && targetId) {
+      setItemLoading(true);
+      customerApi.getItemById(targetId)
+        .then((res) => {
+          if (res?.data) {
+            setFetchedItem(res.data);
+          }
+        })
+        .catch(() => {})
+        .finally(() => setItemLoading(false));
+    }
+  }, [params.id, propItem, location.state]);
+
+  const selectedMonths =
+    Number(searchParams.get('months')) ||
+    location.state?.selectedMonths ||
+    propMonths ||
+    (item?.minimumRentalMonths ? Math.max(item.minimumRentalMonths, 3) : 3);
+
+  const selectedQuantity =
+    Number(searchParams.get('quantity')) ||
+    location.state?.selectedQuantity ||
+    propQuantity ||
+    1;
+
   const [address, setAddress] = useState(user?.address || '');
   const [city, setCity] = useState(item?.city || 'Ahmedabad');
   const [phone, setPhone] = useState(user?.phoneNumber || '');
   const [pincode, setPincode] = useState('');
-  const [notes, setNotes] = useState('');
   const [paymentMode, setPaymentMode] = useState('online'); // 'online' or 'offline'
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successBooking, setSuccessBooking] = useState(null);
 
+  useEffect(() => {
+    if (item?.city) {
+      setCity(item.city);
+    }
+  }, [item]);
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else if (item) {
+      navigate(`/rental-items/${item.id}`);
+    } else {
+      navigate('/');
+    }
+  };
+
+  const handleViewRentals = () => {
+    if (onViewRentals) {
+      onViewRentals();
+    } else {
+      navigate('/my-rentals');
+    }
+  };
+
+  if (itemLoading) {
+    return (
+      <div className="ra-page-container" style={{ margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Preparing secure checkout...</p>
+      </div>
+    );
+  }
+
   if (!item) {
     return (
-      <div style={{ maxWidth: '1200px', margin: '40px auto', padding: '0 24px', textAlign: 'center' }}>
+      <div className="ra-page-container" style={{ margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
         <p style={{ color: 'var(--text-muted)' }}>No item selected for checkout.</p>
-        <button onClick={onBack} className="ra-btn ra-btn-primary" style={{ marginTop: '16px' }}>
+        <button onClick={handleBack} className="ra-btn ra-btn-primary" style={{ marginTop: '16px' }}>
           ← Back to Marketplace
         </button>
       </div>
     );
   }
 
-  // Calculate pricing
+  // Calculate pricing with quantity multiplier
   const baseRent = Number(item.monthlyRent) || 0;
-  const deposit = Number(item.securityDeposit) || (baseRent * 3);
+  const unitDeposit = Number(item.securityDeposit) || (baseRent * 3);
   const d6 = Number(item.discount6MonthsPercent) || 0;
   const d12 = Number(item.discount12MonthsPercent) || 0;
 
-  let activeMonthlyRent = baseRent;
+  let unitMonthlyRent = baseRent;
   if (selectedMonths >= 12 && d12 > 0) {
-    activeMonthlyRent = Math.round(baseRent * (1 - d12 / 100));
+    unitMonthlyRent = Math.round(baseRent * (1 - d12 / 100));
   } else if (selectedMonths >= 6 && d6 > 0) {
-    activeMonthlyRent = Math.round(baseRent * (1 - d6 / 100));
+    unitMonthlyRent = Math.round(baseRent * (1 - d6 / 100));
   }
 
-  const deliveryFee = 0; // Explicitly FREE as requested!
-  const totalDueToday = activeMonthlyRent + deposit + deliveryFee;
+  const deliveryFee = 0; // Explicitly FREE
+  const totalMonthlyRent = unitMonthlyRent * selectedQuantity;
+  const totalDeposit = unitDeposit * selectedQuantity;
+  const totalDueToday = totalMonthlyRent + totalDeposit + deliveryFee;
 
   // Complete offline / reserve booking
   const handleOfflineBooking = async () => {
@@ -214,6 +270,7 @@ export default function CustomerCheckoutPage({
       const payload = {
         itemId: item.id,
         rentalDurationMonths: selectedMonths,
+        quantity: selectedQuantity,
         deliveryAddress: `${address.trim()} (Pincode: ${pincode.trim() || '380001'})`,
         deliveryCity: city.trim() || item.city,
         stripePaymentIntentId: null, // Offline
@@ -241,6 +298,7 @@ export default function CustomerCheckoutPage({
       const payload = {
         itemId: item.id,
         rentalDurationMonths: selectedMonths,
+        quantity: selectedQuantity,
         deliveryAddress: `${address.trim() || 'Customer Doorstep'} (Pincode: ${pincode.trim() || '380001'})`,
         deliveryCity: city.trim() || item.city,
         stripePaymentIntentId: stripeIntentId,
@@ -262,30 +320,28 @@ export default function CustomerCheckoutPage({
   // ─── SUCCESS SCREEN WITH DELIVERY OTP ───
   if (successBooking) {
     return (
-      <div style={{ maxWidth: '800px', margin: '40px auto 80px auto', padding: '0 20px' }}>
+      <div className="ra-page-container" style={{ margin: '40px auto 80px auto', padding: '0 20px', maxWidth: '720px' }}>
         <div
           style={{
             background: '#ffffff',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--border-light)',
-            padding: '40px 32px',
+            borderRadius: '16px',
+            padding: '40px 28px',
             textAlign: 'center',
             boxShadow: 'var(--shadow-md)',
           }}
         >
           <div
             style={{
-              width: '64px',
-              height: '64px',
+              width: '60px',
+              height: '60px',
               borderRadius: '50%',
               background: '#f0fdf4',
               color: '#166534',
-              fontSize: '32px',
+              fontSize: '28px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 16px auto',
-              border: '1px solid #bbf7d0',
             }}
           >
             ✓
@@ -298,26 +354,25 @@ export default function CustomerCheckoutPage({
             Reference: <strong style={{ color: 'var(--text-main)' }}>{successBooking.bookingReference}</strong>
           </p>
 
-          {/* Prominent OTP Box */}
+          {/* Prominent OTP Box in Seamless Light Theme */}
           <div
             style={{
-              background: 'linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%)',
-              border: '2px dashed var(--primary)',
-              borderRadius: 'var(--radius-lg)',
+              background: '#f4f4f5',
+              borderRadius: '14px',
               padding: '24px',
-              maxWidth: '480px',
+              maxWidth: '460px',
               margin: '0 auto 28px auto',
             }}
           >
-            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-              🔑 Doorstep Delivery Verification OTP
+            <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>
+              Doorstep Delivery Verification OTP
             </div>
             <div
               style={{
                 fontSize: '36px',
                 fontWeight: 900,
                 letterSpacing: '8px',
-                color: 'var(--text-main)',
+                color: '#18181b',
                 fontFamily: 'monospace',
                 margin: '8px 0',
               }}
@@ -325,42 +380,46 @@ export default function CustomerCheckoutPage({
               {successBooking.deliveryOtp || '482910'}
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text-body)', margin: '8px 0 0 0', lineHeight: 1.5 }}>
-              Provide this 6-digit OTP to the delivery agent upon arrival. <strong>Your rental start date and billing cycle officially begin on that verified delivery day.</strong>
+              Share this 6-digit OTP with the delivery agent when receiving your item. <strong>Your rental start date and billing cycle officially begin on that verified delivery day.</strong>
             </p>
           </div>
 
           {/* Order Summary Recap */}
           <div
             style={{
-              background: '#f8fafc',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-light)',
-              padding: '16px 20px',
-              maxWidth: '480px',
+              background: '#ffffff',
+              borderRadius: '12px',
+              padding: '18px 20px',
+              maxWidth: '460px',
               margin: '0 auto 28px auto',
               textAlign: 'left',
               fontSize: '13px',
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
               <span style={{ color: 'var(--text-muted)' }}>Item:</span>
               <strong style={{ color: 'var(--text-main)' }}>{successBooking.itemTitle || item.title}</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ color: 'var(--text-muted)' }}>Quantity:</span>
+              <strong style={{ color: 'var(--text-main)' }}>{successBooking.quantity || selectedQuantity} Unit(s)</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
               <span style={{ color: 'var(--text-muted)' }}>Tenure:</span>
               <span>{successBooking.rentalDurationMonths || selectedMonths} Months</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
               <span style={{ color: 'var(--text-muted)' }}>Deposit Held in Escrow:</span>
               <span>₹{Number(successBooking.securityDeposit).toLocaleString('en-IN')}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
               <span style={{ color: 'var(--text-muted)' }}>Payment Mode:</span>
-              <span style={{ color: successBooking.isPaidOnline ? '#166534' : 'var(--text-main)', fontWeight: 600 }}>
+              <span style={{ color: successBooking.isPaidOnline ? '#15803d' : 'var(--text-main)', fontWeight: 600 }}>
                 {successBooking.isPaidOnline ? 'Online via Stripe' : 'Offline / Pay at Doorstep'}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-light)', paddingTop: '6px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '8px', fontWeight: 700 }}>
               <span>Total Paid / Reserved:</span>
               <span>₹{Number(successBooking.totalAmountPaid).toLocaleString('en-IN')}</span>
             </div>
@@ -370,17 +429,17 @@ export default function CustomerCheckoutPage({
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
               type="button"
-              onClick={onViewRentals}
+              onClick={handleViewRentals}
               className="ra-btn ra-btn-primary"
-              style={{ padding: '12px 24px', fontSize: '14px', fontWeight: 700 }}
+              style={{ padding: '12px 24px', fontSize: '14px', fontWeight: 700, borderRadius: '10px' }}
             >
               Go to My Rentals →
             </button>
             <button
               type="button"
-              onClick={onBack}
+              onClick={handleBack}
               className="ra-btn ra-btn-secondary"
-              style={{ padding: '12px 20px', fontSize: '14px', fontWeight: 600 }}
+              style={{ padding: '12px 20px', fontSize: '14px', fontWeight: 600, borderRadius: '10px' }}
             >
               Continue Browsing
             </button>
@@ -392,7 +451,7 @@ export default function CustomerCheckoutPage({
 
   // ─── CHECKOUT FORM ───
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 20px 80px 20px' }}>
+    <div className="ra-page-container" style={{ padding: '24px 20px 80px 20px' }}>
       {/* Breadcrumb */}
       <div
         style={{
@@ -402,16 +461,17 @@ export default function CustomerCheckoutPage({
           fontSize: '13px',
           color: 'var(--text-muted)',
           marginBottom: '20px',
+          flexWrap: 'wrap',
         }}
       >
         <button
-          onClick={onBack}
+          onClick={handleBack}
           style={{
             background: 'none',
             border: 'none',
             padding: 0,
             cursor: 'pointer',
-            color: 'var(--primary)',
+            color: 'var(--text-main)',
             fontWeight: 600,
             fontSize: '13px',
             display: 'inline-flex',
@@ -434,8 +494,7 @@ export default function CustomerCheckoutPage({
           style={{
             background: '#fef2f2',
             color: '#991b1b',
-            border: '1px solid #fecaca',
-            borderRadius: 'var(--radius-md)',
+            borderRadius: '10px',
             padding: '12px 16px',
             fontSize: '13px',
             marginBottom: '20px',
@@ -445,24 +504,15 @@ export default function CustomerCheckoutPage({
         </div>
       )}
 
-      {/* Two-Column Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1.4fr) minmax(340px, 1fr)',
-          gap: '32px',
-          alignItems: 'start',
-        }}
-        className="ra-checkout-grid"
-      >
+      {/* Two-Column Grid (Fully fluid and responsive) */}
+      <div className="ra-checkout-grid">
         {/* ─── LEFT: Delivery Details & Payment Mode ─── */}
         <div>
           {/* Step 1: Delivery Address */}
           <div
             style={{
               background: '#ffffff',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-light)',
+              borderRadius: '16px',
               padding: '24px',
               marginBottom: '24px',
               boxShadow: 'var(--shadow-sm)',
@@ -474,7 +524,7 @@ export default function CustomerCheckoutPage({
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  background: 'var(--primary)',
+                  background: '#18181b',
                   color: '#ffffff',
                   fontSize: '12px',
                   fontWeight: 800,
@@ -490,7 +540,7 @@ export default function CustomerCheckoutPage({
               </h3>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+            <div className="ra-form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '4px' }}>
                   Full Name
@@ -500,7 +550,7 @@ export default function CustomerCheckoutPage({
                   readOnly
                   value={user?.fullName || 'Customer'}
                   className="ra-input"
-                  style={{ background: '#f8fafc' }}
+                  style={{ background: '#f4f4f5', opacity: 0.8 }}
                 />
               </div>
 
@@ -533,7 +583,7 @@ export default function CustomerCheckoutPage({
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div className="ra-form-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '4px' }}>
                   City*
@@ -566,8 +616,7 @@ export default function CustomerCheckoutPage({
           <div
             style={{
               background: '#ffffff',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-light)',
+              borderRadius: '16px',
               padding: '24px',
               boxShadow: 'var(--shadow-sm)',
             }}
@@ -578,7 +627,7 @@ export default function CustomerCheckoutPage({
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  background: 'var(--primary)',
+                  background: '#18181b',
                   color: '#ffffff',
                   fontSize: '12px',
                   fontWeight: 800,
@@ -594,16 +643,16 @@ export default function CustomerCheckoutPage({
               </h3>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
               {/* Online Stripe */}
               <div
                 onClick={() => setPaymentMode('online')}
                 style={{
-                  flex: 1,
+                  flex: '1 1 200px',
                   padding: '16px',
-                  borderRadius: 'var(--radius-md)',
-                  border: paymentMode === 'online' ? '2px solid var(--primary)' : '1px solid var(--border-light)',
-                  background: paymentMode === 'online' ? 'var(--primary-light)' : '#ffffff',
+                  borderRadius: '12px',
+                  background: paymentMode === 'online' ? '#18181b' : '#f4f4f5',
+                  color: paymentMode === 'online' ? '#ffffff' : 'var(--text-main)',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                 }}
@@ -615,11 +664,11 @@ export default function CustomerCheckoutPage({
                     checked={paymentMode === 'online'}
                     onChange={() => setPaymentMode('online')}
                   />
-                  <strong style={{ fontSize: '14px', color: 'var(--text-main)' }}>
+                  <strong style={{ fontSize: '14px' }}>
                     Online with Stripe
                   </strong>
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', paddingLeft: '24px' }}>
+                <div style={{ fontSize: '12px', opacity: 0.8, paddingLeft: '24px' }}>
                   Instant card escrow reservation. 100% held safely until return inspection.
                 </div>
               </div>
@@ -628,11 +677,11 @@ export default function CustomerCheckoutPage({
               <div
                 onClick={() => setPaymentMode('offline')}
                 style={{
-                  flex: 1,
+                  flex: '1 1 200px',
                   padding: '16px',
-                  borderRadius: 'var(--radius-md)',
-                  border: paymentMode === 'offline' ? '2px solid var(--primary)' : '1px solid var(--border-light)',
-                  background: paymentMode === 'offline' ? 'var(--primary-light)' : '#ffffff',
+                  borderRadius: '12px',
+                  background: paymentMode === 'offline' ? '#18181b' : '#f4f4f5',
+                  color: paymentMode === 'offline' ? '#ffffff' : 'var(--text-main)',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                 }}
@@ -644,11 +693,11 @@ export default function CustomerCheckoutPage({
                     checked={paymentMode === 'offline'}
                     onChange={() => setPaymentMode('offline')}
                   />
-                  <strong style={{ fontSize: '14px', color: 'var(--text-main)' }}>
+                  <strong style={{ fontSize: '14px' }}>
                     Pay at Doorstep
                   </strong>
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', paddingLeft: '24px' }}>
+                <div style={{ fontSize: '12px', opacity: 0.8, paddingLeft: '24px' }}>
                   Reserve now; pay 1st month rent + deposit directly upon verified delivery.
                 </div>
               </div>
@@ -665,22 +714,22 @@ export default function CustomerCheckoutPage({
                   onError={(msg) => setError(msg)}
                   loading={loading}
                   setLoading={setLoading}
+                  user={user}
                 />
               </Elements>
             ) : (
               <div>
                 <div
                   style={{
-                    background: '#f8fafc',
-                    borderRadius: 'var(--radius-sm)',
+                    background: '#f4f4f5',
+                    borderRadius: '10px',
                     padding: '14px',
                     fontSize: '13px',
                     color: 'var(--text-body)',
                     marginBottom: '16px',
-                    border: '1px solid var(--border-light)',
                   }}
                 >
-                  💵 You have selected offline payment. Your unit will be reserved immediately, and you will pay ₹{totalDueToday.toLocaleString('en-IN')} (Month 1 rent + deposit) to the merchant on delivery.
+                  💵 You have selected offline payment. Your {selectedQuantity > 1 ? `${selectedQuantity} units` : 'unit'} will be reserved immediately, and you will pay ₹{totalDueToday.toLocaleString('en-IN')} (Month 1 rent + deposit) to the merchant on delivery.
                 </div>
                 <button
                   type="button"
@@ -690,9 +739,9 @@ export default function CustomerCheckoutPage({
                   style={{
                     width: '100%',
                     padding: '13px',
-                    fontSize: '15px',
+                    fontSize: '14px',
                     fontWeight: 700,
-                    borderRadius: 'var(--radius-md)',
+                    borderRadius: '10px',
                   }}
                 >
                   {loading ? 'Confirming Reservation...' : 'Confirm Doorstep Reservation →'}
@@ -703,14 +752,13 @@ export default function CustomerCheckoutPage({
         </div>
 
         {/* ─── RIGHT: Order Summary ─── */}
-        <div style={{ position: 'sticky', top: '90px' }}>
+        <div className="ra-detail-sticky-pane">
           <div
             style={{
               background: '#ffffff',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-light)',
+              borderRadius: '16px',
               padding: '24px',
-              boxShadow: 'var(--shadow-sm)',
+              boxShadow: 'var(--shadow-md)',
             }}
           >
             <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-main)', margin: '0 0 16px 0' }}>
@@ -722,14 +770,14 @@ export default function CustomerCheckoutPage({
               <img
                 src={item.images?.[0] || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=140&q=80'}
                 alt=""
-                style={{ width: '64px', height: '64px', borderRadius: 'var(--radius-sm)', objectFit: 'cover' }}
+                style={{ width: '64px', height: '64px', borderRadius: '10px', objectFit: 'cover' }}
               />
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {item.title}
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                  Tenure: <strong>{selectedMonths} Months</strong>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                  Tenure: <strong>{selectedMonths} Months</strong> • Qty: <strong>{selectedQuantity}</strong>
                 </div>
                 <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                   Store: {item.vendorStoreName || 'Certified Partner'}
@@ -737,24 +785,24 @@ export default function CustomerCheckoutPage({
               </div>
             </div>
 
-            <div style={{ borderTop: '1px solid var(--border-light)', margin: '14px 0' }} />
+            <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', margin: '14px 0' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-body)', marginBottom: '8px' }}>
-              <span>Month 1 Rental</span>
-              <span>₹{activeMonthlyRent.toLocaleString('en-IN')}</span>
+              <span>Month 1 Rental ({selectedQuantity} × ₹{unitMonthlyRent.toLocaleString('en-IN')})</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>₹{totalMonthlyRent.toLocaleString('en-IN')}</span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-body)', marginBottom: '8px' }}>
-              <span>Security Deposit (Held in Escrow)</span>
-              <span>₹{deposit.toLocaleString('en-IN')}</span>
+              <span>Security Deposit ({selectedQuantity} × ₹{unitDeposit.toLocaleString('en-IN')})</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>₹{totalDeposit.toLocaleString('en-IN')}</span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#166534', fontWeight: 600, marginBottom: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px' }}>
               <span>Doorstep Delivery & Setup</span>
-              <span>FREE (₹0)</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>FREE (₹0)</span>
             </div>
 
-            <div style={{ borderTop: '1px dashed var(--border-light)', margin: '12px 0' }} />
+            <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', margin: '12px 0' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '16px' }}>
               <span>Total Payable Today</span>
@@ -763,16 +811,15 @@ export default function CustomerCheckoutPage({
 
             <div
               style={{
-                background: '#f8fafc',
-                border: '1px solid var(--border-light)',
-                borderRadius: 'var(--radius-sm)',
+                background: '#f8f8f9',
+                borderRadius: '10px',
                 padding: '12px',
                 fontSize: '12px',
                 color: 'var(--text-muted)',
                 lineHeight: 1.5,
               }}
             >
-              ℹ️ <strong>Recurring Cycle:</strong> Month 2 rent of ₹{activeMonthlyRent.toLocaleString('en-IN')} will be due exactly 1 month after delivery verification. You can pay online via Stripe or offline directly on the app.
+              ℹ️ <strong>Recurring Cycle:</strong> Month 2 rent of ₹{totalMonthlyRent.toLocaleString('en-IN')} will be due exactly 1 month after delivery verification. You can pay online via Stripe or offline directly on the app.
             </div>
           </div>
         </div>

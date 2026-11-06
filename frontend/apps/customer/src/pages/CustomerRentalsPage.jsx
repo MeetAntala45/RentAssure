@@ -124,7 +124,7 @@ export default function CustomerRentalsPage({
   const activeRentalsCount = bookings.filter((b) => b.status === 'Active' || b.status === 'Reserved').length;
 
   return (
-    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px 20px 80px 20px' }}>
+    <div className="ra-page-container" style={{ padding: '24px 20px 80px 20px' }}>
       {/* ─── Breadcrumb & Header ─── */}
       <div
         style={{
@@ -134,6 +134,7 @@ export default function CustomerRentalsPage({
           fontSize: '13px',
           color: 'var(--text-muted)',
           marginBottom: '16px',
+          flexWrap: 'wrap',
         }}
       >
         <button
@@ -143,7 +144,7 @@ export default function CustomerRentalsPage({
             border: 'none',
             padding: 0,
             cursor: 'pointer',
-            color: 'var(--primary)',
+            color: 'var(--text-main)',
             fontWeight: 600,
             fontSize: '13px',
             display: 'inline-flex',
@@ -190,8 +191,7 @@ export default function CustomerRentalsPage({
           style={{
             background: '#f0fdf4',
             color: '#166534',
-            border: '1px solid #bbf7d0',
-            borderRadius: 'var(--radius-md)',
+            borderRadius: '10px',
             padding: '12px 18px',
             fontSize: '14px',
             fontWeight: 600,
@@ -218,9 +218,8 @@ export default function CustomerRentalsPage({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-light)',
-            padding: '18px 20px',
+            borderRadius: '16px',
+            padding: '20px 24px',
             boxShadow: 'var(--shadow-sm)',
           }}
         >
@@ -236,9 +235,8 @@ export default function CustomerRentalsPage({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-light)',
-            padding: '18px 20px',
+            borderRadius: '16px',
+            padding: '20px 24px',
             boxShadow: 'var(--shadow-sm)',
           }}
         >
@@ -254,9 +252,8 @@ export default function CustomerRentalsPage({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-light)',
-            padding: '18px 20px',
+            borderRadius: '16px',
+            padding: '20px 24px',
             boxShadow: 'var(--shadow-sm)',
           }}
         >
@@ -270,12 +267,11 @@ export default function CustomerRentalsPage({
         </div>
       </div>
 
-      {/* ─── Filter Tabs ─── */}
+      {/* ─── Filter Tabs (Borderless sleek pills) ─── */}
       <div
         style={{
           display: 'flex',
           gap: '8px',
-          borderBottom: '1px solid var(--border-light)',
           paddingBottom: '12px',
           marginBottom: '24px',
           overflowX: 'auto',
@@ -294,11 +290,11 @@ export default function CustomerRentalsPage({
             style={{
               padding: '8px 16px',
               borderRadius: '9999px',
-              border: filter === t.key ? '1px solid var(--primary)' : '1px solid var(--border-light)',
-              background: filter === t.key ? 'var(--primary-light)' : '#ffffff',
-              color: filter === t.key ? 'var(--primary)' : 'var(--text-body)',
+              border: 'none',
+              background: filter === t.key ? '#18181b' : '#f4f4f5',
+              color: filter === t.key ? '#ffffff' : 'var(--text-main)',
               fontSize: '13px',
-              fontWeight: filter === t.key ? 700 : 500,
+              fontWeight: 600,
               cursor: 'pointer',
               whiteSpace: 'nowrap',
               transition: 'all 0.15s ease',
@@ -318,10 +314,10 @@ export default function CustomerRentalsPage({
         <div
           style={{
             background: '#ffffff',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--border-light)',
+            borderRadius: '16px',
             padding: '60px 24px',
             textAlign: 'center',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <div style={{ fontSize: '40px', marginBottom: '12px' }}>📦</div>
@@ -352,8 +348,7 @@ export default function CustomerRentalsPage({
                 key={b.id}
                 style={{
                   background: '#ffffff',
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--border-light)',
+                  borderRadius: '16px',
                   padding: '24px',
                   boxShadow: 'var(--shadow-sm)',
                 }}
@@ -367,7 +362,7 @@ export default function CustomerRentalsPage({
                     flexWrap: 'wrap',
                     gap: '16px',
                     paddingBottom: '16px',
-                    borderBottom: '1px solid var(--border-light)',
+                    borderBottom: '1px solid rgba(0,0,0,0.05)',
                   }}
                 >
                   <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -377,13 +372,12 @@ export default function CustomerRentalsPage({
                       style={{
                         width: '72px',
                         height: '72px',
-                        borderRadius: 'var(--radius-md)',
+                        borderRadius: '10px',
                         objectFit: 'cover',
-                        border: '1px solid var(--border-light)',
                       }}
                     />
                     <div>
-                      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--primary)', marginBottom: '2px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '2px' }}>
                         {b.vendorStoreName || 'Merchant Store'} • 📍 {b.deliveryCity || 'Ahmedabad'}
                       </div>
                       <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 4px 0' }}>
@@ -391,6 +385,8 @@ export default function CustomerRentalsPage({
                       </h3>
                       <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
                         Ref: <strong style={{ color: 'var(--text-body)' }}>{b.bookingReference}</strong>
+                        <span style={{ margin: '0 8px' }}>•</span>
+                        Quantity: <strong style={{ color: 'var(--text-main)' }}>{b.quantity || 1} unit(s)</strong>
                         <span style={{ margin: '0 8px' }}>•</span>
                         Ordered on: {new Date(b.createdAt).toLocaleDateString()}
                       </div>
@@ -402,9 +398,8 @@ export default function CustomerRentalsPage({
                     {isReserved && (
                       <span
                         style={{
-                          background: '#fffbeb',
-                          color: '#92400e',
-                          border: '1px solid #fde68a',
+                          background: '#f4f4f5',
+                          color: '#18181b',
                           padding: '6px 14px',
                           borderRadius: '9999px',
                           fontSize: '12px',
@@ -420,7 +415,6 @@ export default function CustomerRentalsPage({
                         style={{
                           background: '#f0fdf4',
                           color: '#166534',
-                          border: '1px solid #bbf7d0',
                           padding: '6px 14px',
                           borderRadius: '9999px',
                           fontSize: '12px',
@@ -434,9 +428,8 @@ export default function CustomerRentalsPage({
                     {isReturnRequested && (
                       <span
                         style={{
-                          background: '#eff6ff',
-                          color: '#1e40af',
-                          border: '1px solid #bfdbfe',
+                          background: '#f4f4f5',
+                          color: '#18181b',
                           padding: '6px 14px',
                           borderRadius: '9999px',
                           fontSize: '12px',
@@ -450,9 +443,8 @@ export default function CustomerRentalsPage({
                     {isCompleted && (
                       <span
                         style={{
-                          background: '#f8fafc',
-                          color: '#475569',
-                          border: '1px solid #cbd5e1',
+                          background: '#fafafa',
+                          color: '#71717a',
                           padding: '6px 14px',
                           borderRadius: '9999px',
                           fontSize: '12px',
@@ -472,9 +464,8 @@ export default function CustomerRentalsPage({
                   <div
                     style={{
                       marginTop: '20px',
-                      background: 'linear-gradient(135deg, #fffbeb 0%, #ffffff 100%)',
-                      border: '1px solid #fde68a',
-                      borderRadius: 'var(--radius-md)',
+                      background: '#f4f4f5',
+                      borderRadius: '12px',
                       padding: '20px',
                       display: 'flex',
                       alignItems: 'center',
@@ -484,25 +475,25 @@ export default function CustomerRentalsPage({
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#92400e', marginBottom: '4px' }}>
-                        🔑 Doorstep Delivery Verification OTP
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                        Doorstep Delivery Verification OTP
                       </div>
-                      <p style={{ fontSize: '13px', color: '#78350f', margin: 0, maxWidth: '520px', lineHeight: 1.5 }}>
-                        Provide this 6-digit OTP to the delivery agent when they bring the item. <strong>Your rental start date officially begins from the day of delivery!</strong>
+                      <p style={{ fontSize: '13px', color: 'var(--text-body)', margin: 0, maxWidth: '520px', lineHeight: 1.5 }}>
+                        Provide this 6-digit OTP to the delivery agent upon receiving your item. <strong>Your rental start date officially begins from the verified day of delivery!</strong>
                       </p>
                     </div>
 
                     <div
                       style={{
                         background: '#ffffff',
-                        border: '2px dashed #d97706',
-                        borderRadius: 'var(--radius-md)',
+                        borderRadius: '10px',
                         padding: '10px 24px',
                         fontSize: '28px',
                         fontWeight: 900,
                         letterSpacing: '6px',
-                        color: '#b45309',
+                        color: '#18181b',
                         fontFamily: 'monospace',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
                       }}
                     >
                       {b.deliveryOtp || '482910'}
@@ -519,9 +510,8 @@ export default function CustomerRentalsPage({
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                         gap: '16px',
-                        background: '#f8fafc',
-                        borderRadius: 'var(--radius-md)',
-                        border: '1px solid var(--border-light)',
+                        background: '#f8f8f9',
+                        borderRadius: '12px',
                         padding: '16px',
                         marginBottom: '16px',
                       }}
@@ -542,14 +532,14 @@ export default function CustomerRentalsPage({
 
                       <div>
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block' }}>Payment Progress</span>
-                        <strong style={{ fontSize: '14px', color: 'var(--primary)' }}>
+                        <strong style={{ fontSize: '14px', color: 'var(--text-main)' }}>
                           {monthsPaid} of {totalMonths} Months Paid
                         </strong>
                       </div>
 
                       <div>
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block' }}>Next Payment Due</span>
-                        <strong style={{ fontSize: '14px', color: hasRemainingMonths ? '#b45309' : '#166534' }}>
+                        <strong style={{ fontSize: '14px', color: hasRemainingMonths ? '#18181b' : '#15803d' }}>
                           {hasRemainingMonths
                             ? (b.nextPaymentDueDate ? new Date(b.nextPaymentDueDate).toLocaleDateString() : 'In 1 Month')
                             : 'All Months Settled'}
@@ -561,9 +551,8 @@ export default function CustomerRentalsPage({
                     {hasRemainingMonths && (
                       <div
                         style={{
-                          background: '#f0f9ff',
-                          border: '1px solid #bae6fd',
-                          borderRadius: 'var(--radius-md)',
+                          background: '#f8f8f9',
+                          borderRadius: '12px',
                           padding: '16px 20px',
                           display: 'flex',
                           alignItems: 'center',
@@ -574,11 +563,11 @@ export default function CustomerRentalsPage({
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: '14px', fontWeight: 800, color: '#0369a1' }}>
-                            💳 Month {monthsPaid + 1} Rent: ₹{Number(b.monthlyRent).toLocaleString('en-IN')}
+                          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>
+                            Month {monthsPaid + 1} Rent: ₹{Number(b.monthlyRent).toLocaleString('en-IN')}
                           </div>
-                          <div style={{ fontSize: '12px', color: '#0c4a6e', marginTop: '2px' }}>
-                            Pay directly on app via Stripe (instant vendor payout) or pay cash/offline to the vendor.
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                            Pay directly on app via Stripe (instant vendor payout) or settle offline with vendor.
                           </div>
                         </div>
 
@@ -625,9 +614,8 @@ export default function CustomerRentalsPage({
                   <div
                     style={{
                       marginTop: '20px',
-                      background: '#f8fafc',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-light)',
+                      background: '#f4f4f5',
+                      borderRadius: '12px',
                       padding: '16px 20px',
                       fontSize: '13px',
                       color: 'var(--text-body)',
@@ -644,8 +632,7 @@ export default function CustomerRentalsPage({
                     style={{
                       marginTop: '20px',
                       background: '#f0fdf4',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid #bbf7d0',
+                      borderRadius: '12px',
                       padding: '16px 20px',
                       fontSize: '13px',
                       color: '#166534',
@@ -684,12 +671,11 @@ export default function CustomerRentalsPage({
             onClick={(e) => e.stopPropagation()}
             style={{
               background: '#ffffff',
-              borderRadius: 'var(--radius-lg)',
+              borderRadius: '16px',
               maxWidth: '520px',
               width: '100%',
               padding: '28px',
               boxShadow: 'var(--shadow-modal)',
-              border: '1px solid var(--border-light)',
             }}
           >
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 8px 0' }}>

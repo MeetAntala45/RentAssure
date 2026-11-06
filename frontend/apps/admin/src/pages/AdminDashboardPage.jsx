@@ -88,12 +88,12 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
               </div>
               <div className="ra-kpi-label">Active Subscriptions</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#033047' }}>
+            <div className="ra-kpi-icon-badge" style={{ background: '#18181b' }}>
               <IconServices width={24} height={24} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid var(--border-light)' }}>Live</span>
+            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#18181b', border: 'none' }}>Live</span>
             <span className="ra-kpi-trend-subtext">Active Leases</span>
           </div>
         </div>
@@ -109,12 +109,12 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
               </div>
               <div className="ra-kpi-label">Registered Renters</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#304C62' }}>
+            <div className="ra-kpi-icon-badge" style={{ background: '#27272a' }}>
               <IconUserSingle width={24} height={24} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid var(--border-light)' }}>Platform</span>
+            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#18181b', border: 'none' }}>Platform</span>
             <span className="ra-kpi-trend-subtext">Customer Base</span>
           </div>
         </div>
@@ -130,12 +130,12 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
               </div>
               <div className="ra-kpi-label">Verified Merchants</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#5C677D' }}>
+            <div className="ra-kpi-icon-badge" style={{ background: '#3f3f46' }}>
               <IconWrench width={24} height={24} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid var(--border-light)' }}>
+            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#18181b', border: 'none' }}>
               {stats?.totalVendorsCount || 0} Total
             </span>
             <span className="ra-kpi-trend-subtext">Store Partners</span>
@@ -151,12 +151,12 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
               </div>
               <div className="ra-kpi-label">Gross Platform Volume</div>
             </div>
-            <div className="ra-kpi-icon-badge" style={{ background: '#033047' }}>
+            <div className="ra-kpi-icon-badge" style={{ background: '#18181b' }}>
               <IconCurrency width={24} height={24} stroke="#ffffff" />
             </div>
           </div>
           <div className="ra-kpi-bottom">
-            <span className="ra-kpi-trend" style={{ background: '#e8f1f5', color: '#033047', border: '1px solid var(--border-light)' }}>
+            <span className="ra-kpi-trend" style={{ background: '#f4f4f5', color: '#18181b', border: 'none' }}>
               ₹{stats?.platformCommissionEarned !== undefined ? Math.round(stats.platformCommissionEarned).toLocaleString('en-IN') : '0'}
             </span>
             <span className="ra-kpi-trend-subtext">Marketplace Commission</span>
@@ -194,7 +194,7 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
       {/* ─── RECENT BOOKINGS & AUDIT OVERVIEW ────────────────────────────── */}
       {stats?.recentBookings && stats.recentBookings.length > 0 && (
         <div className="ra-card" style={{ marginTop: '24px', padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <h3 className="ra-card-title">Recent Customer Rentals</h3>
             <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
               Showing latest {stats.recentBookings.length} bookings
@@ -203,7 +203,7 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
           <div className="ra-table-responsive">
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border-light)' }}>
+                <tr style={{ background: '#f8fafc', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
                   <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>REFERENCE</th>
                   <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>CUSTOMER</th>
                   <th style={{ padding: '14px 20px', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)' }}>STORE</th>
@@ -214,8 +214,8 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
               </thead>
               <tbody>
                 {stats.recentBookings.map((b) => (
-                  <tr key={b.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--primary)' }}>
+                  <tr key={b.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
+                    <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 700, color: '#18181b' }}>
                       {b.bookingReference}
                     </td>
                     <td style={{ padding: '14px 20px', fontSize: '13px', fontWeight: 600, color: 'var(--text-main)' }}>

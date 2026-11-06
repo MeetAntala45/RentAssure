@@ -192,11 +192,11 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
         </div>
       )}
 
-      {/* ─── 4 SUMMARY CARDS (Grey Monochromatic Theme) ─────────────────────── */}
+      {/* ─── 4 SUMMARY CARDS (Clean Light Theme) ─────────────────────── */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: '16px',
           marginBottom: '28px',
         }}
@@ -205,20 +205,19 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
             padding: '22px 24px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>Total Net Earnings</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Total Net Earnings</span>
             <span
               style={{
                 fontSize: '11px',
                 fontWeight: 700,
                 color: '#15803d',
-                background: '#dcfce7',
+                background: '#f0fdf4',
                 padding: '2px 8px',
                 borderRadius: '12px',
               }}
@@ -226,10 +225,10 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
               Settled
             </span>
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '10px' }}>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: '#18181b', marginTop: '10px' }}>
             ₹{earningsData ? earningsData.totalNetEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>
             Disbursed to merchant account ({earningsData?.completedBookingsCount || 0} completed rentals)
           </div>
         </div>
@@ -238,20 +237,19 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
             padding: '22px 24px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>Pending Escrow Payouts</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Pending Escrow Payouts</span>
             <span
               style={{
                 fontSize: '11px',
                 fontWeight: 700,
-                color: '#1d4ed8',
-                background: '#dbeafe',
+                color: '#18181b',
+                background: '#f4f4f5',
                 padding: '2px 8px',
                 borderRadius: '12px',
               }}
@@ -259,10 +257,10 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
               In Escrow
             </span>
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '10px' }}>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: '#18181b', marginTop: '10px' }}>
             ₹{earningsData ? earningsData.pendingEscrowPayouts.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>
             Releases upon completion ({earningsData?.activeBookingsCount || 0} ongoing rentals)
           </div>
         </div>
@@ -271,20 +269,19 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
             padding: '22px 24px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>Escrow Deposits Held</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Escrow Deposits Held</span>
             <span
               style={{
                 fontSize: '11px',
                 fontWeight: 700,
-                color: '#475569',
-                background: '#f1f5f9',
+                color: '#71717a',
+                background: '#f4f4f5',
                 padding: '2px 8px',
                 borderRadius: '12px',
               }}
@@ -292,10 +289,10 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
               Protection
             </span>
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '10px' }}>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: '#18181b', marginTop: '10px' }}>
             ₹{earningsData ? earningsData.escrowDepositsHeld.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>
             Safeguarded customer security deposits
           </div>
         </div>
@@ -304,21 +301,19 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
             padding: '22px 24px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>Platform Commission Paid</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)' }}>Platform Commission Paid</span>
             <span
               style={{
                 fontSize: '11px',
                 fontWeight: 700,
-                color: '#64748b',
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                color: '#71717a',
+                background: '#f4f4f5',
                 padding: '2px 8px',
                 borderRadius: '12px',
               }}
@@ -326,10 +321,10 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
               {earningsData?.commissionRate || 10}% Fee
             </span>
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: '#475569', marginTop: '10px' }}>
+          <div style={{ fontSize: '28px', fontWeight: 800, color: '#71717a', marginTop: '10px' }}>
             ₹{earningsData ? earningsData.totalCommissionPaid.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>
             Automated marketplace matching & dispute escrow
           </div>
         </div>
@@ -361,12 +356,12 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
                 setCurrentPage(1);
               }}
               style={{
-                padding: '7px 14px',
+                padding: '8px 16px',
                 borderRadius: '20px',
-                border: statusFilter === tab.id ? '1px solid #1e293b' : '1px solid #e2e8f0',
-                background: statusFilter === tab.id ? '#1e293b' : '#ffffff',
-                color: statusFilter === tab.id ? '#ffffff' : '#475569',
-                fontSize: '12px',
+                border: 'none',
+                background: statusFilter === tab.id ? '#18181b' : '#f4f4f5',
+                color: statusFilter === tab.id ? '#ffffff' : 'var(--text-main)',
+                fontSize: '12.5px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
@@ -377,42 +372,35 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             type="text"
-            placeholder="Search by reference, customer, item..."
+            placeholder="Search reference, customer, item..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
+            className="ra-input"
             style={{
               padding: '8px 14px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
               fontSize: '13px',
-              color: '#1e293b',
-              width: '260px',
-              outline: 'none',
-              background: '#ffffff',
+              width: '240px',
             }}
           />
 
-          {/* Slide Drawer Trigger (Matching Image 1) */}
+          {/* Slide Drawer Trigger */}
           <button
             onClick={() => setShowFilterDrawer(true)}
+            className="ra-btn ra-btn-secondary"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               padding: '8px 16px',
               borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              background: minAmountFilter || maxAmountFilter ? '#e2e8f0' : '#ffffff',
-              color: '#1e293b',
               fontSize: '13px',
               fontWeight: 600,
-              cursor: 'pointer',
             }}
           >
             <span>⚡</span> Filter
@@ -422,7 +410,7 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
                   width: '6px',
                   height: '6px',
                   borderRadius: '50%',
-                  background: '#2563eb',
+                  background: '#18181b',
                   display: 'inline-block',
                 }}
               />
@@ -431,14 +419,14 @@ export default function VendorEarningsPage({ onNavigateToBookings }) {
         </div>
       </div>
 
-      {/* ─── PAYOUT SETTLEMENT LEDGER TABLE (Matches Image 1 Layout) ────────── */}
+      {/* ─── PAYOUT SETTLEMENT LEDGER TABLE ────────── */}
       <div
+        className="ra-table-responsive"
         style={{
           background: '#ffffff',
-          borderRadius: '10px',
-          border: '1px solid #e2e8f0',
+          borderRadius: '16px',
           overflow: 'hidden',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         {loading ? (

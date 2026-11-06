@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../../../src/shared/AuthContext';
 import PortalShell from '../../../src/shared/PortalShell';
 import AdminLoginPage from './pages/AdminLoginPage';
@@ -17,10 +18,15 @@ import {
   IconSupport,
 } from '../../../src/shared/Icons';
 
+const VendorRedirectWrapper = () => {
+  const { vendorId } = useParams();
+  return <Navigate to={`/user-management/${vendorId}`} replace />;
+};
+
 const AdminPortalContent = () => {
   const { user, loading } = useAuth();
-  const [activeNav, setActiveNav] = useState('dashboard');
-  const [selectedVendorId, setSelectedVendorId] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -36,27 +42,42 @@ const AdminPortalContent = () => {
   }
 
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <IconDashboard /> },
-    { id: 'services', label: 'Service Management', icon: <IconServices />, disabled: true },
-    { id: 'vendors', label: 'User Management', icon: <IconUsers /> },
-    { id: 'bookings', label: 'Booking Management', icon: <IconCalendar />, disabled: true },
-    { id: 'payments', label: 'Payments & Transactions', icon: <IconPayments />, disabled: true },
-    { id: 'master-data', label: 'Master Data', icon: <IconMasterData /> },
-    { id: 'support', label: 'Support', icon: <IconSupport /> },
+    { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: <IconDashboard /> },
+    { id: 'services', path: '/services', label: 'Service Management', icon: <IconServices />, disabled: true },
+    { id: 'vendors', path: '/user-management', label: 'User Management', icon: <IconUsers /> },
+    { id: 'bookings', path: '/bookings', label: 'Booking Management', icon: <IconCalendar />, disabled: true },
+    { id: 'payments', path: '/payments', label: 'Payments & Transactions', icon: <IconPayments />, disabled: true },
+    { id: 'master-data', path: '/master-data', label: 'Master Data', icon: <IconMasterData /> },
+    { id: 'support', path: '/support', label: 'Support', icon: <IconSupport /> },
   ];
 
-  const handleNavClick = (navId) => {
-    setActiveNav(navId);
-    if (navId === 'vendors') {
-      setSelectedVendorId(null);
+  const getActiveNavId = () => {
+    const p = location.pathname.toLowerCase();
+    if (p.includes('/user-management') || p.includes('/vendors')) return 'vendors';
+    if (p.includes('/master-data')) return 'master-data';
+    if (p.includes('/support')) return 'support';
+    return 'dashboard';
+  };
+
+  const activeNavId = getActiveNavId();
+
+  const handleNavClick = (navId, navPath) => {
+    if (navPath) {
+      navigate(navPath);
+    } else {
+      const match = navItems.find((n) => n.id === navId);
+      if (match?.path) navigate(match.path);
     }
   };
 
   const getPageTitle = () => {
-    if (activeNav === 'dashboard') return 'Dashboard';
-    if (activeNav === 'vendors') return selectedVendorId ? 'Service Partner Profile' : 'User Management';
-    if (activeNav === 'master-data') return 'Master Data';
-    if (activeNav === 'support') return 'Support Inquiries';
+    if (activeNavId === 'dashboard') return 'Dashboard';
+    if (activeNavId === 'vendors') {
+      const parts = location.pathname.split('/').filter(Boolean);
+      return parts.length > 1 ? 'Service Partner Profile' : 'User Management';
+    }
+    if (activeNavId === 'master-data') return 'Master Data';
+    if (activeNavId === 'support') return 'Support Inquiries';
     return 'Dashboard';
   };
 
@@ -65,43 +86,53 @@ const AdminPortalContent = () => {
       portalTitle="RentAssure"
       portalSubtitle="Super Admin"
       navItems={navItems}
-      activeNavId={activeNav}
+      activeNavId={activeNavId}
       onNavClick={handleNavClick}
       pageTitle={getPageTitle()}
     >
-      {activeNav === 'dashboard' && (
-        <AdminDashboardPage
-          onNavigateToVendors={() => {
-            setActiveNav('vendors');
-            setSelectedVendorId(null);
-          }}
+      <Routes>
+        <Route
+          path="/"
+          element={<AdminDashboardPage onNavigateToVendors={() => navigate('/user-management')} />}
         />
-      )}
-
-      {activeNav === 'vendors' && !selectedVendorId && (
-        <AdminVendorsPage
-          onSelectVendor={(id) => setSelectedVendorId(id)}
+        <Route
+          path="/dashboard"
+          element={<AdminDashboardPage onNavigateToVendors={() => navigate('/user-management')} />}
         />
-      )}
 
-      {activeNav === 'vendors' && selectedVendorId && (
-        <AdminVendorDetailPage
-          vendorId={selectedVendorId}
-          onBack={() => setSelectedVendorId(null)}
+        {/* User / Merchant Management */}
+        <Route
+          path="/user-management"
+          element={<AdminVendorsPage onSelectVendor={(id) => navigate(`/user-management/${id}`)} />}
         />
-      )}
+        <Route
+          path="/user-management/:vendorId"
+          element={<AdminVendorDetailPage onBack={() => navigate('/user-management')} />}
+        />
 
-      {activeNav === 'master-data' && <AdminMasterDataPage />}
+        {/* Path aliases */}
+        <Route path="/vendors" element={<Navigate to="/user-management" replace />} />
+        <Route path="/vendors/:vendorId" element={<VendorRedirectWrapper />} />
 
-      {activeNav === 'support' && <AdminSupportPage />}
+        {/* Master Data */}
+        <Route path="/master-data" element={<AdminMasterDataPage />} />
+
+        {/* Support */}
+        <Route path="/support" element={<AdminSupportPage />} />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
     </PortalShell>
   );
 };
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AdminPortalContent />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <AdminPortalContent />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

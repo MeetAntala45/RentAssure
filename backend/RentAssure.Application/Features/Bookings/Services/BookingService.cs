@@ -39,9 +39,15 @@ public class BookingService : IBookingService
             return ApiResponse<BookingDetailDto>.Fail("This item is currently inactive.");
         }
 
+        var requestedQuantity = request.Quantity > 0 ? request.Quantity : 1;
         if (item.AvailableQuantity <= 0 || item.Status == ItemStatus.Rented)
         {
             return ApiResponse<BookingDetailDto>.Fail("All units of this item are currently rented out.");
+        }
+
+        if (item.AvailableQuantity < requestedQuantity)
+        {
+            return ApiResponse<BookingDetailDto>.Fail($"Only {item.AvailableQuantity} unit(s) available for rent.");
         }
 
         if (item.Status == ItemStatus.UnderMaintenance)
@@ -61,20 +67,21 @@ public class BookingService : IBookingService
         }
 
         // Calculate discounted monthly rent based on tenure (decided per product by the vendor)
-        var monthlyRent = item.MonthlyRent;
+        var unitMonthlyRent = item.MonthlyRent;
         if (request.RentalDurationMonths >= 12 && item.Discount12MonthsPercent > 0)
         {
             var discount = Math.Clamp(item.Discount12MonthsPercent, 0, 100);
-            monthlyRent = Math.Round(item.MonthlyRent * (1m - (discount / 100m)), 2);
+            unitMonthlyRent = Math.Round(item.MonthlyRent * (1m - (discount / 100m)), 2);
         }
         else if (request.RentalDurationMonths >= 6 && item.Discount6MonthsPercent > 0)
         {
             var discount = Math.Clamp(item.Discount6MonthsPercent, 0, 100);
-            monthlyRent = Math.Round(item.MonthlyRent * (1m - (discount / 100m)), 2);
+            unitMonthlyRent = Math.Round(item.MonthlyRent * (1m - (discount / 100m)), 2);
         }
 
-        var securityDeposit = item.SecurityDeposit;
-        var totalAmountPaid = securityDeposit + monthlyRent; // Initial checkout charge (deposit + first month)
+        var totalMonthlyRent = unitMonthlyRent * requestedQuantity;
+        var totalSecurityDeposit = item.SecurityDeposit * requestedQuantity;
+        var totalAmountPaid = totalSecurityDeposit + totalMonthlyRent; // Initial checkout charge (deposit + first month)
 
         var commissionRate = 12.0m;
         if (item.Vendor?.CommissionRateOverride.HasValue == true)
@@ -86,8 +93,8 @@ public class BookingService : IBookingService
             commissionRate = item.Category.CommissionRate;
         }
 
-        var platformCommission = Math.Round(monthlyRent * (commissionRate / 100m), 2);
-        var vendorPayout = monthlyRent - platformCommission;
+        var platformCommission = Math.Round(totalMonthlyRent * (commissionRate / 100m), 2);
+        var vendorPayout = totalMonthlyRent - platformCommission;
 
         var startDate = request.StartDate ?? DateTime.UtcNow;
         var endDate = startDate.AddMonths(request.RentalDurationMonths);
@@ -100,11 +107,12 @@ public class BookingService : IBookingService
             CustomerId = customerId,
             VendorId = item.VendorId,
             ItemId = item.Id,
+            Quantity = requestedQuantity,
             StartDate = startDate,
             EndDate = endDate,
             RentalDurationMonths = request.RentalDurationMonths,
-            MonthlyRent = monthlyRent,
-            SecurityDeposit = securityDeposit,
+            MonthlyRent = totalMonthlyRent,
+            SecurityDeposit = totalSecurityDeposit,
             TotalAmountPaid = totalAmountPaid,
             CommissionRateApplied = commissionRate,
             PlatformCommissionAmount = platformCommission,
@@ -123,13 +131,13 @@ public class BookingService : IBookingService
             IsPaidOnline = !string.IsNullOrWhiteSpace(request.StripePaymentIntentId)
         };
 
-        // Decrement available quantity; only mark item Rented if no units remain
-        item.AvailableQuantity = Math.Max(0, item.AvailableQuantity - 1);
+        // Decrement available quantity by requested quantity; only mark item Rented if no units remain
+        item.AvailableQuantity = Math.Max(0, item.AvailableQuantity - requestedQuantity);
         if (item.AvailableQuantity <= 0)
         {
             item.Status = ItemStatus.Rented;
         }
-        item.TotalRentalsCount++;
+        item.TotalRentalsCount += requestedQuantity;
 
         if (item.Vendor != null)
         {
@@ -285,6 +293,7 @@ public class BookingService : IBookingService
             ItemId = b.ItemId,
             ItemTitle = item?.Title ?? "Rental Item",
             ItemImageUrl = imageUrl,
+            Quantity = b.Quantity > 0 ? b.Quantity : 1,
             StartDate = b.StartDate,
             EndDate = b.EndDate,
             RentalDurationMonths = b.RentalDurationMonths,

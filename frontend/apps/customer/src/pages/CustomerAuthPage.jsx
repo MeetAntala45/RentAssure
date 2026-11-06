@@ -83,13 +83,13 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
             width: '48px',
             height: '48px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, #033047 0%, #304C62 100%)',
+            background: '#18181b',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '24px',
             marginBottom: '12px',
-            boxShadow: '0 8px 16px rgba(3, 48, 71, 0.15)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
           }}
         >
           🛡️
@@ -126,8 +126,7 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
       {!isSignUp && (
         <div
           style={{
-            background: 'var(--primary-subtle)',
-            border: '1px solid var(--color-light-blue-border)',
+            background: '#f4f4f5',
             borderRadius: '10px',
             padding: '10px 14px',
             marginBottom: '20px',
@@ -138,16 +137,16 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
           }}
         >
           <div style={{ fontSize: '12px', color: 'var(--text-body)' }}>
-            <strong>Demo Account:</strong> <span style={{ color: 'var(--primary)' }}>meetantala2005@gmail.com</span>
+            <strong>Demo Account:</strong> <span style={{ color: 'var(--text-main)' }}>meetantala2005@gmail.com</span>
           </div>
           <button
             type="button"
             onClick={fillDemoCustomer}
             style={{
-              padding: '4px 10px',
+              padding: '5px 12px',
               borderRadius: '6px',
               border: 'none',
-              background: 'var(--primary)',
+              background: '#18181b',
               color: '#ffffff',
               fontSize: '11px',
               fontWeight: 700,
@@ -174,11 +173,11 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
-        <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
+        <div style={{ flex: 1, height: '1px', background: 'rgba(0,0,0,0.06)' }} />
         <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-light)', textTransform: 'uppercase' }}>
           Or continue with email
         </span>
-        <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
+        <div style={{ flex: 1, height: '1px', background: 'rgba(0,0,0,0.06)' }} />
       </div>
 
       {error && (
@@ -186,7 +185,6 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
           style={{
             background: 'var(--danger-bg)',
             color: 'var(--danger-text)',
-            border: '1px solid var(--danger-border)',
             borderRadius: '10px',
             padding: '12px 16px',
             fontSize: '13px',
@@ -203,7 +201,6 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
           style={{
             background: 'var(--success-bg)',
             color: 'var(--success-text)',
-            border: '1px solid var(--success-border)',
             borderRadius: '10px',
             padding: '12px 16px',
             fontSize: '13px',
@@ -292,7 +289,7 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
             fontWeight: 800,
             borderRadius: '12px',
             justifyContent: 'center',
-            boxShadow: '0 6px 16px rgba(3, 48, 71, 0.22)',
+            boxShadow: '0 4px 14px rgba(24, 24, 27, 0.18)',
           }}
         >
           {loading ? 'Please wait...' : isSignUp ? 'Create Free Account' : 'Sign In to Marketplace'}

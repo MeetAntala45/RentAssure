@@ -15,6 +15,7 @@ public class Booking : BaseEntity
 
     public int ItemId { get; set; }
     public RentalItem Item { get; set; } = null!;
+    public int Quantity { get; set; } = 1;
 
     // Rental Period
     public DateTime StartDate { get; set; }

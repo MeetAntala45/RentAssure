@@ -628,6 +628,7 @@ public class VendorService : IVendorService
                 ItemId = b.ItemId,
                 ItemTitle = b.Item?.Title ?? "Rental Item",
                 ItemImageUrl = img,
+                Quantity = b.Quantity > 0 ? b.Quantity : 1,
                 StartDate = b.StartDate,
                 EndDate = b.EndDate,
                 RentalDurationMonths = b.RentalDurationMonths,
@@ -929,7 +930,8 @@ public class VendorService : IVendorService
         // Return verified: restore item inventory back into stock
         if (booking.Item != null)
         {
-            booking.Item.AvailableQuantity = Math.Min(booking.Item.Quantity, booking.Item.AvailableQuantity + 1);
+            var returnQty = booking.Quantity > 0 ? booking.Quantity : 1;
+            booking.Item.AvailableQuantity = Math.Min(booking.Item.Quantity, booking.Item.AvailableQuantity + returnQty);
             booking.Item.Status = ItemStatus.Available;
         }
 

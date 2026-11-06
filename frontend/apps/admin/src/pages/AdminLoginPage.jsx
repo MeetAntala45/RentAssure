@@ -37,7 +37,6 @@ const AdminLoginPage = () => {
           style={{
             background: 'var(--danger-bg)',
             color: 'var(--danger-text)',
-            border: '1px solid var(--danger-border)',
             borderRadius: 'var(--radius-md)',
             padding: '12px 16px',
             fontSize: '13px',
@@ -92,19 +91,19 @@ const AdminLoginPage = () => {
           }}
         >
           By clicking on Sign In, I accept the{' '}
-          <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Terms & Condition</span> &{' '}
-          <span style={{ color: 'var(--primary)', fontWeight: 600 }}>Privacy Policy</span>
+          <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>Terms & Condition</span> &{' '}
+          <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>Privacy Policy</span>
         </p>
 
         <div
           style={{
             marginTop: '32px',
             padding: '14px',
-            background: 'var(--primary-subtle)',
+            background: '#f4f4f5',
             borderRadius: 'var(--radius-md)',
-            border: '1px solid #e0e7ff',
+            border: 'none',
             fontSize: '12px',
-            color: '#3730a3',
+            color: '#52525b',
             textAlign: 'center',
           }}
         >
