@@ -75,8 +75,10 @@ public class PaymentsController : ControllerBase
             monthlyRent = Math.Round(item.MonthlyRent * (1m - (discount / 100m)), 2);
         }
 
-        var securityDeposit = item.SecurityDeposit;
-        var totalAmount = securityDeposit + monthlyRent;
+        var quantity = Math.Max(1, request.Quantity > 0 ? request.Quantity : 1);
+        var securityDeposit = item.SecurityDeposit * quantity;
+        var totalMonthlyRent = monthlyRent * quantity;
+        var totalAmount = securityDeposit + totalMonthlyRent;
 
         // Platform commission rate (Admin fee)
         var commissionRate = 12.0m;
@@ -89,8 +91,8 @@ public class PaymentsController : ControllerBase
             commissionRate = item.Category.CommissionRate;
         }
 
-        var platformCommission = Math.Round(monthlyRent * (commissionRate / 100m), 2);
-        var vendorPayout = monthlyRent - platformCommission;
+        var platformCommission = Math.Round(totalMonthlyRent * (commissionRate / 100m), 2);
+        var vendorPayout = totalMonthlyRent - platformCommission;
 
         var userId = GetCurrentUserId();
         var customer = await _context.Users.FindAsync(userId);
@@ -109,7 +111,7 @@ public class PaymentsController : ControllerBase
                     Enabled = true,
                     AllowRedirects = "never",
                 },
-                Description = $"RentAssure: Rental reservation for '{item.Title}' ({rentalMonths} mos) — Dep: ₹{securityDeposit:N0} + 1st Mo: ₹{monthlyRent:N0}",
+                Description = $"RentAssure: Rental reservation for '{item.Title}' ({quantity} unit(s), {rentalMonths} mos) — Dep: ₹{securityDeposit:N0} + 1st Mo: ₹{totalMonthlyRent:N0}",
                 Metadata = new Dictionary<string, string>
                 {
                     { "itemId", request.ItemId.ToString() },
@@ -117,6 +119,7 @@ public class PaymentsController : ControllerBase
                     { "customerId", userId.ToString() },
                     { "customerEmail", customer?.Email ?? "" },
                     { "rentalMonths", rentalMonths.ToString() },
+                    { "quantity", quantity.ToString() },
                     { "vendorId", item.VendorId.ToString() },
                     { "vendorStoreName", item.Vendor?.StoreName ?? "Merchant Partner" },
                     { "monthlyRent", monthlyRent.ToString("F2") },
@@ -203,12 +206,13 @@ public class PaymentsController : ControllerBase
             return NotFound(ApiResponse<object>.Fail("Booking not found."));
         }
 
-        var role = User.FindFirstValue(ClaimTypes.Role);
+        var role = User.FindFirstValue(ClaimTypes.Role) ?? User.FindFirstValue("role") ?? "";
         var userId = GetCurrentUserId();
 
-        if (role != "Admin")
+        if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
         {
-            var vendor = await _context.Vendors.FirstOrDefaultAsync(v => v.UserId == userId);
+            var vendor = await _context.Vendors.FirstOrDefaultAsync(v => v.UserId == userId)
+                ?? await _context.Vendors.FirstOrDefaultAsync(v => v.Id == booking.VendorId);
             if (vendor == null || booking.VendorId != vendor.Id)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<object>.Fail("You are not authorized to release the deposit for this booking."));
@@ -412,9 +416,9 @@ public class PaymentsController : ControllerBase
     [HttpGet("config")]
     public IActionResult GetStripeConfig()
     {
-        var publishableKey = _configuration["Stripe:PublishableKey"]
+        var publishableKey = Environment.GetEnvironmentVariable("Stripe__PublishableKey")
             ?? Environment.GetEnvironmentVariable("STRIPE_PUBLISHABLE_KEY")
-            ?? Environment.GetEnvironmentVariable("Stripe__PublishableKey");
+            ?? _configuration["Stripe:PublishableKey"];
         return Ok(ApiResponse<object>.Success(new { publishableKey }, "Stripe config retrieved."));
     }
 }
@@ -424,6 +428,7 @@ public class CreatePaymentIntentRequest
     public int ItemId { get; set; }
     public decimal Amount { get; set; }
     public int RentalMonths { get; set; } = 3;
+    public int Quantity { get; set; } = 1;
 }
 
 public class CreateMonthlyRentIntentRequest

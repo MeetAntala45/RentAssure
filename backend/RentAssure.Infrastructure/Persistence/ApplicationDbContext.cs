@@ -21,6 +21,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<PlatformSetting> PlatformSettings => Set<PlatformSetting>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
+    public DbSet<RentalReview> RentalReviews => Set<RentalReview>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using RentAssure.Application.Common.Interfaces;
 using RentAssure.Application.Common.Models;
+using RentAssure.Application.Features.Bookings.DTOs;
 using RentAssure.Application.Features.Items.DTOs;
 using RentAssure.Domain.Entities;
 using RentAssure.Domain.Enums;
@@ -23,6 +24,8 @@ public class ItemService : IItemService
             .AsNoTracking()
             .Include(i => i.Category)
             .Include(i => i.Vendor)
+            .Include(i => i.Reviews)
+                .ThenInclude(r => r.Customer)
             .Where(i => i.Status != ItemStatus.Inactive && i.Vendor.Status == VendorStatus.Approved);
 
         // Search term
@@ -109,6 +112,8 @@ public class ItemService : IItemService
             .AsNoTracking()
             .Include(i => i.Category)
             .Include(i => i.Vendor)
+            .Include(i => i.Reviews)
+                .ThenInclude(r => r.Customer)
             .FirstOrDefaultAsync(i => i.Id == id);
 
         if (item == null)
@@ -117,6 +122,29 @@ public class ItemService : IItemService
         }
 
         return ApiResponse<RentalItemDto>.Success(MapToDto(item));
+    }
+
+    public async Task<ApiResponse<List<ReviewDto>>> GetItemReviewsAsync(int itemId)
+    {
+        var reviews = await _context.RentalReviews
+            .AsNoTracking()
+            .Include(r => r.Customer)
+            .Where(r => r.ItemId == itemId)
+            .OrderByDescending(r => r.CreatedAt)
+            .Select(r => new ReviewDto
+            {
+                Id = r.Id,
+                BookingId = r.BookingId,
+                ItemId = r.ItemId,
+                CustomerId = r.CustomerId,
+                CustomerName = r.Customer != null ? r.Customer.FullName : "Verified Customer",
+                Rating = r.Rating,
+                Comment = r.Comment,
+                CreatedAt = r.CreatedAt
+            })
+            .ToListAsync();
+
+        return ApiResponse<List<ReviewDto>>.Success(reviews);
     }
 
     public async Task<ApiResponse<List<MarketplaceCategoryDto>>> GetCategoriesAsync()
@@ -167,6 +195,26 @@ public class ItemService : IItemService
             images = new List<string>();
         }
 
+        var totalReviews = item.Reviews?.Count ?? 0;
+        var avgRating = totalReviews > 0
+            ? Math.Round((decimal)item.Reviews!.Average(r => r.Rating), 1)
+            : 0m;
+
+        var reviewsList = item.Reviews?
+            .OrderByDescending(r => r.CreatedAt)
+            .Select(r => new ReviewDto
+            {
+                Id = r.Id,
+                BookingId = r.BookingId,
+                ItemId = r.ItemId,
+                CustomerId = r.CustomerId,
+                CustomerName = r.Customer?.FullName ?? "Verified Customer",
+                Rating = r.Rating,
+                Comment = r.Comment,
+                CreatedAt = r.CreatedAt
+            })
+            .ToList() ?? new List<ReviewDto>();
+
         return new RentalItemDto
         {
             Id = item.Id,
@@ -175,6 +223,9 @@ public class ItemService : IItemService
             VendorOwnerName = item.Vendor?.OwnerName ?? "Store Manager",
             VendorCity = item.Vendor?.City ?? item.City,
             VendorRating = 4.9m,
+            AverageRating = avgRating,
+            TotalReviewsCount = totalReviews,
+            Reviews = reviewsList,
             CategoryId = item.CategoryId,
             CategoryName = item.Category?.Name ?? "General",
             CategorySlug = item.Category?.Slug ?? "general",

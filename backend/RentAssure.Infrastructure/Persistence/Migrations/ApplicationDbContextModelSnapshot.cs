@@ -96,6 +96,9 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DeliveryAddress")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -105,6 +108,10 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DeliveryOtp")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<decimal?>("DepositDeductedAmount")
                         .HasPrecision(18, 2)
@@ -122,6 +129,11 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsDeliveryVerified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<bool>("IsPaidOnline")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -130,13 +142,27 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("LastPaymentDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<decimal>("MonthlyRent")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<int>("MonthsPaidCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<DateTime?>("NextPaymentDueDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<decimal>("PlatformCommissionAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RentalDurationMonths")
                         .HasColumnType("integer");
@@ -425,6 +451,11 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("AvailableQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
                     b.Property<string>("Brand")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -474,6 +505,11 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<int>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
                     b.Property<decimal>("SecurityDeposit")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
@@ -504,6 +540,48 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
                     b.HasIndex("VendorId");
 
                     b.ToTable("rental_items", (string)null);
+                });
+
+            modelBuilder.Entity("RentAssure.Domain.Entities.RentalReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1500)
+                        .HasColumnType("character varying(1500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("rental_reviews", (string)null);
                 });
 
             modelBuilder.Entity("RentAssure.Domain.Entities.SupportTicket", b =>
@@ -797,6 +875,33 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
                     b.Navigation("Vendor");
                 });
 
+            modelBuilder.Entity("RentAssure.Domain.Entities.RentalReview", b =>
+                {
+                    b.HasOne("RentAssure.Domain.Entities.Booking", "Booking")
+                        .WithOne("Review")
+                        .HasForeignKey("RentAssure.Domain.Entities.RentalReview", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RentAssure.Domain.Entities.User", "Customer")
+                        .WithMany("Reviews")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RentAssure.Domain.Entities.RentalItem", "Item")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Item");
+                });
+
             modelBuilder.Entity("RentAssure.Domain.Entities.Vendor", b =>
                 {
                     b.HasOne("RentAssure.Domain.Entities.User", "User")
@@ -811,6 +916,8 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("RentAssure.Domain.Entities.Booking", b =>
                 {
                     b.Navigation("Disputes");
+
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("RentAssure.Domain.Entities.Category", b =>
@@ -821,6 +928,8 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("RentAssure.Domain.Entities.RentalItem", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("RentAssure.Domain.Entities.User", b =>
@@ -830,6 +939,8 @@ namespace RentAssure.Infrastructure.Persistence.Migrations
                     b.Navigation("RaisedDisputes");
 
                     b.Navigation("RefreshTokens");
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("VendorProfile");
                 });

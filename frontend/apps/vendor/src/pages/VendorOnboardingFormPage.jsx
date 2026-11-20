@@ -416,7 +416,7 @@ const VendorOnboardingFormPage = ({ vendorStatus, onStatusChange = () => {} }) =
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '1.8fr 1.2fr 1fr',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
               gap: '24px',
               paddingTop: '24px',
               borderTop: '1px solid #f1f5f9',

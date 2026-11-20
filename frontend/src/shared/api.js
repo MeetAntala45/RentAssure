@@ -280,6 +280,33 @@ export const adminApi = {
     const res = await api.put(`/admin/support/${id}/status`, { status });
     return res.data;
   },
+
+  // ─── ADMIN BOOKINGS & RENTALS ─────────────────────────────────────────────
+  getBookings: async (params = {}) => {
+    const res = await api.get('/admin/bookings', { params });
+    return res.data;
+  },
+
+  getBookingById: async (id) => {
+    const res = await api.get(`/admin/bookings/${id}`);
+    return res.data;
+  },
+
+  // ─── ADMIN DISPUTES & ESCROW ARBITRATION ──────────────────────────────────
+  getDisputes: async (params = {}) => {
+    const res = await api.get('/admin/disputes', { params });
+    return res.data;
+  },
+
+  getDisputeById: async (id) => {
+    const res = await api.get(`/admin/disputes/${id}`);
+    return res.data;
+  },
+
+  resolveDispute: async (id, resolveData) => {
+    const res = await api.post(`/admin/disputes/${id}/resolve`, resolveData);
+    return res.data;
+  },
 };
 
 // ─── SUPPORT API ───────────────────────────────────────────────────────────
@@ -334,6 +361,16 @@ export const customerApi = {
 
   raiseDispute: async (id, disputeData) => {
     const res = await api.post(`/v1/bookings/${id}/dispute`, disputeData);
+    return res.data;
+  },
+
+  rateBooking: async (id, reviewData) => {
+    const res = await api.post(`/v1/bookings/${id}/review`, reviewData);
+    return res.data;
+  },
+
+  getItemReviews: async (itemId) => {
+    const res = await api.get(`/v1/items/${itemId}/reviews`);
     return res.data;
   },
 };

@@ -208,7 +208,7 @@ public class AuthService : IAuthService
         storedToken.IsRevoked = true;
         storedToken.UpdatedAt = DateTime.UtcNow;
 
-        // Generate new tokens
+        // Generate new rotated token
         var newRefreshTokenValue = _tokenService.GenerateRefreshToken();
         var newRefreshToken = new RefreshToken
         {

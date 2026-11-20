@@ -80,7 +80,7 @@ export default function SupportForm({ onClose, isModal = false }) {
         background: '#ffffff',
         borderRadius: '12px',
         border: '1px solid #e4e4e7',
-        padding: isModal ? '24px' : '32px',
+        padding: isModal ? '24px' : 'clamp(20px, 4vw, 32px)',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
       }}
     >

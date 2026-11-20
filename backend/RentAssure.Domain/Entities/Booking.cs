@@ -59,4 +59,5 @@ public class Booking : BaseEntity
 
     // Navigation
     public ICollection<Dispute> Disputes { get; set; } = new List<Dispute>();
+    public RentalReview? Review { get; set; }
 }

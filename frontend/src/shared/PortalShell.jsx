@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
 const PortalShell = ({
@@ -13,8 +14,19 @@ const PortalShell = ({
   children,
 }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    setMobileMenuOpen(false);
+    setUserMenuOpen(false);
+    try {
+      await logout();
+    } finally {
+      navigate('/login', { replace: true });
+    }
+  };
 
   // Close mobile drawer on Escape key or route changes
   useEffect(() => {
@@ -118,10 +130,7 @@ const PortalShell = ({
         <div className="ra-sidebar-footer">
           <div
             className="ra-nav-item ra-nav-logout"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              logout();
-            }}
+            onClick={handleLogout}
             title="Sign out of your account"
           >
             <span className="ra-nav-icon">
@@ -202,10 +211,7 @@ const PortalShell = ({
                     {user?.email}
                   </div>
                   <button
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      logout();
-                    }}
+                    onClick={handleLogout}
                     style={{
                       width: '100%',
                       background: 'none',

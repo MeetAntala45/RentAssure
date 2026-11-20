@@ -54,6 +54,19 @@ public class BookingDetailDto
     public int MonthsPaidCount { get; set; } = 1;
     public DateTime? NextPaymentDueDate { get; set; }
     public DateTime? LastPaymentDate { get; set; }
+
+    // Dispute & Escrow Outcome
+    public DisputeStatus? DisputeStatus { get; set; }
+    public string? DisputeTicketNumber { get; set; }
+    public string? DisputeAdminNotes { get; set; }
+    public decimal? DisputeRefundToCustomer { get; set; }
+    public decimal? DisputePayoutToVendor { get; set; }
+    public DateTime? DisputeResolvedAt { get; set; }
+
+    // Customer Review & Rating
+    public int? CustomerRating { get; set; }
+    public string? CustomerReviewComment { get; set; }
+    public DateTime? CustomerReviewDate { get; set; }
 }
 
 public class VerifyDeliveryOtpDto

@@ -15,6 +15,7 @@ const StripePaymentSection = ({
   totalAmount,
   itemId,
   selectedMonths,
+  selectedQuantity = 1,
   onPaymentSuccess,
   onError,
   loading,
@@ -41,6 +42,7 @@ const StripePaymentSection = ({
       const intentRes = await paymentsApi.createPaymentIntent({
         itemId,
         rentalMonths: selectedMonths,
+        quantity: selectedQuantity,
         amount: totalAmount,
       });
 
@@ -320,7 +322,7 @@ export default function CustomerCheckoutPage({
   // ─── SUCCESS SCREEN WITH DELIVERY OTP ───
   if (successBooking) {
     return (
-      <div className="ra-page-container" style={{ margin: '40px auto 80px auto', padding: '0 20px', maxWidth: '720px' }}>
+      <div className="ra-customer-container" style={{ paddingTop: '40px', paddingBottom: '80px', maxWidth: '760px' }}>
         <div
           style={{
             background: '#ffffff',
@@ -377,7 +379,7 @@ export default function CustomerCheckoutPage({
                 margin: '8px 0',
               }}
             >
-              {successBooking.deliveryOtp || '482910'}
+              {successBooking.deliveryOtp || '------'}
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text-body)', margin: '8px 0 0 0', lineHeight: 1.5 }}>
               Share this 6-digit OTP with the delivery agent when receiving your item. <strong>Your rental start date and billing cycle officially begin on that verified delivery day.</strong>
@@ -451,7 +453,7 @@ export default function CustomerCheckoutPage({
 
   // ─── CHECKOUT FORM ───
   return (
-    <div className="ra-page-container" style={{ padding: '24px 20px 80px 20px' }}>
+    <div className="ra-customer-container" style={{ paddingTop: '24px', paddingBottom: '80px' }}>
       {/* Breadcrumb */}
       <div
         style={{
@@ -710,6 +712,7 @@ export default function CustomerCheckoutPage({
                   totalAmount={totalDueToday}
                   itemId={item.id}
                   selectedMonths={selectedMonths}
+                  selectedQuantity={selectedQuantity}
                   onPaymentSuccess={handleOnlinePaymentSuccess}
                   onError={(msg) => setError(msg)}
                   loading={loading}

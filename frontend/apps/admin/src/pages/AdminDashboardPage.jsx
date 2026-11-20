@@ -14,7 +14,7 @@ import {
   IconCurrency,
 } from '../../../../src/shared/Icons';
 
-const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
+const AdminDashboardPage = ({ onNavigateToVendors = () => {}, onNavigateToBookings = () => {} }) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -196,9 +196,13 @@ const AdminDashboardPage = ({ onNavigateToVendors = () => {} }) => {
         <div className="ra-card" style={{ marginTop: '24px', padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <h3 className="ra-card-title">Recent Customer Rentals</h3>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-              Showing latest {stats.recentBookings.length} bookings
-            </span>
+            <button
+              type="button"
+              onClick={onNavigateToBookings}
+              style={{ background: 'transparent', border: 'none', color: '#4f46e5', fontWeight: 600, fontSize: '13px', cursor: 'pointer' }}
+            >
+              View All Bookings →
+            </button>
           </div>
           <div className="ra-table-responsive">
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>

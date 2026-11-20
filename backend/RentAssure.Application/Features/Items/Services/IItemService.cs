@@ -1,4 +1,5 @@
 using RentAssure.Application.Common.Models;
+using RentAssure.Application.Features.Bookings.DTOs;
 using RentAssure.Application.Features.Items.DTOs;
 
 namespace RentAssure.Application.Features.Items.Services;
@@ -9,4 +10,5 @@ public interface IItemService
     Task<ApiResponse<RentalItemDto>> GetItemByIdAsync(int id);
     Task<ApiResponse<List<MarketplaceCategoryDto>>> GetCategoriesAsync();
     Task<ApiResponse<List<string>>> GetAvailableCitiesAsync();
+    Task<ApiResponse<List<ReviewDto>>> GetItemReviewsAsync(int itemId);
 }

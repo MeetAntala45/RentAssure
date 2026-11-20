@@ -598,6 +598,7 @@ public class VendorService : IVendorService
             .AsNoTracking()
             .Include(b => b.Item)
             .Include(b => b.Customer)
+            .Include(b => b.Disputes)
             .Where(b => b.VendorId == vendor.Id)
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
@@ -613,6 +614,8 @@ public class VendorService : IVendorService
                 }
             }
             catch { }
+
+            var latestDispute = b.Disputes?.OrderByDescending(d => d.CreatedAt).FirstOrDefault();
 
             return new BookingDetailDto
             {
@@ -654,7 +657,13 @@ public class VendorService : IVendorService
                 DeliveredAt = b.DeliveredAt,
                 MonthsPaidCount = b.MonthsPaidCount,
                 NextPaymentDueDate = b.NextPaymentDueDate,
-                LastPaymentDate = b.LastPaymentDate
+                LastPaymentDate = b.LastPaymentDate,
+                DisputeStatus = latestDispute?.Status,
+                DisputeTicketNumber = latestDispute?.DisputeTicketNumber,
+                DisputeAdminNotes = latestDispute?.AdminDecisionNotes,
+                DisputeRefundToCustomer = latestDispute?.RefundToCustomerAmount,
+                DisputePayoutToVendor = latestDispute?.PayoutToVendorAmount,
+                DisputeResolvedAt = latestDispute?.ResolvedAt
             };
         }).ToList();
 
@@ -741,6 +750,32 @@ public class VendorService : IVendorService
             }
             booking.DepositStatus = DepositStatus.Refunded;
             booking.DepositRefundedAmount = booking.SecurityDeposit;
+
+            // Process Stripe deposit refund if booking was paid online and not yet refunded
+            if (booking.IsPaidOnline && !string.IsNullOrEmpty(booking.StripePaymentIntentId) && string.IsNullOrEmpty(booking.StripeRefundId) && booking.SecurityDeposit > 0)
+            {
+                var (refundSuccess, refundId, refundErr) = await _paymentService.RefundDepositAsync(
+                    booking.StripePaymentIntentId,
+                    booking.SecurityDeposit,
+                    booking.Id,
+                    booking.BookingReference,
+                    booking.Customer?.Email);
+
+                if (refundSuccess && !string.IsNullOrEmpty(refundId))
+                {
+                    booking.StripeRefundId = refundId;
+                    _context.AuditLogs.Add(new AuditLog
+                    {
+                        Action = "StripeDepositRefundOnCancellation",
+                        EntityType = "Booking",
+                        EntityId = booking.BookingReference,
+                        PerformedByUserId = userId,
+                        PerformedByUserName = vendor.StoreName,
+                        Details = $"Security deposit ₹{booking.SecurityDeposit:N2} automatically refunded to customer card via Stripe upon booking cancellation. Refund ID: {refundId}",
+                        Severity = "Info"
+                    });
+                }
+            }
 
             // If it was previously marked completed and now cancelled, adjust
             if (previousStatus == BookingStatus.Completed)

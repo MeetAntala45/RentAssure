@@ -71,9 +71,16 @@ try
     builder.Services.AddInfrastructure(builder.Configuration);
 
     // ─── Stripe Payment Gateway (Test Mode) ─────────────────────────
-    StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"]
+    var stripeKey = Environment.GetEnvironmentVariable("Stripe__SecretKey")
         ?? Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY")
-        ?? Environment.GetEnvironmentVariable("Stripe__SecretKey");
+        ?? builder.Configuration["Stripe:SecretKey"];
+
+    if (string.IsNullOrWhiteSpace(stripeKey) || stripeKey.StartsWith("YOUR_") || stripeKey.Contains("placeholder"))
+    {
+        stripeKey = Environment.GetEnvironmentVariable("Stripe__SecretKey")
+            ?? Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+    }
+    StripeConfiguration.ApiKey = stripeKey;
 
     var app = builder.Build();
 

@@ -68,7 +68,7 @@ export default function AdminSupportPage() {
   const resolvedCount = tickets.filter((t) => t.status?.toLowerCase() === 'resolved').length;
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 16px' }}>
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* ─── HEADER ──────────────────────────────────────────────────────── */}
       <div
         style={{

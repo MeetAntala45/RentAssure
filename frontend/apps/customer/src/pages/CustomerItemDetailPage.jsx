@@ -132,7 +132,7 @@ export default function CustomerItemDetailPage({
   };
 
   return (
-    <div className="ra-page-container" style={{ padding: '24px 20px 80px 20px' }}>
+    <div className="ra-customer-container" style={{ paddingTop: '24px', paddingBottom: '80px' }}>
       {/* ─── Breadcrumb Navigation ─── */}
       <div
         style={{
@@ -356,6 +356,106 @@ export default function CustomerItemDetailPage({
               </div>
             </div>
           </div>
+
+          {/* Customer Reviews & Ratings */}
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              padding: '24px',
+              marginTop: '16px',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 4px 0' }}>
+                  Verified Customer Reviews
+                </h3>
+                <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>
+                  Feedback from verified renters who have booked this product.
+                </p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '22px', fontWeight: 800, color: '#ca8a04' }}>
+                  ★ {(item.averageRating || item.AverageRating || 0) > 0 ? Number(item.averageRating || item.AverageRating).toFixed(1) : '5.0'}
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                  {item.totalReviewsCount || item.TotalReviewsCount || item.reviews?.length || 0} reviews
+                </div>
+              </div>
+            </div>
+
+            {Array.isArray(item.reviews) && item.reviews.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {item.reviews.map((rev, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      padding: '14px 16px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            background: '#e2e8f0',
+                            color: '#334155',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 700,
+                            fontSize: '13px',
+                          }}
+                        >
+                          {(rev.customerName || 'U')[0].toUpperCase()}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>
+                            {rev.customerName || 'Verified Renter'}
+                          </div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                            {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString() : 'Verified Rental'}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ color: '#eab308', letterSpacing: '2px', fontSize: '14px' }}>
+                        {'★'.repeat(rev.rating)}{'☆'.repeat(5 - rev.rating)}
+                      </div>
+                    </div>
+                    {rev.comment && (
+                      <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>
+                        "{rev.comment}"
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                style={{
+                  textAlign: 'center',
+                  padding: '24px 16px',
+                  background: '#f8fafc',
+                  borderRadius: '12px',
+                  border: '1px dashed #cbd5e1',
+                  color: 'var(--text-muted)',
+                }}
+              >
+                <div style={{ fontSize: '24px', marginBottom: '6px' }}>✨</div>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>No reviews yet</div>
+                <div style={{ fontSize: '12px', marginTop: '2px' }}>
+                  Be the first to rent and rate this item after your experience!
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ─── RIGHT: Pricing & Tenure Checkout Box ─── */}
@@ -376,11 +476,13 @@ export default function CustomerItemDetailPage({
               <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 6px 0', lineHeight: 1.3 }}>
                 {item.title}
               </h1>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                 <span>Store:</span>
                 <strong style={{ color: 'var(--text-main)' }}>{item.vendorStoreName || 'Certified Merchant'}</strong>
                 <span>•</span>
-                <span>★ 4.9</span>
+                <span style={{ color: (item.averageRating || item.AverageRating) > 0 ? '#ca8a04' : '#71717a', fontWeight: 700 }}>
+                  ★ {(item.averageRating || item.AverageRating) > 0 ? `${Number(item.averageRating || item.AverageRating).toFixed(1)} (${item.totalReviewsCount || item.TotalReviewsCount || 0} reviews)` : 'New Listing'}
+                </span>
               </div>
             </div>
 

@@ -94,4 +94,20 @@ public class BookingsController : ControllerBase
         }
         return Ok(result);
     }
+
+    [HttpPost("{id:int}/review")]
+    [Authorize]
+    [ProducesResponseType(typeof(ApiResponse<ReviewDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<ReviewDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AddOrUpdateReview(int id, [FromBody] CreateOrUpdateReviewDto request)
+    {
+        var userId = GetCurrentUserId();
+        request.BookingId = id;
+        var result = await _bookingService.AddOrUpdateReviewAsync(id, userId, request);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
 }

@@ -237,7 +237,7 @@ const CustomerCatalogPage = ({
   };
 
   return (
-    <div style={{ maxWidth: '1320px', margin: '0 auto', padding: 'clamp(16px, 3vw, 36px) clamp(14px, 2.5vw, 28px)' }}>
+    <div className="ra-customer-container" style={{ paddingTop: 'clamp(16px, 3vw, 32px)', paddingBottom: '60px' }}>
       {/* ─── 1. MODERN HERO SECTION ───────────────────────────────────────── */}
       <section className="ra-customer-hero-section">
         <div className="ra-hero-bg-shapes">
@@ -287,7 +287,7 @@ const CustomerCatalogPage = ({
                 padding: '10px 22px',
                 fontWeight: 800,
                 flexShrink: 0,
-                boxShadow: '0 4px 12px rgba(3, 48, 71, 0.25)',
+                boxShadow: '0 4px 12px rgba(24, 24, 27, 0.15)',
               }}
             >
               Search Listings
@@ -572,13 +572,31 @@ const CustomerCatalogPage = ({
                       {item.vendorStoreName || 'Certified Store'}
                     </span>
                   </div>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-main)', background: '#f4f4f5', padding: '3px 8px', borderRadius: '6px' }}>
-                    ★ 4.9 Verified
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      color: (item.averageRating || item.AverageRating) > 0 ? '#854d0e' : '#3f3f46',
+                      background: (item.averageRating || item.AverageRating) > 0 ? '#fefce8' : '#f4f4f5',
+                      border: (item.averageRating || item.AverageRating) > 0 ? '1px solid #fef08a' : 'none',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                    }}
+                  >
+                    <span style={{ color: (item.averageRating || item.AverageRating) > 0 ? '#eab308' : '#a1a1aa' }}>★</span>
+                    <span>
+                      {(item.averageRating || item.AverageRating) > 0
+                        ? `${(item.averageRating || item.AverageRating).toFixed(1)} (${item.totalReviewsCount || item.TotalReviewsCount || 0})`
+                        : 'New'}
+                    </span>
                   </span>
                 </div>
 
                 {/* Item Title */}
-                <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '8px', lineHeight: 1.35, minHeight: '40px' }}>
+                <h3 className="ra-product-title" title={item.title}>
                   {item.title}
                 </h3>
 
@@ -833,9 +851,20 @@ const CustomerCatalogPage = ({
                     {rentSuccessMsg ? '🎉 Reservation Confirmed' : selectedItem.title}
                   </h3>
                   {!rentSuccessMsg && (
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                      Category: <strong>{selectedItem.categoryName}</strong> • Verified Merchant: <strong>{selectedItem.vendorStoreName}</strong> ({selectedItem.city})
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                        Category: <strong>{selectedItem.categoryName}</strong> • Verified Merchant: <strong>{selectedItem.vendorStoreName}</strong> ({selectedItem.city})
+                      </span>
+                      {(selectedItem.averageRating || selectedItem.AverageRating) > 0 ? (
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#854d0e', background: '#fefce8', border: '1px solid #fef08a', padding: '2px 8px', borderRadius: '6px' }}>
+                          ★ {(selectedItem.averageRating || selectedItem.AverageRating).toFixed(1)} ({selectedItem.totalReviewsCount || selectedItem.TotalReviewsCount} reviews)
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#71717a', background: '#f4f4f5', padding: '2px 8px', borderRadius: '6px' }}>
+                          ★ New Listing
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
                 <button
@@ -1178,6 +1207,43 @@ const CustomerCatalogPage = ({
                         </div>
                       </div>
                     </div>
+
+                    {/* Verified Customer Reviews Preview */}
+                    {Array.isArray(selectedItem.reviews) && selectedItem.reviews.length > 0 && (
+                      <div
+                        style={{
+                          marginBottom: '20px',
+                          background: '#fefce8',
+                          border: '1px solid #fef08a',
+                          borderRadius: '12px',
+                          padding: '14px 18px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '13px', fontWeight: 800, color: '#854d0e', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>⭐</span> Verified Customer Reviews ({selectedItem.reviews.length})
+                          </span>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#ca8a04' }}>
+                            ★ {Number(selectedItem.averageRating || selectedItem.AverageRating || 5).toFixed(1)} / 5.0
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '160px', overflowY: 'auto' }}>
+                          {selectedItem.reviews.slice(0, 3).map((rev, rIdx) => (
+                            <div key={rIdx} style={{ background: '#ffffff', borderRadius: '8px', padding: '8px 12px', border: '1px solid #fef08a' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
+                                <span style={{ fontWeight: 700, color: '#1e293b' }}>{rev.customerName || 'Verified Renter'}</span>
+                                <span style={{ color: '#eab308', letterSpacing: '1px' }}>{'★'.repeat(rev.rating)}</span>
+                              </div>
+                              {rev.comment && (
+                                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#475569', fontStyle: 'italic' }}>
+                                  "{rev.comment}"
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {bookingError && (
                       <div

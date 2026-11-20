@@ -17,4 +17,5 @@ public class User : BaseEntity
     public Vendor? VendorProfile { get; set; }
     public ICollection<Booking> CustomerBookings { get; set; } = new List<Booking>();
     public ICollection<Dispute> RaisedDisputes { get; set; } = new List<Dispute>();
+    public ICollection<RentalReview> Reviews { get; set; } = new List<RentalReview>();
 }

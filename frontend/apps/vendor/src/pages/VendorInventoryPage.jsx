@@ -7,6 +7,11 @@ const STATUS_MAP = {
   2: { label: 'Rented', badgeClass: 'ra-badge-verified', color: '#18181b', bg: '#f4f4f5' },
   3: { label: 'Under Maintenance', badgeClass: 'ra-badge-pending', color: '#92400e', bg: '#fef3c7' },
   4: { label: 'Inactive', badgeClass: 'ra-badge-rejected', color: '#991b1b', bg: '#fee2e2' },
+  Available: { label: 'Available', badgeClass: 'ra-badge-active', color: '#166534', bg: '#f0fdf4' },
+  Rented: { label: 'Rented', badgeClass: 'ra-badge-verified', color: '#18181b', bg: '#f4f4f5' },
+  Maintenance: { label: 'Under Maintenance', badgeClass: 'ra-badge-pending', color: '#92400e', bg: '#fef3c7' },
+  UnderMaintenance: { label: 'Under Maintenance', badgeClass: 'ra-badge-pending', color: '#92400e', bg: '#fef3c7' },
+  Inactive: { label: 'Inactive', badgeClass: 'ra-badge-rejected', color: '#991b1b', bg: '#fee2e2' },
 };
 
 const VendorInventoryPage = () => {
@@ -38,9 +43,12 @@ const VendorInventoryPage = () => {
   // Summary Metrics
   const summary = useMemo(() => {
     const total = items.length;
-    const available = items.filter((i) => i.status === 1).length;
-    const rented = items.filter((i) => i.status === 2).length;
-    const maintenance = items.filter((i) => i.status === 3 || i.status === 4).length;
+    const isAvail = (s) => s === 1 || s === 'Available';
+    const isRent = (s) => s === 2 || s === 'Rented';
+    const isMaint = (s) => s === 3 || s === 4 || s === 'Maintenance' || s === 'UnderMaintenance' || s === 'Inactive';
+    const available = items.filter((i) => isAvail(i.status)).length;
+    const rented = items.filter((i) => isRent(i.status)).length;
+    const maintenance = items.filter((i) => isMaint(i.status)).length;
     const totalMonthlyValue = items.reduce((acc, curr) => acc + (parseFloat(curr.monthlyRent) || 0), 0);
     const estimatedMonthlyNetProfit = Math.round(totalMonthlyValue * 0.88 * 100) / 100;
 
@@ -73,8 +81,10 @@ const VendorInventoryPage = () => {
 
       // Status
       if (selectedStatus !== 'All') {
-        const numStatus = parseInt(selectedStatus, 10);
-        if (item.status !== numStatus) return false;
+        const num = parseInt(selectedStatus, 10);
+        const str = num === 1 ? 'Available' : num === 2 ? 'Rented' : num === 3 ? 'Maintenance' : 'Inactive';
+        const strAlt = num === 3 ? 'UnderMaintenance' : str;
+        if (item.status !== num && item.status !== str && item.status !== strAlt) return false;
       }
 
       return true;
@@ -130,7 +140,7 @@ const VendorInventoryPage = () => {
             </span>
           </div>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            Manage rental items, monthly prices, security deposits, and upload photos. Real-time updates sync to Customer Catalog (Port 5173).
+            Manage rental items, monthly prices, security deposits, and upload photos. Real-time updates sync to the Customer Marketplace.
           </p>
         </div>
 

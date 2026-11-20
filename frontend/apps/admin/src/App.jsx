@@ -8,6 +8,8 @@ import AdminVendorsPage from './pages/AdminVendorsPage';
 import AdminVendorDetailPage from './pages/AdminVendorDetailPage';
 import AdminMasterDataPage from './pages/AdminMasterDataPage';
 import AdminSupportPage from './pages/AdminSupportPage';
+import AdminBookingsPage from './pages/AdminBookingsPage';
+import AdminDisputesPage from './pages/AdminDisputesPage';
 import {
   IconDashboard,
   IconServices,
@@ -16,6 +18,7 @@ import {
   IconPayments,
   IconMasterData,
   IconSupport,
+  IconShield,
 } from '../../../src/shared/Icons';
 
 const VendorRedirectWrapper = () => {
@@ -23,30 +26,55 @@ const VendorRedirectWrapper = () => {
   return <Navigate to={`/user-management/${vendorId}`} replace />;
 };
 
-const AdminPortalContent = () => {
+// ─── Guard: Must be authenticated as an Admin ───
+const AdminProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading admin console...</p>
+        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Verifying admin session...</p>
       </div>
     );
   }
 
-  // Guard: Must be authenticated and role must be Admin
   if (!user || user.role !== 'Admin') {
-    return <AdminLoginPage />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
+  return children;
+};
+
+// ─── Guard: Public-only (Redirect authenticated admin to dashboard) ───
+const AdminPublicOnlyRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading...</p>
+      </div>
+    );
+  }
+
+  if (user && user.role === 'Admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+// ─── Authenticated Admin Portal Shell & Feature Routes ───
+const AdminPortalShellWrapper = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { id: 'dashboard', path: '/dashboard', label: 'Dashboard', icon: <IconDashboard /> },
-    { id: 'services', path: '/services', label: 'Service Management', icon: <IconServices />, disabled: true },
     { id: 'vendors', path: '/user-management', label: 'User Management', icon: <IconUsers /> },
-    { id: 'bookings', path: '/bookings', label: 'Booking Management', icon: <IconCalendar />, disabled: true },
-    { id: 'payments', path: '/payments', label: 'Payments & Transactions', icon: <IconPayments />, disabled: true },
+    { id: 'bookings', path: '/bookings', label: 'Booking Management', icon: <IconCalendar /> },
+    { id: 'disputes', path: '/disputes', label: 'Disputes & Escrow', icon: <IconShield /> },
     { id: 'master-data', path: '/master-data', label: 'Master Data', icon: <IconMasterData /> },
     { id: 'support', path: '/support', label: 'Support', icon: <IconSupport /> },
   ];
@@ -54,6 +82,8 @@ const AdminPortalContent = () => {
   const getActiveNavId = () => {
     const p = location.pathname.toLowerCase();
     if (p.includes('/user-management') || p.includes('/vendors')) return 'vendors';
+    if (p.includes('/bookings')) return 'bookings';
+    if (p.includes('/disputes')) return 'disputes';
     if (p.includes('/master-data')) return 'master-data';
     if (p.includes('/support')) return 'support';
     return 'dashboard';
@@ -76,6 +106,8 @@ const AdminPortalContent = () => {
       const parts = location.pathname.split('/').filter(Boolean);
       return parts.length > 1 ? 'Service Partner Profile' : 'User Management';
     }
+    if (activeNavId === 'bookings') return 'Booking Management';
+    if (activeNavId === 'disputes') return 'Disputes & Escrow Arbitration';
     if (activeNavId === 'master-data') return 'Master Data';
     if (activeNavId === 'support') return 'Support Inquiries';
     return 'Dashboard';
@@ -84,7 +116,7 @@ const AdminPortalContent = () => {
   return (
     <PortalShell
       portalTitle="RentAssure"
-      portalSubtitle="Super Admin"
+      portalSubtitle="Admin"
       navItems={navItems}
       activeNavId={activeNavId}
       onNavClick={handleNavClick}
@@ -93,11 +125,21 @@ const AdminPortalContent = () => {
       <Routes>
         <Route
           path="/"
-          element={<AdminDashboardPage onNavigateToVendors={() => navigate('/user-management')} />}
+          element={
+            <AdminDashboardPage
+              onNavigateToVendors={() => navigate('/user-management')}
+              onNavigateToBookings={() => navigate('/bookings')}
+            />
+          }
         />
         <Route
           path="/dashboard"
-          element={<AdminDashboardPage onNavigateToVendors={() => navigate('/user-management')} />}
+          element={
+            <AdminDashboardPage
+              onNavigateToVendors={() => navigate('/user-management')}
+              onNavigateToBookings={() => navigate('/bookings')}
+            />
+          }
         />
 
         {/* User / Merchant Management */}
@@ -113,6 +155,12 @@ const AdminPortalContent = () => {
         {/* Path aliases */}
         <Route path="/vendors" element={<Navigate to="/user-management" replace />} />
         <Route path="/vendors/:vendorId" element={<VendorRedirectWrapper />} />
+
+        {/* Booking Management */}
+        <Route path="/bookings" element={<AdminBookingsPage />} />
+
+        {/* Dispute & Escrow Arbitration */}
+        <Route path="/disputes" element={<AdminDisputesPage />} />
 
         {/* Master Data */}
         <Route path="/master-data" element={<AdminMasterDataPage />} />
@@ -131,7 +179,29 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AdminPortalContent />
+        <Routes>
+          {/* Dedicated Login Route with Public-Only Guard */}
+          <Route
+            path="/login"
+            element={
+              <AdminPublicOnlyRoute>
+                <AdminLoginPage />
+              </AdminPublicOnlyRoute>
+            }
+          />
+          <Route path="/register" element={<Navigate to="/login" replace />} />
+          <Route path="/signup" element={<Navigate to="/login" replace />} />
+
+          {/* Protected Routes for Admin Console */}
+          <Route
+            path="/*"
+            element={
+              <AdminProtectedRoute>
+                <AdminPortalShellWrapper />
+              </AdminProtectedRoute>
+            }
+          />
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   );

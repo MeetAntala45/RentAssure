@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../../src/shared/AuthContext';
 import AuthLayout from '../../../../src/shared/AuthLayout';
 import { GoogleLogin } from '@react-oauth/google';
 
 const VendorAuthPage = () => {
   const { vendorLogin, register, googleLogin } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isSignUp, setIsSignUp] = useState(false);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -13,6 +16,11 @@ const VendorAuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  const handlePostLogin = () => {
+    const from = location.state?.from?.pathname || '/dashboard';
+    navigate(from, { replace: true });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +41,7 @@ const VendorAuthPage = () => {
         setIsSignUp(false);
       } else {
         await vendorLogin(email, password);
+        handlePostLogin();
       }
     } catch (err) {
       setError(
@@ -50,6 +59,7 @@ const VendorAuthPage = () => {
     try {
       if (credentialResponse.credential) {
         await googleLogin(credentialResponse.credential, 'Vendor');
+        handlePostLogin();
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Google authentication failed.');
@@ -61,12 +71,7 @@ const VendorAuthPage = () => {
   return (
     <AuthLayout
       title={isSignUp ? 'Create Vendor Account' : 'Sign in to continue'}
-      subtitle={
-        isSignUp
-          ? 'Join the local merchant rental marketplace'
-          : 'Access your store dashboard & listings'
-      }
-      portalName="Merchant Portal (Port 5174)"
+      portalName="Merchant Portal"
     >
       {error && (
         <div

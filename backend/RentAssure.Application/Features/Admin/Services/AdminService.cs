@@ -530,6 +530,40 @@ public class AdminService : IAdminService
             return ApiResponse<DisputeDetailDto>.Fail("Dispute is already resolved.", "AlreadyResolved");
         }
 
+        var totalDeposit = dispute.Booking?.SecurityDeposit ?? dispute.ClaimAmount;
+
+        // Ensure total refund + payout equals total escrow deposit strictly
+        if (request.Decision == DisputeStatus.ResolvedCustomerFavored)
+        {
+            request.RefundToCustomerAmount = totalDeposit;
+            request.PayoutToVendorAmount = 0m;
+        }
+        else if (request.Decision == DisputeStatus.ResolvedVendorFavored)
+        {
+            request.RefundToCustomerAmount = 0m;
+            request.PayoutToVendorAmount = totalDeposit;
+        }
+        else if (request.Decision == DisputeStatus.Closed)
+        {
+            request.RefundToCustomerAmount = totalDeposit;
+            request.PayoutToVendorAmount = 0m;
+        }
+        else if (request.Decision == DisputeStatus.SplitResolution)
+        {
+            if (request.RefundToCustomerAmount < 0 || request.PayoutToVendorAmount < 0)
+            {
+                return ApiResponse<DisputeDetailDto>.Fail("Refund and payout amounts cannot be negative.", "InvalidAmount");
+            }
+
+            var sum = request.RefundToCustomerAmount + request.PayoutToVendorAmount;
+            if (sum != totalDeposit)
+            {
+                return ApiResponse<DisputeDetailDto>.Fail(
+                    $"The sum of Customer Refund (₹{request.RefundToCustomerAmount:N2}) and Vendor Payout (₹{request.PayoutToVendorAmount:N2}) must equal the total deposit held in escrow (₹{totalDeposit:N2}).",
+                    "InvalidDepositSplit");
+            }
+        }
+
         dispute.Status = request.Decision;
         dispute.RefundToCustomerAmount = request.RefundToCustomerAmount;
         dispute.PayoutToVendorAmount = request.PayoutToVendorAmount;
@@ -543,6 +577,7 @@ public class AdminService : IAdminService
         {
             booking.DepositRefundedAmount = request.RefundToCustomerAmount;
             booking.DepositDeductedAmount = request.PayoutToVendorAmount;
+            booking.Status = BookingStatus.Completed; // Conclude rental lifecycle upon arbitration settlement
 
             if (request.RefundToCustomerAmount > 0 && request.PayoutToVendorAmount > 0)
             {
@@ -988,6 +1023,9 @@ public class AdminService : IAdminService
             ClaimAmount = d.ClaimAmount,
             DepositHeld = d.Booking?.SecurityDeposit ?? 0.0m,
             Description = d.Description,
+            RefundToCustomerAmount = d.RefundToCustomerAmount,
+            PayoutToVendorAmount = d.PayoutToVendorAmount,
+            AdminDecisionNotes = d.AdminDecisionNotes,
             CreatedAt = d.CreatedAt,
             ResolvedAt = d.ResolvedAt
         };

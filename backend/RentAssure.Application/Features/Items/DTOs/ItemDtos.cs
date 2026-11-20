@@ -1,4 +1,5 @@
 using RentAssure.Domain.Enums;
+using RentAssure.Application.Features.Bookings.DTOs;
 
 namespace RentAssure.Application.Features.Items.DTOs;
 
@@ -10,6 +11,9 @@ public class RentalItemDto
     public string VendorOwnerName { get; set; } = string.Empty;
     public string VendorCity { get; set; } = string.Empty;
     public decimal VendorRating { get; set; } = 4.9m;
+    public decimal AverageRating { get; set; } = 0;
+    public int TotalReviewsCount { get; set; } = 0;
+    public List<ReviewDto> Reviews { get; set; } = new();
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
     public string CategorySlug { get; set; } = string.Empty;

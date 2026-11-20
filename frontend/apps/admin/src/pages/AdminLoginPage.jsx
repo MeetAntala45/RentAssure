@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../../src/shared/AuthContext';
 import AuthLayout from '../../../../src/shared/AuthLayout';
 
 const AdminLoginPage = () => {
   const { adminLogin } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,6 +19,8 @@ const AdminLoginPage = () => {
 
     try {
       await adminLogin(email, password);
+      const from = location.state?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -29,8 +34,7 @@ const AdminLoginPage = () => {
   return (
     <AuthLayout
       title="Sign in to continue"
-      subtitle="Administrative Management & Approvals Console"
-      portalName="Super Admin Portal (Port 5175)"
+      portalName="Admin Console"
     >
       {error && (
         <div

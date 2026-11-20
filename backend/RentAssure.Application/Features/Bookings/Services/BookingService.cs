@@ -170,6 +170,8 @@ public class BookingService : IBookingService
             .Include(b => b.Item)
             .Include(b => b.Vendor)
             .Include(b => b.Customer)
+            .Include(b => b.Disputes)
+            .Include(b => b.Review)
             .Where(b => b.CustomerId == customerId)
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
@@ -185,6 +187,8 @@ public class BookingService : IBookingService
             .Include(b => b.Item)
             .Include(b => b.Vendor)
             .Include(b => b.Customer)
+            .Include(b => b.Disputes)
+            .Include(b => b.Review)
             .FirstOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customerId);
 
         if (booking == null)
@@ -266,6 +270,69 @@ public class BookingService : IBookingService
         return ApiResponse<bool>.Success(true, "Dispute filed successfully. RentAssure trust & safety team has been notified.");
     }
 
+    public async Task<ApiResponse<ReviewDto>> AddOrUpdateReviewAsync(int bookingId, int customerId, CreateOrUpdateReviewDto request)
+    {
+        if (request.Rating < 1 || request.Rating > 5)
+        {
+            return ApiResponse<ReviewDto>.Fail("Rating must be between 1 and 5 stars.");
+        }
+
+        var booking = await _context.Bookings
+            .Include(b => b.Item)
+            .Include(b => b.Review)
+            .Include(b => b.Customer)
+            .FirstOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customerId);
+
+        if (booking == null)
+        {
+            return ApiResponse<ReviewDto>.Fail("Rental order not found or does not belong to you.");
+        }
+
+        if (booking.Status == BookingStatus.Cancelled)
+        {
+            return ApiResponse<ReviewDto>.Fail("Cancelled rentals cannot be reviewed.");
+        }
+
+        RentalReview review;
+        if (booking.Review != null)
+        {
+            review = booking.Review;
+            review.Rating = request.Rating;
+            review.Comment = string.IsNullOrWhiteSpace(request.Comment) ? null : request.Comment.Trim();
+            review.UpdatedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            review = new RentalReview
+            {
+                BookingId = booking.Id,
+                ItemId = booking.ItemId,
+                CustomerId = customerId,
+                Rating = request.Rating,
+                Comment = string.IsNullOrWhiteSpace(request.Comment) ? null : request.Comment.Trim(),
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            _context.RentalReviews.Add(review);
+        }
+
+        await _context.SaveChangesAsync();
+
+        var reviewDto = new ReviewDto
+        {
+            Id = review.Id,
+            BookingId = review.BookingId,
+            ItemId = review.ItemId,
+            CustomerId = customerId,
+            CustomerName = booking.Customer?.FullName ?? "Verified Customer",
+            Rating = review.Rating,
+            Comment = review.Comment,
+            CreatedAt = review.CreatedAt
+        };
+
+        return ApiResponse<ReviewDto>.Success(reviewDto, "Thank you! Your rating and review have been submitted.");
+    }
+
     private static BookingDetailDto MapToDto(Booking b, RentalItem? item, User? customer, Vendor? vendor)
     {
         string imageUrl = "";
@@ -319,7 +386,16 @@ public class BookingService : IBookingService
             DeliveredAt = b.DeliveredAt,
             MonthsPaidCount = b.MonthsPaidCount,
             NextPaymentDueDate = b.NextPaymentDueDate,
-            LastPaymentDate = b.LastPaymentDate
+            LastPaymentDate = b.LastPaymentDate,
+            DisputeStatus = b.Disputes?.OrderByDescending(d => d.CreatedAt).FirstOrDefault()?.Status,
+            DisputeTicketNumber = b.Disputes?.OrderByDescending(d => d.CreatedAt).FirstOrDefault()?.DisputeTicketNumber,
+            DisputeAdminNotes = b.Disputes?.OrderByDescending(d => d.CreatedAt).FirstOrDefault()?.AdminDecisionNotes,
+            DisputeRefundToCustomer = b.Disputes?.OrderByDescending(d => d.CreatedAt).FirstOrDefault()?.RefundToCustomerAmount,
+            DisputePayoutToVendor = b.Disputes?.OrderByDescending(d => d.CreatedAt).FirstOrDefault()?.PayoutToVendorAmount,
+            DisputeResolvedAt = b.Disputes?.OrderByDescending(d => d.CreatedAt).FirstOrDefault()?.ResolvedAt,
+            CustomerRating = b.Review?.Rating,
+            CustomerReviewComment = b.Review?.Comment,
+            CustomerReviewDate = b.Review?.CreatedAt
         };
     }
 }

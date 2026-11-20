@@ -19,21 +19,53 @@ const ItemRedirectWrapper = () => {
   return <Navigate to={`/rental-items/${id}`} replace />;
 };
 
+// ─── Guard: Must be authenticated as a Customer ───
+const CustomerProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Verifying customer session...</p>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'Customer') {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+// ─── Guard: Public-Only (Redirect authenticated customer away from login) ───
+const CustomerPublicOnlyRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading...</p>
+      </div>
+    );
+  }
+
+  if (user && user.role === 'Customer') {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
 const CustomerAppContent = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState('All');
-
-  // Enforce customer role on Customer portal
-  useEffect(() => {
-    if (user && user.role !== 'Customer') {
-      logout();
-    }
-  }, [user]);
 
   const handleSelectItem = (item) => {
     navigate(`/rental-items/${item.id}`, { state: { item } });
@@ -50,7 +82,7 @@ const CustomerAppContent = () => {
 
   const handleOpenMyRentals = () => {
     if (!user) {
-      setShowAuthModal(true);
+      navigate('/login', { state: { from: { pathname: '/my-rentals' } } });
       return;
     }
     navigate('/my-rentals');
@@ -63,10 +95,10 @@ const CustomerAppContent = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-page)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-page)', width: '100%', overflowX: 'hidden' }}>
       {/* Sticky Modern Clean Navbar */}
       <CustomerNavbar
-        onOpenAuth={() => setShowAuthModal(true)}
+        onOpenAuth={() => navigate('/login')}
         onOpenSupport={() => setShowSupportModal(true)}
         onOpenMyBookings={handleOpenMyRentals}
         onGoHome={handleBackToCatalog}
@@ -75,7 +107,7 @@ const CustomerAppContent = () => {
       />
 
       {/* Main Page Routing Container */}
-      <main style={{ flex: 1 }}>
+      <main style={{ flex: 1, width: '100%' }}>
         <Routes>
           {/* Marketplace / Catalog */}
           <Route
@@ -83,13 +115,34 @@ const CustomerAppContent = () => {
             element={
               <CustomerCatalogPage
                 selectedCity={selectedCity}
-                onRequireAuth={() => setShowAuthModal(true)}
+                onRequireAuth={() => navigate('/login', { state: { from: location } })}
                 onOpenMyRentals={handleOpenMyRentals}
                 onSelectItem={handleSelectItem}
               />
             }
           />
           <Route path="/catalog" element={<Navigate to="/" replace />} />
+
+          {/* Dedicated Login & Signup Routes */}
+          <Route
+            path="/login"
+            element={
+              <CustomerPublicOnlyRoute>
+                <div style={{ maxWidth: '480px', margin: '48px auto 80px auto', padding: '0 20px' }}>
+                  <div style={{ background: '#ffffff', borderRadius: '16px', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-light)', overflow: 'hidden' }}>
+                    <CustomerAuthPage
+                      onSuccess={() => {
+                        const fromPath = location.state?.from?.pathname || '/';
+                        navigate(fromPath, { replace: true });
+                      }}
+                    />
+                  </div>
+                </div>
+              </CustomerPublicOnlyRoute>
+            }
+          />
+          <Route path="/register" element={<Navigate to="/login" replace />} />
+          <Route path="/signup" element={<Navigate to="/login" replace />} />
 
           {/* Item Details Page */}
           <Route
@@ -98,35 +151,39 @@ const CustomerAppContent = () => {
               <CustomerItemDetailPage
                 onBack={handleBackToCatalog}
                 onProceedToCheckout={handleProceedToCheckout}
-                onRequireAuth={() => setShowAuthModal(true)}
+                onRequireAuth={() => navigate('/login', { state: { from: location } })}
                 user={user}
               />
             }
           />
           <Route path="/items/:id" element={<ItemRedirectWrapper />} />
 
-          {/* Checkout Page */}
+          {/* Checkout Page (Protected) */}
           <Route
             path="/checkout/:id"
             element={
-              <CustomerCheckoutPage
-                onBack={() => navigate(-1)}
-                onViewRentals={handleOpenMyRentals}
-                user={user}
-              />
+              <CustomerProtectedRoute>
+                <CustomerCheckoutPage
+                  onBack={() => navigate(-1)}
+                  onViewRentals={handleOpenMyRentals}
+                  user={user}
+                />
+              </CustomerProtectedRoute>
             }
           />
           <Route path="/checkout" element={<Navigate to="/" replace />} />
 
-          {/* Customer Rentals */}
+          {/* Customer Rentals (Protected) */}
           <Route
             path="/my-rentals"
             element={
-              <CustomerRentalsPage
-                onBackToCatalog={handleBackToCatalog}
-                onOpenSupport={() => setShowSupportModal(true)}
-                user={user}
-              />
+              <CustomerProtectedRoute>
+                <CustomerRentalsPage
+                  onBackToCatalog={handleBackToCatalog}
+                  onOpenSupport={() => setShowSupportModal(true)}
+                  user={user}
+                />
+              </CustomerProtectedRoute>
             }
           />
 
@@ -140,11 +197,12 @@ const CustomerAppContent = () => {
         style={{
           borderTop: '1px solid var(--border-light)',
           background: '#ffffff',
-          padding: '48px 24px 28px 24px',
+          padding: '48px 0 28px 0',
           color: 'var(--text-body)',
+          width: '100%',
         }}
       >
-        <div style={{ maxWidth: '1320px', margin: '0 auto' }}>
+        <div className="ra-customer-container">
           {/* Top Multi-Column Grid */}
           <div
             style={{
@@ -158,53 +216,59 @@ const CustomerAppContent = () => {
             {/* Brand Col */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '24px' }}>🛡️</span>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)' }}>
-                  Rent<span style={{ color: '#304C62' }}>Assure</span>
+                <div style={{ width: '28px', height: '28px', borderRadius: '7px', background: '#18181b', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '12px' }}>
+                  RA
+                </div>
+                <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)' }}>
+                  RentAssure
                 </span>
               </div>
               <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6, margin: '0 0 16px 0' }}>
-                Premier peer-to-merchant rental marketplace. Rent furniture, home appliances, and equipment from verified local stores with 100% held-deposit escrow assurance.
+                Premier verified peer-to-merchant rental marketplace. Rent home furniture, appliances, and gear from verified local stores with 100% held-deposit escrow assurance.
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 700, background: 'var(--primary-subtle)', color: 'var(--primary)', padding: '4px 10px', borderRadius: '9999px', border: '1px solid var(--color-light-blue-border)' }}>
-                  🔒 Regulated Escrow Protocol
+                <span style={{ fontSize: '11px', fontWeight: 700, background: '#f4f4f5', color: '#18181b', padding: '4px 10px', borderRadius: '9999px', border: '1px solid var(--border-light)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  Regulated Escrow Protocol
                 </span>
               </div>
             </div>
 
             {/* Popular Cities */}
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Popular Cities
+              <h4 style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Popular Locations
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Ahmedabad')}>📍 Ahmedabad (SG Highway, Prahlad Nagar, Bopal)</span>
-                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Surat')}>📍 Surat (Vesu, Adajan, Varachha)</span>
-                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Vadodara')}>📍 Vadodara (Alkapuri, Gotri, Sayajigunj)</span>
-                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Rajkot')}>📍 Rajkot (Kalawad Road, Yagnik Road)</span>
-                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Gandhinagar')}>📍 Gandhinagar (Kudasan, Infocity, Sector 21)</span>
+                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Ahmedabad')}>Ahmedabad (SG Highway, Bopal)</span>
+                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Surat')}>Surat (Vesu, Adajan)</span>
+                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Vadodara')}>Vadodara (Alkapuri, Gotri)</span>
+                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Rajkot')}>Rajkot (Kalawad Road)</span>
+                <span style={{ cursor: 'pointer' }} onClick={() => setSelectedCity('Gandhinagar')}>Gandhinagar (Kudasan, Infocity)</span>
               </div>
             </div>
 
             {/* Popular Rentals */}
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <h4 style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Popular Categories
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                <span>🛋️ Living Room Sofa Sets & Recliners</span>
-                <span>❄️ Double Door Frost-Free Fridges</span>
-                <span>🪑 Ergonomic Workstations & Height Desks</span>
-                <span>🧺 Fully Automatic Washing Machines</span>
-                <span>📺 Smart 4K Displays & Party Sound</span>
+                <span>Living Room Sofa Sets & Recliners</span>
+                <span>Double Door Frost-Free Fridges</span>
+                <span>Ergonomic Workstations & Standing Desks</span>
+                <span>Fully Automatic Washing Machines</span>
+                <span>Smart 4K Displays & Entertainment</span>
               </div>
             </div>
 
             {/* Trust & Support */}
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Trust & Support
+              <h4 style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Customer Care
               </h4>
               <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5, margin: '0 0 14px 0' }}>
                 Have questions regarding your held escrow deposit or delivery timing? Our team is active 7 days a week.
@@ -215,12 +279,12 @@ const CustomerAppContent = () => {
                 className="ra-btn ra-btn-secondary ra-btn-sm"
                 style={{ borderRadius: '8px', fontWeight: 700 }}
               >
-                💬 Open Help Desk Ticket
+                Open Support Ticket
               </button>
             </div>
           </div>
 
-          {/* Bottom Bar: Copyright & Port Shortcuts */}
+          {/* Bottom Bar: Clean Copyright & Customer Links */}
           <div
             style={{
               display: 'flex',
@@ -245,32 +309,18 @@ const CustomerAppContent = () => {
                   background: 'none',
                   border: 'none',
                   color: 'var(--primary)',
-                  fontWeight: 700,
+                  fontWeight: 600,
                   cursor: 'pointer',
                   fontSize: '13px',
                   padding: 0,
                 }}
               >
-                Customer Support
+                Help & Support
               </button>
               <span style={{ color: 'var(--border-light)' }}>|</span>
-              <a
-                href="http://localhost:5174"
-                target="_blank"
-                rel="noreferrer"
-                style={{ fontWeight: 700, color: 'var(--primary)' }}
-              >
-                Merchant Partner Hub (Port 5174) ↗
-              </a>
+              <span style={{ color: 'var(--text-muted)' }}>Escrow Protected</span>
               <span style={{ color: 'var(--border-light)' }}>|</span>
-              <a
-                href="http://localhost:5175"
-                target="_blank"
-                rel="noreferrer"
-                style={{ fontWeight: 700, color: 'var(--primary)' }}
-              >
-                Platform Admin Console (Port 5175) ↗
-              </a>
+              <span style={{ color: 'var(--text-muted)' }}>Verified Local Merchants</span>
             </div>
           </div>
         </div>
@@ -285,7 +335,7 @@ const CustomerAppContent = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(3, 48, 71, 0.45)',
+            backgroundColor: 'rgba(24, 24, 27, 0.45)',
             backdropFilter: 'blur(5px)',
             display: 'flex',
             alignItems: 'center',
@@ -301,7 +351,7 @@ const CustomerAppContent = () => {
         </div>
       )}
 
-      {/* Customer Auth Modal */}
+      {/* Customer Auth Modal (Fallback quick login) */}
       {showAuthModal && (
         <div className="ra-modal-backdrop" style={{ zIndex: 1200 }} onClick={() => setShowAuthModal(false)}>
           <div

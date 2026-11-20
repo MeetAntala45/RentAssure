@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { vendorApi } from '../../../../src/shared/api';
 
+const normalizeStatusToNum = (s) => {
+  if (typeof s === 'number') return s;
+  if (s === 'Available') return 1;
+  if (s === 'Rented') return 2;
+  if (s === 'Maintenance' || s === 'UnderMaintenance') return 3;
+  if (s === 'Inactive') return 4;
+  const parsed = parseInt(s, 10);
+  return isNaN(parsed) ? 1 : parsed;
+};
+
 const SAMPLE_IMAGE_PRESETS = [
   {
     name: 'Velvet Sofa',
@@ -111,7 +121,7 @@ const RentalItemFormModal = ({
         setQuantity(itemToEdit.quantity || itemToEdit.availableQuantity || 1);
         setCity(itemToEdit.city || 'Ahmedabad');
         setArea(itemToEdit.area || 'Downtown Hub');
-        setStatus(itemToEdit.status || 1);
+        setStatus(normalizeStatusToNum(itemToEdit.status));
         setDescription(itemToEdit.description || '');
         setImages(itemToEdit.images && itemToEdit.images.length > 0
           ? [...itemToEdit.images]
@@ -217,7 +227,7 @@ const RentalItemFormModal = ({
         city: city?.trim() || 'Ahmedabad',
         area: area?.trim() || 'Downtown',
         images: images.length > 0 ? images : [SAMPLE_IMAGE_PRESETS[0].url],
-        status: parseInt(status, 10),
+        status: normalizeStatusToNum(status),
       };
 
       let res;

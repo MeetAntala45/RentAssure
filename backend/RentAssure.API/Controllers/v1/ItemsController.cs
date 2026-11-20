@@ -57,4 +57,13 @@ public class ItemsController : ControllerBase
         var result = await _itemService.GetAvailableCitiesAsync();
         return Ok(result);
     }
+
+    [HttpGet("{id:int}/reviews")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<List<RentAssure.Application.Features.Bookings.DTOs.ReviewDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetItemReviews(int id)
+    {
+        var result = await _itemService.GetItemReviewsAsync(id);
+        return Ok(result);
+    }
 }

@@ -10,4 +10,5 @@ public interface IBookingService
     Task<ApiResponse<BookingDetailDto>> GetBookingByIdAsync(int bookingId, int customerId);
     Task<ApiResponse<BookingDetailDto>> RequestReturnAsync(int bookingId, int customerId, RequestReturnDto request);
     Task<ApiResponse<bool>> RaiseDisputeAsync(int bookingId, int customerId, RaiseCustomerDisputeDto request);
+    Task<ApiResponse<ReviewDto>> AddOrUpdateReviewAsync(int bookingId, int customerId, CreateOrUpdateReviewDto request);
 }

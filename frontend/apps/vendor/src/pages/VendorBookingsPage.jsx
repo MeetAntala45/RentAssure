@@ -131,28 +131,20 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
     try {
       const res = await paymentsApi.refundDeposit(bookingId);
       if (res.isSuccess) {
-        setBookings((prev) =>
-          prev.map((b) =>
-            b.id === bookingId
-              ? {
-                  ...b,
-                  depositStatus: 'Refunded',
-                  stripeRefundId: res.data?.refundId,
-                  depositRefundedAmount: b.securityDeposit,
-                }
-              : b
-          )
-        );
+        await fetchBookings();
+        const refId = res.data?.refundId || res.refundId || '';
+        const msg = res.message || `Security deposit of ₹${res.data?.refundedAmount || selectedBooking?.securityDeposit || ''} refunded via Stripe. Refund ID: ${refId}`;
         setRefundNotice({
           bookingId,
-          message: res.message || `Deposit of ₹${res.data?.refundedAmount} refunded via Stripe. Refund ID: ${res.data?.refundId}`,
+          message: msg,
         });
-        setTimeout(() => setRefundNotice(null), 8000);
+        alert(`✓ ${msg}`);
+        setTimeout(() => setRefundNotice(null), 10000);
       } else {
         alert(res.message || 'Failed to refund deposit.');
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Error executing Stripe refund.');
+      alert(err.response?.data?.message || err.message || 'Error executing Stripe refund.');
     } finally {
       setRefundingId(null);
     }
@@ -195,16 +187,15 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
     try {
       const res = await vendorApi.updateBookingStatus(bookingId, newStatus, vendorNotes);
       if (res.isSuccess) {
-        setBookings((prev) =>
-          prev.map((b) => (b.id === bookingId ? { ...b, status: newStatus, vendorNotes: vendorNotes || b.vendorNotes } : b))
-        );
         setConfirmModal({ isOpen: false, action: null, booking: null, notes: '', loading: false });
         setActiveMenuId(null);
+        await fetchBookings();
+        alert(`✓ Booking #${bookingId} status successfully updated to '${newStatus}'.`);
       } else {
         alert(res.message || 'Failed to update booking status.');
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Error updating booking status.');
+      alert(err.response?.data?.message || err.message || 'Error updating booking status.');
     } finally {
       setConfirmModal((prev) => ({ ...prev, loading: false }));
     }
@@ -302,22 +293,63 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
   const selectedBooking = bookings.find((b) => b.id === selectedBookingId);
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 1. DETAIL VIEW (Matches Image 2 format)
+  // 1. RENDER CONDITIONAL (DETAIL VIEW OR TABLE VIEW) + SHARED MODALS
   // ─────────────────────────────────────────────────────────────────────────────
-  if (selectedBooking) {
-    const isCompleted = (selectedBooking.status || '').toLowerCase() === 'completed';
-    const isCancelled = (selectedBooking.status || '').toLowerCase() === 'cancelled';
-    const canModify = !isCompleted && !isCancelled;
+  const isCompleted = (selectedBooking?.status || '').toLowerCase() === 'completed';
+  const isCancelled = (selectedBooking?.status || '').toLowerCase() === 'cancelled';
+  const canModify = !isCompleted && !isCancelled;
 
-    const startDateStr = selectedBooking.startDate
-      ? new Date(selectedBooking.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-      : 'N/A';
-    const endDateStr = selectedBooking.endDate
-      ? new Date(selectedBooking.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-      : 'N/A';
+  const startDateStr = selectedBooking?.startDate
+    ? new Date(selectedBooking.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : 'N/A';
+  const endDateStr = selectedBooking?.endDate
+    ? new Date(selectedBooking.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : 'N/A';
 
-    return (
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 20px', fontFamily: 'inherit' }}>
+  return (
+    <div className="ra-page-container">
+      {/* ─── OPTIONAL TOP STRIPE REFUND NOTIFICATION ─────────────────── */}
+      {refundNotice && (
+        <div
+          style={{
+            marginBottom: '20px',
+            padding: '14px 20px',
+            borderRadius: '10px',
+            background: '#f0fdf4',
+            border: '1px solid #86efac',
+            color: '#166534',
+            fontSize: '14px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '20px' }}>✓</span>
+            <span>{refundNotice.message}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setRefundNotice(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#166534',
+              fontWeight: 800,
+              fontSize: '16px',
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {selectedBooking ? (
+        /* ─── 1. DETAIL VIEW (Matches Image 2 format) ─────────────────── */
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 0 24px 0', fontFamily: 'inherit' }}>
         {/* Header with Back Arrow (Image 2) */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -989,15 +1021,10 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
           </div>
         </div>
       </div>
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 2. BOOKINGS LIST TABLE VIEW
-  // ─────────────────────────────────────────────────────────────────────────────
-  return (
-    <div className="ra-page-container">
-      {/* ─── HEADER BAR ─────────────────────────────────── */}
+      ) : (
+        /* ─── 2. BOOKINGS LIST TABLE VIEW ───────────────────────────── */
+        <>
+          {/* ─── HEADER BAR ─────────────────────────────────── */}
       <div
         style={{
           display: 'flex',
@@ -1685,6 +1712,8 @@ export default function VendorBookingsPage({ initialBookingId = null, onNavigate
             </div>
           </div>
         </div>
+      )}
+      </>
       )}
 
       {/* ─── ACTION CONFIRMATION MODAL ────────────────────────────────────── */}

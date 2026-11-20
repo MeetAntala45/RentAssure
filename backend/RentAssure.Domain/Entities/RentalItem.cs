@@ -42,4 +42,5 @@ public class RentalItem : BaseEntity
 
     // Navigation
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public ICollection<RentalReview> Reviews { get; set; } = new List<RentalReview>();
 }

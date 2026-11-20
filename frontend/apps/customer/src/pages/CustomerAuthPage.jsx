@@ -67,15 +67,8 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
     }
   };
 
-  const fillDemoCustomer = () => {
-    setEmail('meetantala2005@gmail.com');
-    setPassword('Admin@123');
-    setIsSignUp(false);
-    setError('');
-  };
-
   return (
-    <div style={{ padding: '36px 32px', background: '#ffffff', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ padding: 'clamp(24px, 4vw, 36px) clamp(20px, 3.5vw, 32px)', background: '#ffffff', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
       {/* Brand Header */}
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
         <div
@@ -87,12 +80,15 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px',
             marginBottom: '12px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            color: '#ffffff',
           }}
         >
-          🛡️
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
         </div>
         <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 6px 0' }}>
           {isSignUp ? 'Create Customer Account' : 'Welcome to RentAssure'}
@@ -121,43 +117,6 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
           Create Account
         </button>
       </div>
-
-      {/* Quick Demo Credentials Autofill Banner */}
-      {!isSignUp && (
-        <div
-          style={{
-            background: '#f4f4f5',
-            borderRadius: '10px',
-            padding: '10px 14px',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '10px',
-          }}
-        >
-          <div style={{ fontSize: '12px', color: 'var(--text-body)' }}>
-            <strong>Demo Account:</strong> <span style={{ color: 'var(--text-main)' }}>meetantala2005@gmail.com</span>
-          </div>
-          <button
-            type="button"
-            onClick={fillDemoCustomer}
-            style={{
-              padding: '5px 12px',
-              borderRadius: '6px',
-              border: 'none',
-              background: '#18181b',
-              color: '#ffffff',
-              fontSize: '11px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
-          >
-            ⚡ Auto-fill
-          </button>
-        </div>
-      )}
 
       {/* Google Login */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
@@ -296,8 +255,12 @@ const CustomerAuthPage = ({ onSuccess = () => {} }) => {
         </button>
       </form>
 
-      <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
-        🛡️ Protected by RentAssure Escrow Protocol • Port 5173
+      <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        <span>Protected by RentAssure Escrow Protocol</span>
       </div>
     </div>
   );

@@ -24,8 +24,48 @@ const GOOGLE_CLIENT_ID =
   import.meta.env.VITE_GOOGLE_CLIENT_ID ||
   '506539799908-8asi0s04856u5bv25fjdtebq5r2npt9l.apps.googleusercontent.com';
 
-const VendorPortalContent = () => {
-  const { user, loading: authLoading } = useAuth();
+// ─── Guard: Must be authenticated as a Vendor ───
+const VendorProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Verifying merchant session...</p>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'Vendor') {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+// ─── Guard: Public-only (Redirect authenticated vendor to dashboard) ───
+const VendorPublicOnlyRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading...</p>
+      </div>
+    );
+  }
+
+  if (user && user.role === 'Vendor') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+// ─── Authenticated Vendor Portal Shell & Feature Routes ───
+const VendorPortalShellWrapper = () => {
+  const { user } = useAuth();
   const [vendorStatus, setVendorStatus] = useState(null);
   const [statusLoading, setStatusLoading] = useState(true);
   const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -53,17 +93,12 @@ const VendorPortalContent = () => {
     }
   }, [user]);
 
-  if (authLoading || (user && user.role === 'Vendor' && statusLoading)) {
+  if (statusLoading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
         <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Loading merchant portal...</p>
       </div>
     );
-  }
-
-  // Guard: Must be authenticated as a Vendor
-  if (!user || user.role !== 'Vendor') {
-    return <VendorAuthPage />;
   }
 
   const isApproved = vendorStatus?.status === 'Approved';
@@ -85,7 +120,6 @@ const VendorPortalContent = () => {
         { id: 'support', path: '/support', label: 'Support', icon: <IconSupport /> },
       ];
 
-  // Map current path to activeNavId
   const getActiveNavId = () => {
     const p = location.pathname.toLowerCase();
     if (p.includes('/rental-inventory') || p.includes('/inventory')) return 'inventory';
@@ -238,7 +272,29 @@ export default function App() {
     <BrowserRouter>
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <AuthProvider>
-          <VendorPortalContent />
+          <Routes>
+            {/* Dedicated Login Route with Public-Only Guard */}
+            <Route
+              path="/login"
+              element={
+                <VendorPublicOnlyRoute>
+                  <VendorAuthPage />
+                </VendorPublicOnlyRoute>
+              }
+            />
+            <Route path="/register" element={<Navigate to="/login" replace />} />
+            <Route path="/signup" element={<Navigate to="/login" replace />} />
+
+            {/* Protected Routes for Merchant Dashboard */}
+            <Route
+              path="/*"
+              element={
+                <VendorProtectedRoute>
+                  <VendorPortalShellWrapper />
+                </VendorProtectedRoute>
+              }
+            />
+          </Routes>
         </AuthProvider>
       </GoogleOAuthProvider>
     </BrowserRouter>

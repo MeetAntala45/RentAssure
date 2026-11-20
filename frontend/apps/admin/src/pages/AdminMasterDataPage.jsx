@@ -391,7 +391,7 @@ const AdminMasterDataPage = () => {
       : '12.0';
 
   return (
-    <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Toast Alert */}
       {toastMsg && (
         <div

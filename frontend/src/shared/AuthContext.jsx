@@ -19,6 +19,9 @@ export const AuthProvider = ({ children }) => {
       const res = await authApi.getSession();
       if (res.data) {
         setUser(res.data);
+        if (res.data.token) {
+          localStorage.setItem('ra_token', res.data.token);
+        }
       }
     } catch {
       // If session check fails, clear stale user
@@ -29,12 +32,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('ra_token');
-    if (token) {
-      refreshSession();
-    } else {
-      setLoading(false);
-    }
+    refreshSession();
   }, []);
 
   const login = async (email, password, requiredRole = null) => {

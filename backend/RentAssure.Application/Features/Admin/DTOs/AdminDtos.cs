@@ -159,6 +159,9 @@ public class DisputeSummaryDto
     public decimal ClaimAmount { get; set; }
     public decimal DepositHeld { get; set; }
     public string Description { get; set; } = string.Empty;
+    public decimal RefundToCustomerAmount { get; set; }
+    public decimal PayoutToVendorAmount { get; set; }
+    public string? AdminDecisionNotes { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ResolvedAt { get; set; }
 }
@@ -168,9 +171,6 @@ public class DisputeDetailDto : DisputeSummaryDto
     public string? EvidencePhotosJson { get; set; }
     public string? CustomerStatement { get; set; }
     public string? VendorStatement { get; set; }
-    public string? AdminDecisionNotes { get; set; }
-    public decimal RefundToCustomerAmount { get; set; }
-    public decimal PayoutToVendorAmount { get; set; }
     public string? ResolvedByUserName { get; set; }
     public BookingSummaryDto Booking { get; set; } = null!;
 }
